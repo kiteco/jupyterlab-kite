@@ -1,7 +1,7 @@
 {
-  "name": "@krassowski/jupyterlab-lsp",
+  "name": "@kiteco/jupyterlab-kite",
   "version": "1.0.0",
-  "description": "Language Server Protocol integration for JupyterLab",
+  "description": "Kite integration for JupyterLab",
   "keywords": [
     "jupyter",
     "jupyterlab",
@@ -10,11 +10,12 @@
     "language-server-protocol",
     "intellisense",
     "code-intelligence",
-    "linting"
+    "linting",
+    "kite"
   ],
-  "homepage": "https://github.com/krassowski/jupyterlab-lsp",
+  "homepage": "https://github.com/kiteco/jupyterlab-kite",
   "bugs": {
-    "url": "https://github.com/krassowski/jupyterlab-lsp/issues"
+    "url": "https://github.com/kiteco/jupyterlab-kite/issues"
   },
   "license": "BSD-3-Clause",
   "author": "Michał Krassowski",
@@ -25,7 +26,7 @@
   "types": "lib/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/krassowski/jupyterlab-lsp.git"
+    "url": "https://github.com/kiteco/jupyterlab-kite.git"
   },
   "scripts": {
     "build": "jlpm build:schema && tsc -b",

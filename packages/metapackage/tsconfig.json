@@ -9,7 +9,7 @@
   "include": ["src/**/*"],
   "references": [
     {
-      "path": "../jupyterlab-lsp"
+      "path": "../jupyterlab-kite"
     },
     {
       "path": "../lsp-ws-connection"
