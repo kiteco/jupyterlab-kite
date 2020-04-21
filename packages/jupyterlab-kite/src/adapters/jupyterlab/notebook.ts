@@ -7,7 +7,7 @@ import { NotebookJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jump
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { until_ready } from '../../utils';
-import { LSPConnector } from './components/completion';
+import { KiteConnector } from './components/completion';
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import { language_specific_overrides } from '../../magics/defaults';
 import { foreign_code_extractors } from '../../extractors/defaults';
@@ -25,7 +25,7 @@ export class NotebookAdapter extends JupyterLabWidgetAdapter {
   completion_manager: ICompletionManager;
   jumper: NotebookJumper;
 
-  protected current_completion_connector: LSPConnector;
+  protected current_completion_connector: KiteConnector;
 
   private _language_info: ILanguageInfoMetadata;
 
@@ -168,7 +168,7 @@ export class NotebookAdapter extends JupyterLabWidgetAdapter {
     if (this.current_completion_connector) {
       delete this.current_completion_connector;
     }
-    this.current_completion_connector = new LSPConnector({
+    this.current_completion_connector = new KiteConnector({
       editor: cell.editor,
       connections: this.connection_manager.connections,
       virtual_editor: this.virtual_editor,
@@ -186,9 +186,11 @@ export class NotebookAdapter extends JupyterLabWidgetAdapter {
     }
     this.set_completion_connector(cell);
     const handler = this.completion_manager.register({
-      connector: this.current_completion_connector,
       editor: cell.editor,
-      parent: this.widget
+      parent: this.widget,
+      fetchItems: this.current_completion_connector.fetch.bind(
+        this.current_completion_connector
+      )
     });
     this.current_completion_handler = handler;
     this.widget.content.activeCellChanged.connect(this.on_completions, this);
@@ -200,6 +202,8 @@ export class NotebookAdapter extends JupyterLabWidgetAdapter {
     }
     this.set_completion_connector(cell);
     this.current_completion_handler.editor = cell.editor;
-    this.current_completion_handler.connector = this.current_completion_connector;
+    this.current_completion_handler.fetchItems = this.current_completion_connector.fetch.bind(
+      this.current_completion_connector
+    );
   }
 }

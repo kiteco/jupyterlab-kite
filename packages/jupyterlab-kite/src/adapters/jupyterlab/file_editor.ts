@@ -7,7 +7,7 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { CodeMirrorEditor } from '@jupyterlab/codemirror';
 import { ICompletionManager } from '@jupyterlab/completer';
-import { LSPConnector } from './components/completion';
+import { KiteConnector } from './components/completion';
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import { VirtualFileEditor } from '../../virtual/editors/file_editor';
 import { DocumentConnectionManager } from '../../connection_manager';
@@ -16,7 +16,7 @@ export class FileEditorAdapter extends JupyterLabWidgetAdapter {
   editor: FileEditor;
   jumper: FileEditorJumper;
   virtual_editor: VirtualFileEditor;
-  protected current_completion_connector: LSPConnector;
+  protected current_completion_connector: KiteConnector;
 
   get document_path() {
     return this.widget.context.path;
@@ -81,15 +81,17 @@ export class FileEditorAdapter extends JupyterLabWidgetAdapter {
   }
 
   connect_completion() {
-    this.current_completion_connector = new LSPConnector({
+    this.current_completion_connector = new KiteConnector({
       editor: this.editor.editor,
       connections: this.connection_manager.connections,
       virtual_editor: this.virtual_editor
     });
     this.completion_manager.register({
-      connector: this.current_completion_connector,
       editor: this.editor.editor,
-      parent: this.widget
+      parent: this.widget,
+      fetchItems: this.current_completion_connector.fetch.bind(
+        this.current_completion_connector
+      )
     });
   }
 

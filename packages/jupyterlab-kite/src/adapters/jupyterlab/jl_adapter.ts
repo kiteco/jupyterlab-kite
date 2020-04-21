@@ -15,7 +15,7 @@ import { VirtualDocument, IForeignContext } from '../../virtual/document';
 import { Signal } from '@lumino/signaling';
 import { IEditorPosition, IRootPosition } from '../../positioning';
 import { LSPConnection } from '../../connection';
-import { LSPConnector } from './components/completion';
+import { KiteConnector } from './components/completion';
 import { CompletionTriggerKind } from '../../lsp';
 import { Completion } from '../codemirror/features/completion';
 import { Diagnostics } from '../codemirror/features/diagnostics';
@@ -113,7 +113,7 @@ export abstract class JupyterLabWidgetAdapter
     JupyterLabWidgetAdapter,
     IDocumentConnectionData
   >;
-  protected abstract current_completion_connector: LSPConnector;
+  protected abstract current_completion_connector: KiteConnector;
   private _tooltip: FreeTooltip;
   public connection_manager: DocumentConnectionManager;
   public status_message: StatusMessage;
