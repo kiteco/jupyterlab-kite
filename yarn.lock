@@ -1369,7 +1369,7 @@
     react-dom "~16.9.0"
     typestyle "^2.0.4"
 
-"@krassowski/jupyterlab-lsp@file:packages/jupyterlab-kite":
+"@kiteco/jupyterlab-kite@file:packages/jupyterlab-kite":
   version "1.0.0"
   dependencies:
     "@krassowski/jupyterlab_go_to_definition" "~1.0.0"

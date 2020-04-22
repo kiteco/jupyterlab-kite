@@ -49,7 +49,7 @@ const lsp_commands: Array<IFeatureCommand> = [].concat(
  * The plugin registration information.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: '@krassowski/jupyterlab-lsp:plugin',
+  id: '@kiteco/jupyterlab-kite:plugin',
   requires: [
     IEditorTracker,
     INotebookTracker,
@@ -104,7 +104,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     });
 
     status_bar.registerStatusItem(
-      '@krassowski/jupyterlab-lsp:language-server-status',
+      '@kiteco/jupyterlab-kite:language-server-status',
       {
         item: status_bar_item,
         align: 'left',
