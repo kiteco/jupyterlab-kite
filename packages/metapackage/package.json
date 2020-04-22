@@ -6,8 +6,8 @@
   "bugs": {
     "url": "https://github.com/kiteco/jupyterlab-kite/issues"
   },
-  "license": "BSD-3-Clause",
-  "author": "Michał Krassowski",
+  "license": "LicenseRef-LICENSE",
+  "contributors": ["Michał Krassowski", "Manhattan Engineering, Inc"],
   "files": [
     "lib/*.d.ts",
     "lib/*.js.map",
