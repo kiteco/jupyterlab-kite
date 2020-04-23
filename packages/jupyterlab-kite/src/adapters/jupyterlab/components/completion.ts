@@ -1,3 +1,4 @@
+import { DataConnector } from '@jupyterlab/statedb';
 import { CompletionHandler } from '@jupyterlab/completer';
 import { CodeEditor } from '@jupyterlab/codeeditor';
 
@@ -15,13 +16,18 @@ import {
 import { LSPConnection } from '../../../connection';
 import { Session } from '@jupyterlab/services';
 
-export class KiteConnector {
+export class KiteConnector extends DataConnector<
+  CompletionHandler.ICompletionItemsReply,
+  void,
+  CompletionHandler.IRequest
+> {
   isDisposed = false;
   private _editor: CodeEditor.IEditor;
   private _connections: Map<VirtualDocument.id_path, LSPConnection>;
   protected options: KiteConnector.IOptions;
 
   virtual_editor: VirtualEditor;
+  responseType = CompletionHandler.ICompletionItemsResponseType;
   private trigger_kind: CompletionTriggerKind;
   private suppress_auto_invoke_in = ['comment', 'string'];
 
@@ -31,6 +37,7 @@ export class KiteConnector {
    * @param options - The instantiation options for the Kite connector.
    */
   constructor(options: KiteConnector.IOptions) {
+    super();
     this._editor = options.editor;
     this._connections = options.connections;
     this.virtual_editor = options.virtual_editor;

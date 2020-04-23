@@ -2,7 +2,7 @@ import { JupyterLabWidgetAdapter } from './jl_adapter';
 import { Notebook, NotebookPanel } from '@jupyterlab/notebook';
 import * as CodeMirror from 'codemirror';
 import { VirtualEditorForNotebook } from '../../virtual/editors/notebook';
-import { ICompletionManager } from '@jupyterlab/completer';
+import { ICompletionManager, CompletionHandler } from '@jupyterlab/completer';
 import { NotebookJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { JupyterFrontEnd } from '@jupyterlab/application';
@@ -25,7 +25,9 @@ export class NotebookAdapter extends JupyterLabWidgetAdapter {
   completion_manager: ICompletionManager;
   jumper: NotebookJumper;
 
-  protected current_completion_connector: KiteConnector;
+  protected current_completion_connector: KiteConnector & {
+    responseType: typeof CompletionHandler.ICompletionItemsResponseType;
+  };
 
   private _language_info: ILanguageInfoMetadata;
 
@@ -186,11 +188,9 @@ export class NotebookAdapter extends JupyterLabWidgetAdapter {
     }
     this.set_completion_connector(cell);
     const handler = this.completion_manager.register({
+      connector: this.current_completion_connector,
       editor: cell.editor,
-      parent: this.widget,
-      fetchItems: this.current_completion_connector.fetch.bind(
-        this.current_completion_connector
-      )
+      parent: this.widget
     });
     this.current_completion_handler = handler;
     this.widget.content.activeCellChanged.connect(this.on_completions, this);
@@ -202,8 +202,6 @@ export class NotebookAdapter extends JupyterLabWidgetAdapter {
     }
     this.set_completion_connector(cell);
     this.current_completion_handler.editor = cell.editor;
-    this.current_completion_handler.fetchItems = this.current_completion_connector.fetch.bind(
-      this.current_completion_connector
-    );
+    this.current_completion_handler.connector = this.current_completion_connector;
   }
 }

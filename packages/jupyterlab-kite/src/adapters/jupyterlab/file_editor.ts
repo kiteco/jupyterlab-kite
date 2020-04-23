@@ -6,7 +6,7 @@ import * as CodeMirror from 'codemirror';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { CodeMirrorEditor } from '@jupyterlab/codemirror';
-import { ICompletionManager } from '@jupyterlab/completer';
+import { ICompletionManager, CompletionHandler } from '@jupyterlab/completer';
 import { KiteConnector } from './components/completion';
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import { VirtualFileEditor } from '../../virtual/editors/file_editor';
@@ -16,7 +16,9 @@ export class FileEditorAdapter extends JupyterLabWidgetAdapter {
   editor: FileEditor;
   jumper: FileEditorJumper;
   virtual_editor: VirtualFileEditor;
-  protected current_completion_connector: KiteConnector;
+  protected current_completion_connector: KiteConnector & {
+    responseType: typeof CompletionHandler.ICompletionItemsResponseType;
+  };
 
   get document_path() {
     return this.widget.context.path;
@@ -87,11 +89,9 @@ export class FileEditorAdapter extends JupyterLabWidgetAdapter {
       virtual_editor: this.virtual_editor
     });
     this.completion_manager.register({
+      connector: this.current_completion_connector,
       editor: this.editor.editor,
-      parent: this.widget,
-      fetchItems: this.current_completion_connector.fetch.bind(
-        this.current_completion_connector
-      )
+      parent: this.widget
     });
   }
 
