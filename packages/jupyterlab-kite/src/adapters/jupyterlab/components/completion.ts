@@ -15,6 +15,9 @@ import {
 } from '../../../positioning';
 import { LSPConnection } from '../../../connection';
 import { Session } from '@jupyterlab/services';
+import { LabIcon } from '@jupyterlab/ui-components';
+
+import logoLightStr from '../../../../style/icons/logo-light.svg';
 
 export class KiteConnector extends DataConnector<
   CompletionHandler.ICompletionItemsReply,
@@ -30,6 +33,7 @@ export class KiteConnector extends DataConnector<
   responseType = CompletionHandler.ICompletionItemsResponseType;
   private trigger_kind: CompletionTriggerKind;
   private suppress_auto_invoke_in = ['comment', 'string'];
+  private icon: LabIcon;
 
   /**
    * Create a new Kite connector for completion requests.
@@ -42,6 +46,10 @@ export class KiteConnector extends DataConnector<
     this._connections = options.connections;
     this.virtual_editor = options.virtual_editor;
     this.options = options;
+    this.icon = new LabIcon({
+      name: 'jupyterlab-kite:icon-name',
+      svgstr: logoLightStr
+    });
   }
 
   dispose() {
@@ -120,7 +128,7 @@ export class KiteConnector extends DataConnector<
     let connection = this._connections.get(document.id_path);
 
     console.log('[Kite][Completer] Fetching');
-
+    console.log('Icon:', this.icon);
     let lspCompletionItems = ((await connection.getCompletion(
       cursor,
       {
@@ -142,12 +150,12 @@ export class KiteConnector extends DataConnector<
         label: match.label,
         insertText: match.insertText,
         type: match.kind ? completionItemKindNames[match.kind] : '',
+        icon: this.icon,
         documentation: lsProtocol.MarkupContent.is(match.documentation)
           ? match.documentation.value
           : match.documentation,
         filterText: match.filterText,
-        deprecated: match.deprecated,
-        data: { ...match }
+        deprecated: match.deprecated
       };
 
       // Update prefix values
