@@ -1,3 +1,3 @@
-""" single source of truth for jupyter_lsp version
+""" single source of truth for jupyter_kite version
 """
-__version__ = "0.8.0"
+__version__ = "0.0.1a"

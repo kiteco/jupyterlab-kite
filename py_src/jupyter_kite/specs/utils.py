@@ -14,7 +14,7 @@ from ..types import (
 HELPERS = Path(__file__).parent / "helpers"
 
 # when building docs, let all specs go through
-BUILDING_DOCS = os.environ.get("JUPYTER_LSP_BUILDING_DOCS") is not None
+BUILDING_DOCS = os.environ.get("JUPYTER_KITE_BUILDING_DOCS") is not None
 
 
 class SpecBase:

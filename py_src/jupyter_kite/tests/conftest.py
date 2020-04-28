@@ -8,8 +8,8 @@ from pytest import fixture
 from tornado.queues import Queue
 
 # local imports
-from jupyter_lsp import LanguageServerManager
-from jupyter_lsp.handlers import LanguageServersHandler, LanguageServerWebSocketHandler
+from jupyter_kite import LanguageServerManager
+from jupyter_kite.handlers import LanguageServersHandler, LanguageServerWebSocketHandler
 
 # these should always be available in a test environment ()
 KNOWN_SERVERS = [

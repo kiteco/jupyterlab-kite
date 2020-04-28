@@ -5,10 +5,10 @@ import pytest
 import traitlets
 from tornado.queues import Queue
 
-from jupyter_lsp import lsp_message_listener
+from jupyter_kite import lsp_message_listener
 
 
-@pytest.mark.parametrize("bad_string", ["not-a-function", "jupyter_lsp.__version__"])
+@pytest.mark.parametrize("bad_string", ["not-a-function", "jupyter_kite.__version__"])
 @pytest.mark.asyncio
 async def test_listener_bad_traitlets(bad_string, handlers):
     handler, ws_handler = handlers
@@ -25,7 +25,7 @@ async def test_listeners(known_server, handlers, jsonrpc_init_msg):
     handler, ws_handler = handlers
     manager = handler.manager
 
-    manager.all_listeners = ["jupyter_lsp.tests.listener.dummy_listener"]
+    manager.all_listeners = ["jupyter_kite.tests.listener.dummy_listener"]
 
     manager.initialize()
     manager._listeners["client"] = []  # hide predefined client listeners
