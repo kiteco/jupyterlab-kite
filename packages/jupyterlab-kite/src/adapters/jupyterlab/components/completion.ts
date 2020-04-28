@@ -17,7 +17,7 @@ import { LSPConnection } from '../../../connection';
 import { Session } from '@jupyterlab/services';
 import { LabIcon } from '@jupyterlab/ui-components';
 
-import logoLightStr from '../../../../style/icons/logo-light.svg';
+import kiteLogo from '../../../../style/icons/kite-logo.svg';
 
 export class KiteConnector extends DataConnector<
   CompletionHandler.ICompletionItemsReply,
@@ -48,8 +48,9 @@ export class KiteConnector extends DataConnector<
     this.options = options;
     this.icon = new LabIcon({
       name: 'jupyterlab-kite:icon-name',
-      svgstr: logoLightStr
+      svgstr: kiteLogo
     });
+    this.icon.bindprops({ className: 'kite-logo' });
   }
 
   dispose() {
@@ -128,7 +129,6 @@ export class KiteConnector extends DataConnector<
     let connection = this._connections.get(document.id_path);
 
     console.log('[Kite][Completer] Fetching');
-    console.log('Icon:', this.icon);
     let lspCompletionItems = ((await connection.getCompletion(
       cursor,
       {
