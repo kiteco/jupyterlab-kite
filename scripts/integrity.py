@@ -55,7 +55,7 @@ JS_G2D_VERSION = PACKAGES[JS_G2D_NAME][1]["version"]
 
 # py stuff
 PY_NAME = "jupyter-lsp"
-_VERSION_PY = ROOT / "py_src" / "jupyter_lsp" / "_version.py"
+_VERSION_PY = ROOT / "py_src" / "jupyter_kite" / "_version.py"
 PY_VERSION = re.findall(r'= "(.*)"$', (_VERSION_PY).read_text())[0]
 
 # CI stuff

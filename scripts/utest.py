@@ -21,9 +21,9 @@ def run_tests():
     """
     args = [
         "--pyargs",
-        "jupyter_lsp",
+        "jupyter_kite",
         "--cov",
-        "jupyter_lsp",
+        "jupyter_kite",
         "--cov-report",
         "term-missing:skip-covered",
         "-p",
