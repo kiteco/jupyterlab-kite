@@ -104,6 +104,9 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+# JetBrains
+.idea/
+
 node_modules
 .yarn-packages
 *.tsbuildinfo

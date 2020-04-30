@@ -4,7 +4,7 @@
 from .bash_language_server import BashLanguageServer
 from .dockerfile_language_server_nodejs import DockerfileLanguageServerNodeJS
 from .javascript_typescript_langserver import JavascriptTypescriptLanguageServer
-from .pyls import PythonLanguageServer
+from .kitels import KiteLanguageServer
 from .r_languageserver import RLanguageServer
 from .unified_language_server import UnifiedLanguageServer
 from .vscode_css_languageserver import VSCodeCSSLanguageServer
@@ -18,7 +18,7 @@ dockerfile = DockerfileLanguageServerNodeJS()
 html = VSCodeHTMLLanguageServer()
 json = VSCodeJSONLanguageServer()
 md = UnifiedLanguageServer()
-py = None
+py = KiteLanguageServer()
 ts = JavascriptTypescriptLanguageServer()
 yaml = YAMLLanguageServer()
 r = RLanguageServer()
