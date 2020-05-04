@@ -1,4 +1,7 @@
 import os
+import os.path as osp
+import subprocess
+import sys
 import shutil
 from pathlib import Path
 from typing import List, Text
@@ -60,6 +63,52 @@ class ShellSpec(SpecBase):
             }
         }
 
+class KiteShellSpec(SpecBase):
+    """Helper for a language server spec for Kite."""
+
+    def locate_kitelsp(self):
+        """Detect if kite-lsp is installed and return the installation path."""
+        path = ''
+        if os.name == 'nt':
+            path = 'C:\\Program Files\\Kite\\kite-lsp.exe'
+        elif sys.platform.startswith('linux'):
+            path = osp.expanduser('~/.local/share/kite/kite-lsp')
+        elif sys.platform == 'darwin':
+            path = self.locate_kitelsp_darwin()
+        return path
+
+    def locate_kitelsp_darwin(self):
+        """
+        Looks up where kite-lsp is installed on macOS systems. The bundle ID
+        is checked first and if nothing is found or an error occurs, the
+        default path is used.
+        """
+        default_path = '/Applications/Kite.app'
+        path = ''
+        bundle_path = "/Contents/MacOS/kite-lsp"
+        try:
+            out = subprocess.check_output(
+                ['mdfind', 'kMDItemCFBundleIdentifier="com.kite.Kite"'])
+            installed = len(out) > 0
+            path = (out.decode('utf-8', 'replace').strip().split('\n')[0]
+                    if installed else default_path)
+        except (subprocess.CalledProcessError, UnicodeDecodeError):
+            # Use the default path
+            path = default_path
+        finally:
+            return path + bundle_path
+
+    cmd = property(locate_kitelsp)
+
+    def __call__(self, mgr: LanguageServerManagerAPI) -> KeyedLanguageServerSpecs:
+        return {
+            self.key: {
+                "argv": [self.cmd, *self.args],
+                "languages": self.languages,
+                "version": SPEC_VERSION,
+                **self.spec,
+            }
+        }
 
 class NodeModuleSpec(SpecBase):
     """ Helper for a nodejs-based language server spec in one of several

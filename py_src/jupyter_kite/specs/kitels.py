@@ -1,9 +1,7 @@
-from .utils import ShellSpec
+from .utils import KiteShellSpec
 
-
-class KiteLanguageServer(ShellSpec):
+class KiteLanguageServer(KiteShellSpec):
     key = "kitels"
-    cmd = "/Applications/Kite.app/Contents/MacOS/kite-lsp"
     languages = ["python"]
     spec = dict(
         display_name="kite",
