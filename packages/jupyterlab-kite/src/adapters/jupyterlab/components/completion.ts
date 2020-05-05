@@ -177,14 +177,6 @@ export class KiteConnector extends DataConnector<
       items.push(completionItem);
     });
 
-    // Workaround for https://github.com/jupyterlab/jupyterlab/issues/8255
-    // Append dummy item if there's only one item in the response
-    if (items.length == 1) {
-      items.push({
-        label: '...'
-      });
-    }
-
     return {
       // note in the ContextCompleter it was:
       // start: token.offset,
