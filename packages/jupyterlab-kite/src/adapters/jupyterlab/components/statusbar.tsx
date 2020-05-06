@@ -244,6 +244,13 @@ export class KiteStatus extends VDomRenderer<KiteStatus.Model> {
     if (!this.model) {
       return null;
     }
+
+    const activeDocument = this.model.adapter.virtual_editor.virtual_document;
+    if (!(activeDocument.file_extension === 'py')) {
+      this.setHidden(true);
+      return null;
+    }
+
     return (
       <GroupItem
         spacing={4}
@@ -352,7 +359,6 @@ export namespace KiteStatus {
 
       let main_document = this.adapter.virtual_editor.virtual_document;
       let documents = collect_documents(main_document);
-
       for (let document of documents.values()) {
         let language = document.language.toLocaleLowerCase();
         let servers = this.available_servers.filter(
