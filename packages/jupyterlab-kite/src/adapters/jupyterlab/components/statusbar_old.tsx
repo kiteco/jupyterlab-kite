@@ -94,8 +94,8 @@ class CollapsibleList extends React.Component<
   }
 }
 
-class LSPPopup extends VDomRenderer<KiteStatus.Model> {
-  constructor(model: KiteStatus.Model) {
+class LSPPopup extends VDomRenderer<LSPStatus.Model> {
+  constructor(model: LSPStatus.Model) {
     super(model);
     this.addClass('lsp-popover');
   }
@@ -228,13 +228,13 @@ class LSPPopup extends VDomRenderer<KiteStatus.Model> {
 /**
  * StatusBar item.
  */
-export class KiteStatus extends VDomRenderer<KiteStatus.Model> {
+export class LSPStatus extends VDomRenderer<LSPStatus.Model> {
   protected _popup: Popup = null;
   /**
    * Construct a new VDomRenderer for the status item.
    */
   constructor() {
-    super(new KiteStatus.Model());
+    super(new LSPStatus.Model());
     this.addClass(interactiveItem);
     this.addClass('lsp-statusbar-item');
     this.title.caption = 'LSP status';
@@ -310,7 +310,7 @@ const shortMessageByStatus: StatusMap = {
   connecting: 'Connecting...'
 };
 
-export namespace KiteStatus {
+export namespace LSPStatus {
   /**
    * A VDomModel for the LSP of current file editor/notebook.
    */

@@ -34,7 +34,7 @@ import {
 } from './command_manager';
 import IPaths = JupyterFrontEnd.IPaths;
 import { IStatusBar } from '@jupyterlab/statusbar';
-import { LSPStatus } from './adapters/jupyterlab/components/statusbar';
+import { KiteStatus } from './adapters/jupyterlab/components/statusbar';
 import {
   IDocumentWidget,
   DocumentRegistry
@@ -80,7 +80,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       language_server_manager
     });
 
-    const status_bar_item = new LSPStatus();
+    const status_bar_item = new KiteStatus();
     status_bar_item.model.language_server_manager = language_server_manager;
     status_bar_item.model.connection_manager = connection_manager;
 
