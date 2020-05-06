@@ -17,17 +17,14 @@ import {
   TextItem
 } from '@jupyterlab/statusbar';
 
-import {
-  LabIcon,
-  refreshIcon,
-  runningIcon,
-  stopIcon
-} from '@jupyterlab/ui-components';
+import { LabIcon } from '@jupyterlab/ui-components';
 import { JupyterLabWidgetAdapter } from '../jl_adapter';
 import { collect_documents, VirtualDocument } from '../../../virtual/document';
 import { LSPConnection } from '../../../connection';
 import { DocumentConnectionManager } from '../../../connection_manager';
 import { ILanguageServerManager } from '../../../tokens';
+
+import kiteLogo from '../../../../style/icons/kite-logo.svg';
 
 interface IServerStatusProps {
   server: SCHEMA.LanguageServerSession;
@@ -294,14 +291,6 @@ function collect_languages(virtual_document: VirtualDocument): Set<string> {
 }
 
 type StatusMap = Record<StatusCode, string>;
-type StatusIcon = Record<StatusCode, LabIcon>;
-
-const iconByStatus: StatusIcon = {
-  waiting: refreshIcon,
-  initialized: runningIcon,
-  initializing: refreshIcon,
-  connecting: refreshIcon
-};
 
 const shortMessageByStatus: StatusMap = {
   waiting: 'Waiting...',
@@ -318,6 +307,16 @@ export namespace KiteStatus {
     server_extension_status: SCHEMA.ServersResponse = null;
     language_server_manager: ILanguageServerManager;
     private _connection_manager: DocumentConnectionManager;
+    private icon: LabIcon;
+
+    constructor() {
+      super();
+      this.icon = new LabIcon({
+        name: 'jupyterlab-kite:icon-name',
+        svgstr: kiteLogo
+      });
+      this.icon.bindprops({ className: 'kite-logo' });
+    }
 
     get available_servers(): Array<SCHEMA.LanguageServerSession> {
       return Array.from(this.language_server_manager.sessions.values());
@@ -455,10 +454,7 @@ export namespace KiteStatus {
     }
 
     get status_icon(): LabIcon {
-      if (!this.adapter) {
-        return stopIcon;
-      }
-      return iconByStatus[this.status.status];
+      return this.icon;
     }
 
     get short_message(): string {
