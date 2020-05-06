@@ -13,15 +13,7 @@ from jupyter_kite.handlers import LanguageServersHandler, LanguageServerWebSocke
 
 # these should always be available in a test environment ()
 KNOWN_SERVERS = [
-    "bash-language-server",
-    "vscode-css-languageserver-bin",
-    "dockerfile-language-server-nodejs",
-    "vscode-html-languageserver-bin",
-    "unified-language-server",
-    "javascript-typescript-langserver",
-    "vscode-json-languageserver-bin",
-    "pyls",
-    "yaml-language-server",
+    "kitels"
 ]
 
 CMD_BASED_SERVERS = {"Rscript": ["r-languageserver"]}

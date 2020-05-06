@@ -63,6 +63,7 @@ class ShellSpec(SpecBase):
             }
         }
 
+
 class KiteShellSpec(SpecBase):
     """Helper for a language server spec for Kite."""
 
@@ -109,6 +110,7 @@ class KiteShellSpec(SpecBase):
                 **self.spec,
             }
         }
+
 
 class NodeModuleSpec(SpecBase):
     """ Helper for a nodejs-based language server spec in one of several

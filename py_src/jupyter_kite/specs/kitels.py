@@ -1,5 +1,6 @@
 from .utils import KiteShellSpec
 
+
 class KiteLanguageServer(KiteShellSpec):
     key = "kitels"
     languages = ["python"]
