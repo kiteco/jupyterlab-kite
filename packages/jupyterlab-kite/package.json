@@ -1,6 +1,6 @@
 {
   "name": "@kiteco/jupyterlab-kite",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Kite integration for JupyterLab",
   "keywords": [
     "jupyter",
@@ -101,7 +101,7 @@
     "discovery": {
       "server": {
         "base": {
-          "name": "jupyter-lsp"
+          "name": "jupyter-kite"
         },
         "managers": [
           "pip"

@@ -1,7 +1,7 @@
 {
   "NotebookApp": {
     "nbserver_extensions": {
-      "jupyter_lsp": true
+      "jupyter_kite": true
     }
   }
 }
