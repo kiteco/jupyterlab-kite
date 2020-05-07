@@ -9,13 +9,7 @@ import '../../../../style/statusbar.css';
 
 import * as SCHEMA from '../../../_schema';
 
-import {
-  GroupItem,
-  interactiveItem,
-  Popup,
-  showPopup,
-  TextItem
-} from '@jupyterlab/statusbar';
+import { GroupItem, item, TextItem } from '@jupyterlab/statusbar';
 
 import { LabIcon } from '@jupyterlab/ui-components';
 import { JupyterLabWidgetAdapter } from '../jl_adapter';
@@ -26,215 +20,18 @@ import { ILanguageServerManager } from '../../../tokens';
 
 import kiteLogo from '../../../../style/icons/kite-logo.svg';
 
-interface IServerStatusProps {
-  server: SCHEMA.LanguageServerSession;
-}
-
-function ServerStatus(props: IServerStatusProps) {
-  let list = props.server.spec.languages.map((language, i) => (
-    <li key={i}>{language}</li>
-  ));
-  return (
-    <div className={'lsp-server-status'}>
-      <h5>{props.server.spec.display_name}</h5>
-      <ul>{list}</ul>
-    </div>
-  );
-}
-
-export interface IListProps {
-  /**
-   * A title to display.
-   */
-  title: string;
-  list: any[];
-  /**
-   * By default the list will be expanded; to change the initial state to collapsed, set to true.
-   */
-  startCollapsed?: boolean;
-}
-
-export interface ICollapsibleListStates {
-  isCollapsed: boolean;
-}
-
-class CollapsibleList extends React.Component<
-  IListProps,
-  ICollapsibleListStates
-> {
-  constructor(props: any) {
-    super(props);
-    this.state = { isCollapsed: props.startCollapsed || false };
-  }
-
-  handleClick = () => {
-    this.setState(state => ({
-      isCollapsed: !state.isCollapsed
-    }));
-  };
-
-  render() {
-    return (
-      <div
-        className={
-          'lsp-collapsible-list ' +
-          (this.state.isCollapsed ? 'lsp-collapsed' : '')
-        }
-      >
-        <h4 onClick={this.handleClick}>
-          <span className={'lsp-caret'}></span>
-          {this.props.title} ({this.props.list.length})
-        </h4>
-        <div>{this.props.list}</div>
-      </div>
-    );
-  }
-}
-
-class LSPPopup extends VDomRenderer<KiteStatus.Model> {
-  constructor(model: KiteStatus.Model) {
-    super(model);
-    this.addClass('lsp-popover');
-  }
-  render() {
-    if (!this.model?.connection_manager) {
-      return null;
-    }
-    const servers_available = this.model.servers_available_not_in_use.map(
-      (session, i) => <ServerStatus key={i} server={session} />
-    );
-
-    let running_servers = new Array<any>();
-    let key = -1;
-    for (let [
-      session,
-      documents_by_language
-    ] of this.model.documents_by_server.entries()) {
-      key += 1;
-      let documents_html = new Array<any>();
-      for (let [language, documents] of documents_by_language) {
-        // TODO user readable document ids: filename, [cell id]
-        // TODO: stop button
-        // TODO: add a config buttons next to the language header
-        let list = documents.map((document, i) => {
-          let connection = this.model.connection_manager.connections.get(
-            document.id_path
-          );
-
-          let status = '';
-          if (connection?.isInitialized) {
-            status = 'initialized';
-          } else if (connection?.isConnected) {
-            status = 'connected';
-          } else {
-            status = 'not connected';
-          }
-
-          return (
-            <li key={i}>
-              {document.id_path}
-              <span className={'lsp-document-status'}>
-                {status}
-                <span
-                  className={
-                    'lsp-document-status-icon ' +
-                    (status === 'initialized'
-                      ? 'jp-FilledCircleIcon'
-                      : 'jp-CircleIcon')
-                  }
-                ></span>
-              </span>
-            </li>
-          );
-        });
-
-        documents_html.push(
-          <div key={key} className={'lsp-documents-by-language'}>
-            <h5>
-              {language}{' '}
-              <span className={'lsp-language-server-name'}>
-                ({session.spec.display_name})
-              </span>
-            </h5>
-            <ul>{list}</ul>
-          </div>
-        );
-      }
-
-      running_servers.push(<div key={key}>{documents_html}</div>);
-    }
-
-    const missing_languages = this.model.missing_languages.map(
-      (language, i) => (
-        <div key={i} className={'lsp-missing-server'}>
-          {language}
-        </div>
-      )
-    );
-    return (
-      <div className={'lsp-popover-content'}>
-        <div className={'lsp-servers-menu'}>
-          <h3 className={'lsp-servers-title'}>LSP servers</h3>
-          <div className={'lsp-servers-lists'}>
-            {servers_available.length ? (
-              <CollapsibleList
-                key={'available'}
-                title={'Available'}
-                list={servers_available}
-                startCollapsed={true}
-              />
-            ) : (
-              ''
-            )}
-            {running_servers.length ? (
-              <CollapsibleList
-                key={'running'}
-                title={'Running'}
-                list={running_servers}
-              />
-            ) : (
-              ''
-            )}
-            {missing_languages.length ? (
-              <CollapsibleList
-                key={'missing'}
-                title={'Missing'}
-                list={missing_languages}
-              />
-            ) : (
-              ''
-            )}
-          </div>
-        </div>
-        <div className={'lsp-popover-status'}>
-          Documentation:{' '}
-          <a
-            href={
-              'https://github.com/krassowski/jupyterlab-lsp/blob/master/docs/LANGUAGESERVERS.md'
-            }
-            target={'_blank'}
-          >
-            Language Servers
-          </a>
-        </div>
-      </div>
-    );
-  }
-}
-
 /**
  * StatusBar item.
  */
 export class KiteStatus extends VDomRenderer<KiteStatus.Model> {
-  protected _popup: Popup = null;
   /**
    * Construct a new VDomRenderer for the status item.
    */
   constructor() {
     super(new KiteStatus.Model());
-    this.addClass(interactiveItem);
-    this.addClass('lsp-statusbar-item');
-    this.title.caption = 'LSP status';
+    this.addClass(item);
+    this.addClass('kite-statusbar-item');
+    this.title.caption = 'Kite Status';
   }
 
   /**
@@ -252,32 +49,13 @@ export class KiteStatus extends VDomRenderer<KiteStatus.Model> {
     }
 
     return (
-      <GroupItem
-        spacing={4}
-        title={this.model.long_message}
-        onClick={this.handleClick}
-      >
-        <this.model.status_icon.react
-          top={'2px'}
-          kind={'statusBar'}
-          title={'LSP Code Intelligence'}
-        />
+      <GroupItem spacing={4} title={this.model.long_message}>
+        <this.model.status_icon.react top={'2px'} kind={'statusBar'} />
         <TextItem source={this.model.short_message} />
         <TextItem source={this.model.feature_message} />
       </GroupItem>
     );
   }
-
-  handleClick = () => {
-    if (this._popup) {
-      this._popup.dispose();
-    }
-    this._popup = showPopup({
-      body: new LSPPopup(this.model),
-      anchor: this,
-      align: 'left'
-    });
-  };
 }
 
 type StatusCode = 'waiting' | 'initializing' | 'initialized' | 'connecting';
