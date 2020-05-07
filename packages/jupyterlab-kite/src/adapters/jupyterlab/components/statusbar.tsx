@@ -7,8 +7,6 @@ import React from 'react';
 import { VDomModel, VDomRenderer } from '@jupyterlab/apputils';
 import '../../../../style/statusbar.css';
 
-import * as SCHEMA from '../../../_schema';
-
 import { GroupItem, item, TextItem } from '@jupyterlab/statusbar';
 
 import { LabIcon } from '@jupyterlab/ui-components';
@@ -42,8 +40,8 @@ export class KiteStatus extends VDomRenderer<KiteStatus.Model> {
       return null;
     }
 
-    const activeDocument = this.model.adapter.virtual_editor.virtual_document;
-    if (!(activeDocument.file_extension === 'py')) {
+    const activeDocument = this.model.activeDocument;
+    if (activeDocument && !(activeDocument.file_extension === 'py')) {
       this.setHidden(true);
       return null;
     }
@@ -72,7 +70,6 @@ export namespace KiteStatus {
    * A VDomModel for the LSP of current file editor/notebook.
    */
   export class Model extends VDomModel {
-    server_extension_status: SCHEMA.ServersResponse = null;
     language_server_manager: ILanguageServerManager;
     private _connection_manager: DocumentConnectionManager;
     private icon: LabIcon;
@@ -87,12 +84,10 @@ export namespace KiteStatus {
     }
 
     get status(): IKiteStatus {
-      const activeDocument = this.adapter.virtual_editor.virtual_document;
-      const connection = this.connection_manager.connections.get(
-        activeDocument.id_path
-      );
-      console.log('Found status:', connection.kiteStatus);
-      return connection.kiteStatus;
+      if (this.activeConnection) {
+        return this.activeConnection.kiteStatus;
+      }
+      return { status: '', short: '', long: '' };
     }
 
     get status_icon(): LabIcon {
@@ -127,6 +122,22 @@ export namespace KiteStatus {
       }
 
       this._adapter = adapter;
+    }
+
+    get activeDocument(): VirtualDocument | undefined {
+      if (this.adapter && this.adapter.virtual_editor) {
+        return this.adapter.virtual_editor.virtual_document;
+      }
+      return undefined;
+    }
+
+    get activeConnection(): LSPConnection | undefined {
+      if (this.activeDocument) {
+        return this.connection_manager.connections.get(
+          this.activeDocument.id_path
+        );
+      }
+      return undefined;
     }
 
     get connection_manager() {
