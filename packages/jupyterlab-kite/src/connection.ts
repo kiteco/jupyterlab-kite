@@ -12,9 +12,15 @@ import {
 import { until_ready } from './utils';
 
 interface ILSPOptions extends ILspOptions {}
+export interface IKiteStatus {
+  status: string;
+  short: string;
+  long: string;
+}
 
 export class LSPConnection extends LspWsConnection {
   protected documentsToOpen: IDocumentInfo[];
+  private _kiteStatus: IKiteStatus;
 
   constructor(options: ILSPOptions) {
     super(options);
@@ -23,7 +29,7 @@ export class LSPConnection extends LspWsConnection {
 
   sendOpenWhenReady(documentInfo: IDocumentInfo) {
     if (this.isReady) {
-      this.sendOpen(documentInfo);
+      this._sendOpen(documentInfo);
     } else {
       this.documentsToOpen.push(documentInfo);
     }
@@ -32,7 +38,29 @@ export class LSPConnection extends LspWsConnection {
   protected onServerInitialized(params: lsProtocol.InitializeResult) {
     super.onServerInitialized(params);
     while (this.documentsToOpen.length) {
-      this.sendOpen(this.documentsToOpen.pop());
+      this._sendOpen(this.documentsToOpen.pop());
+    }
+  }
+
+  get kiteStatus(): IKiteStatus {
+    return this._kiteStatus;
+  }
+
+  set kiteStatus(status: IKiteStatus) {
+    this._kiteStatus = status;
+  }
+
+  async sendStatus(documentInfo: IDocumentInfo) {
+    let result: IKiteStatus;
+    try {
+      result = await this.connection.sendRequest('kite/status', {
+        uri: documentInfo.uri
+      });
+      this.kiteStatus = result as IKiteStatus;
+      console.log('Updating Kite Status:', this.kiteStatus);
+    } catch {
+      console.log('Kite Status not available.');
+      this.kiteStatus = { status: '', short: '', long: '' };
     }
   }
 
@@ -115,6 +143,11 @@ export class LSPConnection extends LspWsConnection {
     }
   }
 
+  private _sendOpen(documentInfo: IDocumentInfo) {
+    this.sendOpen(documentInfo);
+    this.sendStatus(documentInfo);
+  }
+
   private _sendChange(
     changeEvents: lsProtocol.TextDocumentContentChangeEvent[],
     documentInfo: IDocumentInfo
@@ -134,5 +167,6 @@ export class LSPConnection extends LspWsConnection {
       textDocumentChange
     );
     documentInfo.version++;
+    this.sendStatus(documentInfo);
   }
 }
