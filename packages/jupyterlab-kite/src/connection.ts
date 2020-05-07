@@ -20,7 +20,7 @@ export interface IKiteStatus {
 
 export class LSPConnection extends LspWsConnection {
   protected documentsToOpen: IDocumentInfo[];
-  private _kiteStatus: IKiteStatus = { status: '', short: '', long: '' };
+  private _kiteStatus: IKiteStatus;
 
   constructor(options: ILSPOptions) {
     super(options);
@@ -60,6 +60,7 @@ export class LSPConnection extends LspWsConnection {
       console.log('Updating Kite Status:', this.kiteStatus);
     } catch {
       console.log('Kite Status not available.');
+      this.kiteStatus = { status: '', short: '', long: '' };
     }
   }
 
