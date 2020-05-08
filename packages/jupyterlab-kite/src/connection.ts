@@ -25,6 +25,7 @@ export class LSPConnection extends LspWsConnection {
   constructor(options: ILSPOptions) {
     super(options);
     this.documentsToOpen = [];
+    this._kiteStatus = { status: '', short: '', long: '' };
   }
 
   sendOpenWhenReady(documentInfo: IDocumentInfo) {
@@ -56,8 +57,8 @@ export class LSPConnection extends LspWsConnection {
       result = await this.connection.sendRequest('kite/status', {
         uri: documentInfo.uri
       });
-      this.kiteStatus = result as IKiteStatus;
       console.log('Updating Kite Status:', this.kiteStatus);
+      this.kiteStatus = result as IKiteStatus;
     } catch {
       console.log('Kite Status not available.');
       this.kiteStatus = { status: '', short: '', long: '' };
