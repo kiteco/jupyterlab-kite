@@ -8,7 +8,7 @@ import {
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import { ReadonlyJSONObject } from '@lumino/coreutils';
 import { completionItemKindNames, CompletionTriggerKind } from '../../../lsp';
-import * as lsProtocol from 'vscode-languageserver-protocol';
+import { CompletionItem } from 'vscode-languageserver-types';
 import { PositionConverter } from '../../../converter';
 import { VirtualDocument } from '../../../virtual/document';
 import { VirtualEditor } from '../../../virtual/editor';
@@ -219,7 +219,7 @@ export class LSPConnector extends DataConnector<
       false,
       typed_character,
       this.trigger_kind
-    )) || []) as lsProtocol.CompletionItem[];
+    )) || []) as CompletionItem[];
 
     let prefix = token.value.slice(0, position_in_token + 1);
 

@@ -3,7 +3,7 @@ import { CompletionHandler } from '@jupyterlab/completer';
 import { CodeEditor } from '@jupyterlab/codeeditor';
 
 import { completionItemKindNames, CompletionTriggerKind } from '../../../lsp';
-import * as lsProtocol from 'vscode-languageserver-protocol';
+import { CompletionItem, MarkupContent } from 'vscode-languageserver-types';
 import { PositionConverter } from '../../../converter';
 import { VirtualDocument } from '../../../virtual/document';
 import { VirtualEditor } from '../../../virtual/editor';
@@ -140,7 +140,7 @@ export class KiteConnector extends DataConnector<
       false,
       typed_character,
       this.trigger_kind
-    )) || []) as lsProtocol.CompletionItem[];
+    )) || []) as CompletionItem[];
 
     let prefix = token.value.slice(0, position_in_token + 1);
     let all_non_prefixed = true;
@@ -151,7 +151,7 @@ export class KiteConnector extends DataConnector<
         insertText: match.insertText,
         type: match.kind ? completionItemKindNames[match.kind] : '',
         icon: this.icon,
-        documentation: lsProtocol.MarkupContent.is(match.documentation)
+        documentation: MarkupContent.is(match.documentation)
           ? match.documentation.value
           : match.documentation,
         filterText: match.filterText,
