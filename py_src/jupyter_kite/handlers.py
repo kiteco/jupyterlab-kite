@@ -1,11 +1,13 @@
 """ tornado handler for managing and communicating with language servers
 """
+import json
 from typing import Optional, Text
 
 from notebook.base.handlers import IPythonHandler
 from notebook.base.zmqhandlers import WebSocketHandler, WebSocketMixin
 from notebook.utils import url_path_join as ujoin
 
+from .locator import KiteLocator
 from .manager import LanguageServerManager
 from .schema import SERVERS_RESPONSE
 
@@ -67,6 +69,22 @@ class LanguageServersHandler(BaseHandler):
         self.finish(response)
 
 
+class KiteInstalledHandler(BaseHandler):
+    """
+    Reports if Kite is installed
+    """
+
+    def initialize(self, *args, **kwargs):
+        super().initialize(*args, **kwargs)
+        self.locator = KiteLocator()
+
+    def get(self):
+        exists, _ = self.locator.check_if_kite_installed()
+        exists = json.dumps(exists)
+        response = exists
+        self.finish(response)
+
+
 def add_handlers(nbapp):
     """ Add Language Server routes to the notebook server web application
     """
@@ -84,5 +102,6 @@ def add_handlers(nbapp):
                 LanguageServerWebSocketHandler,
                 opts,
             ),
+            (ujoin(lsp_url, "kite_installed"), KiteInstalledHandler, opts),
         ],
     )
