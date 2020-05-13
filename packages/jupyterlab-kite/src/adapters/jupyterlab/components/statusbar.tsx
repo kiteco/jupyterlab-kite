@@ -55,16 +55,6 @@ export class KiteStatus extends VDomRenderer<KiteStatus.Model> {
   }
 }
 
-type StatusCode = 'waiting' | 'initializing' | 'initialized' | 'connecting';
-
-export interface IStatus {
-  connected_documents: Set<VirtualDocument>;
-  initialized_documents: Set<VirtualDocument>;
-  open_connections: Array<LSPConnection>;
-  detected_documents: Set<VirtualDocument>;
-  status: StatusCode;
-}
-
 export namespace KiteStatus {
   /**
    * A VDomModel for the LSP of current file editor/notebook.
