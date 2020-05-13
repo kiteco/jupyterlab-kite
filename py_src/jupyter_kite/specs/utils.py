@@ -73,7 +73,7 @@ class KiteShellSpec(SpecBase):
         if os.name == 'nt':
             path = 'C:\\Program Files\\Kite\\kite-lsp.exe'
         elif sys.platform.startswith('linux'):
-            path = osp.expanduser('~/.local/share/kite/kite-lsp')
+            path = osp.expanduser('~/.local/share/kite/current/kite-lsp')
         elif sys.platform == 'darwin':
             path = self.locate_kitelsp_darwin()
         return path
