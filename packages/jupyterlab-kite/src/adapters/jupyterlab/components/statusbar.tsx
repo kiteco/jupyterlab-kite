@@ -4,29 +4,22 @@
 
 import React from 'react';
 
-import { VDomModel, VDomRenderer } from '@jupyterlab/apputils';
-import '../../../../style/statusbar.css';
-
+import { VDomRenderer } from '@jupyterlab/apputils';
 import { GroupItem, item, TextItem } from '@jupyterlab/statusbar';
 
-import { LabIcon } from '@jupyterlab/ui-components';
-import { JupyterLabWidgetAdapter } from '../jl_adapter';
-import { VirtualDocument } from '../../../virtual/document';
-import { IKiteStatus, LSPConnection } from '../../../connection';
-import { DocumentConnectionManager } from '../../../connection_manager';
-import { ILanguageServerManager } from '../../../tokens';
+import { KiteStatusModel } from './status_model';
 
-import kiteLogo from '../../../../style/icons/kite-logo.svg';
+import '../../../../style/statusbar.css';
 
 /**
  * StatusBar item.
  */
-export class KiteStatus extends VDomRenderer<KiteStatus.Model> {
+export class KiteStatus extends VDomRenderer<KiteStatusModel> {
   /**
    * Construct a new VDomRenderer for the status item.
    */
-  constructor() {
-    super(new KiteStatus.Model());
+  constructor(model: KiteStatusModel) {
+    super(model);
     this.addClass(item);
     this.addClass('kite-statusbar-item');
     this.title.caption = 'Kite Status';
@@ -46,118 +39,13 @@ export class KiteStatus extends VDomRenderer<KiteStatus.Model> {
       return null;
     }
 
+    this.model.fetchKiteInstalled();
+
     return (
       <GroupItem spacing={4} title={this.model.long_message}>
-        <this.model.status_icon.react top={'2px'} kind={'statusBar'} />
+        <this.model.icon.react top={'2px'} kind={'statusBar'} />
         <TextItem source={this.model.short_message} />
       </GroupItem>
     );
-  }
-}
-
-export namespace KiteStatus {
-  /**
-   * A VDomModel for the LSP of current file editor/notebook.
-   */
-  export class Model extends VDomModel {
-    language_server_manager: ILanguageServerManager;
-    private _connection_manager: DocumentConnectionManager;
-    private icon: LabIcon;
-
-    constructor() {
-      super();
-      this.icon = new LabIcon({
-        name: 'jupyterlab-kite:icon-name',
-        svgstr: kiteLogo
-      });
-      this.icon.bindprops({ className: 'kite-logo' });
-    }
-
-    get status(): IKiteStatus {
-      if (this.activeConnection) {
-        return this.activeConnection.kiteStatus;
-      }
-      return { status: '', short: '', long: '' };
-    }
-
-    get status_icon(): LabIcon {
-      return this.icon;
-    }
-
-    get short_message(): string {
-      if (!this.adapter || !this.status.status) {
-        return 'Kite: not running';
-      }
-      return 'Kite: ' + this.status.short;
-    }
-
-    get long_message(): string {
-      if (!this.adapter || !this.status.status) {
-        return 'Kite is not reachable.';
-      }
-      return this.status.long;
-    }
-
-    get adapter(): JupyterLabWidgetAdapter | null {
-      return this._adapter;
-    }
-
-    set adapter(adapter: JupyterLabWidgetAdapter | null) {
-      if (this._adapter != null) {
-        this._adapter.status_message.changed.connect(this._onChange);
-      }
-
-      if (adapter != null) {
-        adapter.status_message.changed.connect(this._onChange);
-      }
-
-      this._adapter = adapter;
-    }
-
-    get activeDocument(): VirtualDocument | undefined {
-      if (this.adapter && this.adapter.virtual_editor) {
-        return this.adapter.virtual_editor.virtual_document;
-      }
-      return undefined;
-    }
-
-    get activeConnection(): LSPConnection | undefined {
-      if (this.activeDocument) {
-        return this.connection_manager.connections.get(
-          this.activeDocument.id_path
-        );
-      }
-      return undefined;
-    }
-
-    get connection_manager() {
-      return this._connection_manager;
-    }
-
-    set connection_manager(connection_manager) {
-      if (this._connection_manager != null) {
-        this._connection_manager.connected.disconnect(this._onChange);
-        this._connection_manager.initialized.connect(this._onChange);
-        this._connection_manager.disconnected.disconnect(this._onChange);
-        this._connection_manager.closed.disconnect(this._onChange);
-        this._connection_manager.documents_changed.disconnect(this._onChange);
-      }
-
-      if (connection_manager != null) {
-        connection_manager.connected.connect(this._onChange);
-        connection_manager.initialized.connect(this._onChange);
-        connection_manager.disconnected.connect(this._onChange);
-        connection_manager.closed.connect(this._onChange);
-        connection_manager.documents_changed.connect(this._onChange);
-      }
-
-      this._connection_manager = connection_manager;
-    }
-
-    private _onChange = () => {
-      this.stateChanged.emit(void 0);
-    };
-
-    private _adapter: JupyterLabWidgetAdapter | null = null;
   }
 }
