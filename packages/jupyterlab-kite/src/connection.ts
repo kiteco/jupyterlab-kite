@@ -10,22 +10,23 @@ import {
   IDocumentInfo
 } from 'lsp-ws-connection';
 import { until_ready } from './utils';
+import {
+  KiteStatusModel,
+  IKiteStatus
+} from './adapters/jupyterlab/components/status_model';
 
-interface ILSPOptions extends ILspOptions {}
-export interface IKiteStatus {
-  status: string;
-  short: string;
-  long: string;
+interface ILSPOptions extends ILspOptions {
+  kite_status_model?: KiteStatusModel;
 }
 
 export class LSPConnection extends LspWsConnection {
   protected documentsToOpen: IDocumentInfo[];
-  private _kiteStatus: IKiteStatus;
+  protected status_model?: KiteStatusModel;
 
   constructor(options: ILSPOptions) {
     super(options);
     this.documentsToOpen = [];
-    this._kiteStatus = { status: '', short: '', long: '' };
+    this.status_model = options.kite_status_model;
   }
 
   sendOpenWhenReady(documentInfo: IDocumentInfo) {
@@ -43,25 +44,18 @@ export class LSPConnection extends LspWsConnection {
     }
   }
 
-  get kiteStatus(): IKiteStatus {
-    return this._kiteStatus;
-  }
-
-  set kiteStatus(status: IKiteStatus) {
-    this._kiteStatus = status;
-  }
-
-  async sendStatus(documentInfo: IDocumentInfo) {
+  async fetchKiteStatus(documentInfo: IDocumentInfo) {
     let result: IKiteStatus;
     try {
       result = await this.connection.sendRequest('kite/status', {
         uri: documentInfo.uri
       });
-      console.log('Updating Kite Status:', this.kiteStatus);
-      this.kiteStatus = result as IKiteStatus;
+      if (this.status_model) {
+        this.status_model.status = result;
+      }
     } catch {
-      console.log('Kite Status not available.');
-      this.kiteStatus = { status: '', short: '', long: '' };
+      console.warn('Kite Status could not be fetched. Setting to not ready.');
+      this.status_model && this.status_model.reset();
     }
   }
 
@@ -146,7 +140,7 @@ export class LSPConnection extends LspWsConnection {
 
   private _sendOpen(documentInfo: IDocumentInfo) {
     this.sendOpen(documentInfo);
-    this.sendStatus(documentInfo);
+    this.fetchKiteStatus(documentInfo);
   }
 
   private _sendChange(
@@ -168,6 +162,6 @@ export class LSPConnection extends LspWsConnection {
       textDocumentChange
     );
     documentInfo.version++;
-    this.sendStatus(documentInfo);
+    this.fetchKiteStatus(documentInfo);
   }
 }

@@ -8,6 +8,7 @@ import { sleep, until_ready } from './utils';
 // Name-only import so as to not trigger inclusion in main bundle
 import * as ConnectionModuleType from './connection';
 import { TLanguageServerId, ILanguageServerManager } from './tokens';
+import { KiteStatusModel } from './adapters/jupyterlab/components/status_model';
 
 export interface IDocumentConnectionData {
   virtual_document: VirtualDocument;
@@ -51,6 +52,7 @@ export class DocumentConnectionManager {
     Map<VirtualDocument.id_path, VirtualDocument>
   >;
   language_server_manager: ILanguageServerManager;
+  kite_status_model?: KiteStatusModel;
   private ignored_languages: Set<string>;
 
   constructor(options: DocumentConnectionManager.IOptions) {
@@ -63,6 +65,7 @@ export class DocumentConnectionManager {
     this.closed = new Signal(this);
     this.documents_changed = new Signal(this);
     this.language_server_manager = options.language_server_manager;
+    this.kite_status_model = options.kite_status_model;
     Private.setLanguageServerManager(options.language_server_manager);
   }
 
@@ -138,7 +141,8 @@ export class DocumentConnectionManager {
       language,
       language_server_id,
       uris,
-      this.on_new_connection
+      this.on_new_connection,
+      this.kite_status_model
     );
 
     // if connecting for the first time, all documents subsequent documents will
@@ -279,6 +283,7 @@ export class DocumentConnectionManager {
 export namespace DocumentConnectionManager {
   export interface IOptions {
     language_server_manager: ILanguageServerManager;
+    kite_status_model?: KiteStatusModel;
   }
 
   export function solve_uris(
@@ -342,7 +347,8 @@ namespace Private {
     language: string,
     language_server_id: TLanguageServerId,
     uris: DocumentConnectionManager.IURIs,
-    onCreate: (connection: LSPConnection) => void
+    onCreate: (connection: LSPConnection) => void,
+    kite_status_model?: KiteStatusModel
   ): Promise<LSPConnection> {
     if (_promise == null) {
       // TODO: consider lazy-loading _only_ the modules that _must_ be webpacked
@@ -360,7 +366,8 @@ namespace Private {
       const connection = new LSPConnection({
         languageId: language,
         serverUri: uris.server,
-        rootUri: uris.base
+        rootUri: uris.base,
+        kite_status_model: kite_status_model
       });
       // TODO: remove remaining unbounded users of connection.on
       connection.setMaxListeners(999);

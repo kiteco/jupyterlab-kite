@@ -40,6 +40,7 @@ import {
   DocumentRegistry
 } from '@jupyterlab/docregistry/lib/registry';
 import { DocumentConnectionManager } from './connection_manager';
+import { KiteStatusModel } from './adapters/jupyterlab/components/status_model';
 
 const lsp_commands: Array<IFeatureCommand> = [].concat(
   ...lsp_features.map(feature => feature.commands)
@@ -76,12 +77,13 @@ const plugin: JupyterFrontEndPlugin<void> = {
     status_bar: IStatusBar
   ) => {
     const language_server_manager = new LanguageServerManager({});
+    const kite_status_model = new KiteStatusModel();
     const connection_manager = new DocumentConnectionManager({
-      language_server_manager
+      language_server_manager,
+      kite_status_model
     });
 
-    const status_bar_item = new KiteStatus();
-    status_bar_item.model.language_server_manager = language_server_manager;
+    const status_bar_item = new KiteStatus(kite_status_model);
     status_bar_item.model.connection_manager = connection_manager;
 
     labShell.currentChanged.connect(() => {
