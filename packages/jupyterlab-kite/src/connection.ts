@@ -40,7 +40,10 @@ export class LSPConnection extends LspWsConnection {
   protected onServerInitialized(params: lsProtocol.InitializeResult) {
     super.onServerInitialized(params);
     while (this.documentsToOpen.length) {
-      this._sendOpen(this.documentsToOpen.pop());
+      const document = this.documentsToOpen.pop();
+      if (document) {
+        this._sendOpen(document);
+      }
     }
   }
 
@@ -81,7 +84,7 @@ export class LSPConnection extends LspWsConnection {
     documentInfo: IDocumentInfo,
     newName: string,
     emit = true
-  ): Promise<lsProtocol.WorkspaceEdit> {
+  ): Promise<lsProtocol.WorkspaceEdit | undefined> {
     if (!this.isReady || !this.isRenameSupported()) {
       return;
     }

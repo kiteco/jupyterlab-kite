@@ -57,11 +57,11 @@ export class KiteConnector extends DataConnector<
     if (this.isDisposed) {
       return;
     }
-    this._connections = null;
-    this.virtual_editor = null;
-    this.options = null;
-    this._editor = null;
-    this.isDisposed = true;
+    delete this._connections;
+    delete this.virtual_editor;
+    delete this.options;
+    delete this._editor;
+    delete this.isDisposed;
   }
 
   /**
@@ -71,19 +71,31 @@ export class KiteConnector extends DataConnector<
    */
   async fetch(
     request: CompletionHandler.IRequest
-  ): Promise<CompletionHandler.ICompletionItemsReply> {
+  ): Promise<CompletionHandler.ICompletionItemsReply | undefined> {
     let editor = this._editor;
 
     const cursor = editor.getCursorPosition();
     const token = editor.getTokenForPosition(cursor);
 
+    if (!token.type) {
+      console.log('[Kite][Completer] No token type found');
+      return;
+    }
     if (this.suppress_auto_invoke_in.indexOf(token.type) !== -1) {
-      console.log('Suppressing completer auto-invoke in', token.type);
+      console.log(
+        '[Kite][Completer] Suppressing completer auto-invoke in',
+        token.type
+      );
       return;
     }
 
     const start = editor.getPositionAt(token.offset);
     const end = editor.getPositionAt(token.offset + token.value.length);
+
+    if (!start || !end) {
+      console.log('[Kite][Completer] No start or end position found');
+      return;
+    }
 
     let position_in_token = cursor.column - start.column - 1;
     const typed_character = token.value[cursor.column - start.column - 1];
@@ -125,8 +137,13 @@ export class KiteConnector extends DataConnector<
     cursor: IVirtualPosition,
     document: VirtualDocument,
     position_in_token: number
-  ): Promise<CompletionHandler.ICompletionItemsReply> {
+  ): Promise<CompletionHandler.ICompletionItemsReply | undefined> {
     let connection = this._connections.get(document.id_path);
+
+    if (!connection) {
+      console.log('[Kite][Completer] No LSP Connection found');
+      return;
+    }
 
     console.log('[Kite][Completer] Fetching');
     let lspCompletionItems = ((await connection.getCompletion(

@@ -182,14 +182,14 @@ export abstract class JupyterLabWidgetAdapter
     this.current_completion_connector?.dispose();
 
     // just to be sure
-    this.virtual_editor = null;
-    this.app = null;
-    this.widget = null;
-    this._tooltip = null;
-    this.connection_manager = null;
-    this.current_completion_connector = null;
-    this.rendermime_registry = null;
-    this.widget = null;
+    delete this.virtual_editor;
+    delete this.app;
+    delete this.widget;
+    delete this._tooltip;
+    delete this.connection_manager;
+    delete this.current_completion_connector;
+    delete this.rendermime_registry;
+    delete this.widget;
 
     // actually disposed
     this.isDisposed = true;
