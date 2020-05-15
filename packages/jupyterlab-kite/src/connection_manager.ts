@@ -211,7 +211,10 @@ export class DocumentConnectionManager {
       if (connection !== a_connection) {
         continue;
       }
-      callback(this.documents.get(virtual_document_id_path));
+      const document = this.documents.get(virtual_document_id_path);
+      if (document) {
+        callback(document);
+      }
     }
   }
 

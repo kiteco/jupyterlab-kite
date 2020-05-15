@@ -37,12 +37,15 @@ export class LanguageServerManager implements ILanguageServerManager {
     // most things speak language
     for (const [key, session] of this._sessions.entries()) {
       if (options.language) {
-        if (session.spec.languages.indexOf(options.language) !== -1) {
+        if (
+          session.spec.languages &&
+          session.spec.languages.indexOf(options.language) !== -1
+        ) {
           return key;
         }
       }
     }
-    return null;
+    return '';
   }
 
   async fetchSessions() {

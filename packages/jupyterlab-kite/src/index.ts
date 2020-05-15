@@ -42,9 +42,9 @@ import {
 import { DocumentConnectionManager } from './connection_manager';
 import { KiteStatusModel } from './adapters/jupyterlab/components/status_model';
 
-const lsp_commands: Array<IFeatureCommand> = [].concat(
-  ...lsp_features.map(feature => feature.commands)
-);
+const lsp_commands: Array<IFeatureCommand> = ([] as Array<
+  IFeatureCommand
+>).concat(...lsp_features.map(feature => feature.commands));
 
 /**
  * The plugin registration information.
@@ -112,10 +112,13 @@ const plugin: JupyterFrontEndPlugin<void> = {
         align: 'left',
         rank: 1,
         isActive: () =>
-          labShell.currentWidget &&
-          (fileEditorTracker.currentWidget || notebookTracker.currentWidget) &&
-          (labShell.currentWidget === fileEditorTracker.currentWidget ||
-            labShell.currentWidget === notebookTracker.currentWidget)
+          !!(
+            labShell.currentWidget &&
+            (fileEditorTracker.currentWidget ||
+              notebookTracker.currentWidget) &&
+            (labShell.currentWidget === fileEditorTracker.currentWidget ||
+              labShell.currentWidget === notebookTracker.currentWidget)
+          )
       }
     );
 

@@ -90,9 +90,9 @@ export class NotebookAdapter extends JupyterLabWidgetAdapter {
     );
     this.widget.content.activeCellChanged.disconnect(this.on_completions, this);
     if (this.current_completion_handler) {
-      this.current_completion_handler.connector = null;
-      this.current_completion_handler.editor = null;
-      this.current_completion_handler = null;
+      delete this.current_completion_handler.connector;
+      delete this.current_completion_handler.editor;
+      delete this.current_completion_handler;
     }
     super.dispose();
   }
