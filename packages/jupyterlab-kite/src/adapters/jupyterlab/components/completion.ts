@@ -32,7 +32,7 @@ export class KiteConnector extends DataConnector<
   virtual_editor: VirtualEditor;
   responseType = CompletionHandler.ICompletionItemsResponseType;
   private trigger_kind: CompletionTriggerKind;
-  private suppress_auto_invoke_in = ['comment', 'string'];
+  private suppress_auto_invoke_in = ['comment'];
   private icon: LabIcon;
 
   /**

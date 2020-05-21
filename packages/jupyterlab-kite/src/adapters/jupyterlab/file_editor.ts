@@ -88,11 +88,14 @@ export class FileEditorAdapter extends JupyterLabWidgetAdapter {
       connections: this.connection_manager.connections,
       virtual_editor: this.virtual_editor
     });
-    this.completion_manager.register({
+    const handler = this.completion_manager.register({
       connector: this.current_completion_connector,
       editor: this.editor.editor,
       parent: this.widget
     });
+    if (handler instanceof CompletionHandler) {
+      this.completion_handler = handler;
+    }
   }
 
   get path() {
