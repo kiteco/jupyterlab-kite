@@ -4,6 +4,7 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { CodeJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/jumper';
 import { PositionConverter } from '../../converter';
 import { CodeEditor } from '@jupyterlab/codeeditor';
+import { CompletionHandler } from '@jupyterlab/completer';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { DocumentRegistry, IDocumentWidget } from '@jupyterlab/docregistry';
 
@@ -118,6 +119,8 @@ export abstract class JupyterLabWidgetAdapter
   public connection_manager: DocumentConnectionManager;
   public status_message: StatusMessage;
   public isDisposed = false;
+
+  completion_handler?: CompletionHandler;
 
   protected constructor(
     protected app: JupyterFrontEnd,
@@ -264,6 +267,12 @@ export abstract class JupyterLabWidgetAdapter
   abstract find_ce_editor(cm_editor: CodeMirror.Editor): CodeEditor.IEditor;
 
   invoke_completer(kind: CompletionTriggerKind) {
+    if (this.completion_handler) {
+      const model = this.completion_handler.completer.model;
+      if (model) {
+        model.reset(true);
+      }
+    }
     this.current_completion_connector.with_trigger_kind(kind, () => {
       return this.app.commands.execute(this.invoke_command);
     });
