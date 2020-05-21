@@ -191,7 +191,7 @@ export class NotebookAdapter extends JupyterLabWidgetAdapter {
       connector: this.current_completion_connector,
       editor: cell.editor,
       parent: this.widget
-    }) as CompletionHandler;
+    });
     this.current_completion_handler = handler;
     if (handler instanceof CompletionHandler) {
       this.completion_handler = handler;
