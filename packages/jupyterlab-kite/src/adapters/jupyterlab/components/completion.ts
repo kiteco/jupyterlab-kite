@@ -79,7 +79,6 @@ export class KiteConnector extends DataConnector<
 
     if (!token.type) {
       console.log('[Kite][Completer] No token type found');
-      return;
     }
     if (this.suppress_auto_invoke_in.indexOf(token.type) !== -1) {
       console.log(
