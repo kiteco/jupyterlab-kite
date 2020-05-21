@@ -77,9 +77,6 @@ export class KiteConnector extends DataConnector<
     const cursor = editor.getCursorPosition();
     const token = editor.getTokenForPosition(cursor);
 
-    if (!token.type) {
-      console.log('[Kite][Completer] No token type found');
-    }
     if (this.suppress_auto_invoke_in.indexOf(token.type) !== -1) {
       console.log(
         '[Kite][Completer] Suppressing completer auto-invoke in',
