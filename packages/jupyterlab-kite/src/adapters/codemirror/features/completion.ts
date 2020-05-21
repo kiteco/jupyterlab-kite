@@ -23,10 +23,12 @@ export class Completion extends CodeMirrorLSPFeature {
   afterChange(change: CodeMirror.EditorChange): void {
     // TODO: maybe the completer could be kicked off in the handleChange() method directly; signature help still
     //  requires an up-to-date virtual document on the LSP side, so we need to wait for sync.
-    if (change.text.length && change.text[0].length > 1) {
-      // Use text[0].length => 1 as a proxy for a keystroke.
+    if (change.text.length && change.text[0].length > 2) {
       // Return early to prevent completions list from
       // popping up right away after a completion is inserted.
+      this.virtual_editor.console.log(
+        'Suppressing completion list due to text change >2 char'
+      );
       return;
     }
     let last_character = this.extract_last_character(change);
