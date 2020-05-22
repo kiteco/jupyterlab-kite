@@ -266,11 +266,16 @@ export abstract class JupyterLabWidgetAdapter
 
   abstract find_ce_editor(cm_editor: CodeMirror.Editor): CodeEditor.IEditor;
 
-  invoke_completer(kind: CompletionTriggerKind) {
-    if (this.completion_handler) {
-      const model = this.completion_handler.completer.model;
-      if (model) {
-        model.reset(true);
+  async invoke_completer(kind: CompletionTriggerKind) {
+    if (this.completion_handler && this.completion_handler.completer.model) {
+      const model = this.completion_handler.completer.model
+      if (model.original) {
+        // model.reset(true);
+        const reply = await this.current_completion_connector.fetch()
+        if (model && reply) {
+          model.setCompletionItems(reply.items);
+          return
+        }
       }
     }
     this.current_completion_connector.with_trigger_kind(kind, () => {

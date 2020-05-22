@@ -69,9 +69,7 @@ export class KiteConnector extends DataConnector<
    *
    * @param request - The completion request text and details.
    */
-  async fetch(
-    request: CompletionHandler.IRequest
-  ): Promise<CompletionHandler.ICompletionItemsReply | undefined> {
+  async fetch(): Promise<CompletionHandler.ICompletionItemsReply | undefined> {
     let editor = this._editor;
 
     const cursor = editor.getCursorPosition();
