@@ -1,9 +1,27 @@
 @import url('./highlight.css');
 @import url('./logo.css');
 
+/* All the stylings below this point should eventually be contributed upstream to jupyterlab/jupyterlab */
 .jp-Completer-docpanel {
   overflow: auto;
 }
 .jp-Completer-docpanel.hidden {
   display: none;
+}
+
+.jp-Completer-type {
+  min-width: 24px;
+  vertical-align: middle;
+}
+
+.jp-Completer-icon svg {
+  vertical-align: middle;
+}
+
+.jp-Completer-match {
+  min-width: 180px;
+}
+
+.jp-Completer-typeExtended {
+  min-width: 70px;
 }
