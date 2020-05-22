@@ -1,2 +1,6 @@
 @import url('./highlight.css');
 @import url('./logo.css');
+
+.jp-Completer-docpanel {
+    overflow: auto;
+}
