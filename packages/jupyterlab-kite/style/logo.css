@@ -1,3 +1,15 @@
-[data-icon='jupyterlab-kite:icon-name'] {
-  fill: var(--jp-content-font-color1);
+body[data-jp-theme-light='true'] [data-icon='jupyterlab-kite:completion-icon'] {
+  fill: #11182f;
+  fill-opacity: 60%;
+  transform: scale(0.6);
+}
+
+body[data-jp-theme-light='false'] [data-icon='jupyterlab-kite:completion-icon'] {
+  fill: #d3d3d3;
+  fill-opacity: 60%;
+  transform: scale(0.6);
+}
+
+[data-icon='jupyterlab-kite:status-icon'] {
+  fill: var(--jp-ui-font-color1);
 }

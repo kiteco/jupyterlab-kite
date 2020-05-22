@@ -22,7 +22,7 @@ export interface IKiteStatus {
 export class KiteStatusModel extends VDomModel {
   private _connection_manager: DocumentConnectionManager;
   private _icon: LabIcon = new LabIcon({
-    name: 'jupyterlab-kite:icon-name',
+    name: 'jupyterlab-kite:status-icon',
     svgstr: kiteLogo
   });
   private _kiteStatus: IKiteStatus = { status: '', short: '', long: '' };

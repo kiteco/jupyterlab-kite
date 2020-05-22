@@ -47,7 +47,7 @@ export class KiteConnector extends DataConnector<
     this.virtual_editor = options.virtual_editor;
     this.options = options;
     this.icon = new LabIcon({
-      name: 'jupyterlab-kite:icon-name',
+      name: 'jupyterlab-kite:completion-icon',
       svgstr: kiteLogo
     });
     this.icon.bindprops({ className: 'kite-logo' });
