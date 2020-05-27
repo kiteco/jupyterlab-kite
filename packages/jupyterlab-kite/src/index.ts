@@ -10,28 +10,19 @@ import { FileEditor, IEditorTracker } from '@jupyterlab/fileeditor';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 
+import { registerKiteCommands } from './kite_commands';
 import { LanguageServerManager } from './manager';
 
 import { FileEditorJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/fileeditor';
 import { NotebookJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/notebook';
 
-// TODO: make use of it for jump target selection (requires to be added to package.json)?
-// import 'codemirror/addon/hint/show-hint.css';
-// import 'codemirror/addon/hint/show-hint';
 import '../style/index.css';
 
 import { ICompletionManager } from '@jupyterlab/completer';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { NotebookAdapter } from './adapters/jupyterlab/notebook';
 import { FileEditorAdapter } from './adapters/jupyterlab/file_editor';
-import { lsp_features } from './adapters/jupyterlab/jl_adapter';
-import { IFeatureCommand } from './adapters/codemirror/feature';
-import {
-  file_editor_adapters,
-  FileEditorCommandManager,
-  notebook_adapters,
-  NotebookCommandManager
-} from './command_manager';
+import { file_editor_adapters, notebook_adapters } from './command_manager';
 import IPaths = JupyterFrontEnd.IPaths;
 import { IStatusBar } from '@jupyterlab/statusbar';
 import { KiteStatus } from './adapters/jupyterlab/components/statusbar';
@@ -41,10 +32,6 @@ import {
 } from '@jupyterlab/docregistry/lib/registry';
 import { DocumentConnectionManager } from './connection_manager';
 import { KiteStatusModel } from './adapters/jupyterlab/components/status_model';
-
-const lsp_commands: Array<IFeatureCommand> = ([] as Array<
-  IFeatureCommand
->).concat(...lsp_features.map(feature => feature.commands));
 
 /**
  * The plugin registration information.
@@ -76,6 +63,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
     labShell: ILabShell,
     status_bar: IStatusBar
   ) => {
+    registerKiteCommands(app, palette);
+
     const language_server_manager = new LanguageServerManager({});
     const kite_status_model = new KiteStatusModel();
     const connection_manager = new DocumentConnectionManager({
@@ -125,9 +114,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
     fileEditorTracker.widgetUpdated.connect((_sender, _widget) => {
       console.log(_sender);
       console.log(_widget);
-      // TODO?
-      // adapter.remove();
-      // connection.close();
     });
 
     const connect_file_editor = (
@@ -173,14 +159,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
       connect_file_editor(widget);
     });
 
-    let command_manager = new FileEditorCommandManager(
-      app,
-      palette,
-      fileEditorTracker,
-      'file_editor'
-    );
-    command_manager.add(lsp_commands);
-
     const connect_notebook = (widget: NotebookPanel) => {
       // NOTE: assuming that the default cells content factory produces CodeMirror editors(!)
       let jumper = new NotebookJumper(widget, documentManager);
@@ -218,48 +196,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
     notebookTracker.widgetAdded.connect(async (sender, widget) => {
       connect_notebook(widget);
     });
-
-    // position context menu entries after 10th but before 11th default entry
-    // this lets it be before "Clear outputs" which is the last entry of the
-    // CodeCell contextmenu and plays nicely with the first notebook entry
-    // ('Clear all outputs') thus should stay as the last one.
-    // see https://github.com/blink1073/jupyterlab/blob/3592afd328116a588e3307b4cdd9bcabc7fe92bb/packages/notebook-extension/src/index.ts#L802
-    // TODO: PR bumping rank of clear all outputs instead?
-    let notebook_command_manager = new NotebookCommandManager(
-      app,
-      palette,
-      notebookTracker,
-      'notebook',
-      // adding a very small number (epsilon) places the group just after 10th entry
-      10 + Number.EPSILON,
-      // the group size is increased by one to account for separator,
-      // and by another one to prevent exceeding 11th rank by epsilon.
-      lsp_commands.length + 2
-    );
-    notebook_command_manager.add_context_separator(0);
-    notebook_command_manager.add(lsp_commands);
-
-    function updateOptions(settings: ISettingRegistry.ISettings): void {
-      // let options = settings.composite;
-      // Object.keys(options).forEach((key) => {
-      //  if (key === 'modifier') {
-      //    // let modifier = options[key] as KeyModifier;
-      //    CodeMirrorExtension.modifierKey = modifier;
-      //  }
-      // });
-    }
-
-    settingRegistry
-      .load(plugin.id)
-      .then(settings => {
-        updateOptions(settings);
-        settings.changed.connect(() => {
-          updateOptions(settings);
-        });
-      })
-      .catch((reason: Error) => {
-        console.error(reason.message);
-      });
   },
   autoStart: true
 };
