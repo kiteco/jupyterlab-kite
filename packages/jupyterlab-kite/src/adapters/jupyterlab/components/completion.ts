@@ -284,7 +284,9 @@ export class KiteConnector extends DataConnector<
       types.forEach((item: JSONObject) => {
         const text = item.text as string;
         const type = item.type as string;
-        items.push({ label: text, type });
+        if (type !== '<unknown>') {
+          items.push({ label: text, type });
+        }
       });
     } else {
       const matches = reply.matches;
