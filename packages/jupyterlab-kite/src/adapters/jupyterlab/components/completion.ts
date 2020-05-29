@@ -1,13 +1,16 @@
 import { DataConnector } from '@jupyterlab/statedb';
-import { CompletionHandler } from '@jupyterlab/completer';
+import { CompletionHandler, KernelConnector } from '@jupyterlab/completer';
 import { CodeEditor } from '@jupyterlab/codeeditor';
+import { CodeMirrorEditor } from '@jupyterlab/codemirror';
+
+import { JSONArray, JSONObject } from '@lumino/coreutils';
+
+import { CompletionItem, MarkupContent } from 'vscode-languageserver-types';
 
 import { completionItemKindNames, CompletionTriggerKind } from '../../../lsp';
-import { CompletionItem, MarkupContent } from 'vscode-languageserver-types';
 import { PositionConverter } from '../../../converter';
 import { VirtualDocument } from '../../../virtual/document';
 import { VirtualEditor } from '../../../virtual/editor';
-import { CodeMirrorEditor } from '@jupyterlab/codemirror';
 import {
   IEditorPosition,
   IRootPosition,
@@ -26,12 +29,13 @@ export class KiteConnector extends DataConnector<
 > {
   isDisposed = false;
   private _editor: CodeEditor.IEditor;
+  private _kernel_connector: KernelConnector;
   private _connections: Map<VirtualDocument.id_path, LSPConnection>;
   protected options: KiteConnector.IOptions;
 
   virtual_editor: VirtualEditor;
   responseType = CompletionHandler.ICompletionItemsResponseType;
-  private trigger_kind: CompletionTriggerKind;
+  private _trigger_kind: CompletionTriggerKind;
   private suppress_auto_invoke_in = ['comment'];
   private icon: LabIcon;
 
@@ -46,6 +50,13 @@ export class KiteConnector extends DataConnector<
     this._connections = options.connections;
     this.virtual_editor = options.virtual_editor;
     this.options = options;
+
+    if (options.session) {
+      this._kernel_connector = new KernelConnector({
+        session: options.session
+      });
+    }
+
     this.icon = new LabIcon({
       name: 'jupyterlab-kite:completion-icon',
       svgstr: kiteLogo
@@ -58,9 +69,11 @@ export class KiteConnector extends DataConnector<
       return;
     }
     delete this._connections;
+    delete this._kernel_connector;
     delete this.virtual_editor;
     delete this.options;
     delete this._editor;
+    delete this.icon;
     delete this.isDisposed;
   }
 
@@ -69,7 +82,9 @@ export class KiteConnector extends DataConnector<
    *
    * @param request - The completion request text and details.
    */
-  async fetch(): Promise<CompletionHandler.ICompletionItemsReply | undefined> {
+  async fetch(
+    request?: CompletionHandler.IRequest
+  ): Promise<CompletionHandler.ICompletionItemsReply | undefined> {
     let editor = this._editor;
 
     const cursor = editor.getCursorPosition();
@@ -112,7 +127,20 @@ export class KiteConnector extends DataConnector<
     let virtual_cursor = virtual_editor.root_position_to_virtual_position(
       cursor_in_root
     );
-    return this.fetch_kite(
+
+    if (!this._kernel_connector || !request) {
+      return this.fetch_kite(
+        token,
+        typed_character,
+        virtual_start,
+        virtual_end,
+        virtual_cursor,
+        document,
+        position_in_token
+      );
+    }
+
+    const kitePromise = this.fetch_kite(
       token,
       typed_character,
       virtual_start,
@@ -120,7 +148,24 @@ export class KiteConnector extends DataConnector<
       virtual_cursor,
       document,
       position_in_token
-    );
+    ).catch(_ => {
+      return {
+        start: -1,
+        end: -1,
+        items: []
+      } as CompletionHandler.ICompletionItemsReply;
+    });
+    const kernelPromise = this._kernel_connector.fetch(request).catch(_ => {
+      return {
+        start: -1,
+        end: -1,
+        matches: [],
+        metadata: {}
+      } as CompletionHandler.IReply;
+    });
+
+    const [kernel, kite] = await Promise.all([kernelPromise, kitePromise]);
+    return this.merge_replies(kernel, kite);
   }
 
   async fetch_kite(
@@ -204,10 +249,64 @@ export class KiteConnector extends DataConnector<
     };
   }
 
+  private merge_replies(
+    kernelReply: CompletionHandler.IReply,
+    kiteReply: CompletionHandler.ICompletionItemsReply
+  ): CompletionHandler.ICompletionItemsReply {
+    const newKernelReply = this.transform(kernelReply);
+
+    if (!newKernelReply.items.length) {
+      console.log('[Kite]: No kernel items, returning Kite reply');
+      return kiteReply;
+    }
+    if (!kiteReply.items.length) {
+      console.log('[Kite]: No Kite items, returning kernel reply');
+      return newKernelReply;
+    }
+    console.log('[Kite]: Merging', kernelReply, kiteReply);
+    return {
+      ...kiteReply,
+      items: kiteReply.items.concat(newKernelReply.items)
+    };
+  }
+
+  /**
+   * Converts an IReply into an ICompletionItemsReply.
+   */
+  private transform(
+    reply: CompletionHandler.IReply
+  ): CompletionHandler.ICompletionItemsReply {
+    const items = new Array<CompletionHandler.ICompletionItem>();
+    const metadata = reply.metadata || {};
+    const types = metadata._jupyter_types_experimental as JSONArray;
+
+    if (types) {
+      types.forEach((item: JSONObject) => {
+        const text = item.text as string;
+        const type = item.type as string;
+        items.push({ label: text, type });
+      });
+    } else {
+      const matches = reply.matches;
+      matches.forEach(match => {
+        items.push({ label: match });
+      });
+    }
+    return { start: reply.start, end: reply.end, items };
+  }
+
   transform_from_editor_to_root(position: CodeEditor.IPosition): IRootPosition {
     let cm_editor = (this._editor as CodeMirrorEditor).editor;
     let cm_start = PositionConverter.ce_to_cm(position) as IEditorPosition;
     return this.virtual_editor.transform_editor_to_root(cm_editor, cm_start);
+  }
+
+  get trigger_kind(): CompletionTriggerKind {
+    return this._trigger_kind;
+  }
+
+  set trigger_kind(kind: CompletionTriggerKind) {
+    this._trigger_kind = kind;
   }
 
   with_trigger_kind(kind: CompletionTriggerKind, fn: Function) {
