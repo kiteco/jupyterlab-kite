@@ -155,20 +155,12 @@ export class KiteConnector extends DataConnector<
       document,
       position_in_token
     ).catch(_ => {
-      return {
-        start: -1,
-        end: -1,
-        items: []
-      } as CompletionHandler.ICompletionItemsReply;
-    });
+      return KiteConnector.EmptyICompletionItemsReply;
+    }) as Promise<CompletionHandler.ICompletionItemsReply>;
+
     const kernelPromise = this._kernel_connector.fetch(request).catch(_ => {
-      return {
-        start: -1,
-        end: -1,
-        matches: [],
-        metadata: {}
-      } as CompletionHandler.IReply;
-    });
+      return KiteConnector.EmptyIReply;
+    }) as Promise<CompletionHandler.IReply>;
 
     const [kernel, kite] = await Promise.all([kernelPromise, kitePromise]);
     return this.merge_replies(kernel, kite);
@@ -355,4 +347,17 @@ export namespace KiteConnector {
 
     session?: Session.ISessionConnection;
   }
+
+  export const EmptyICompletionItemsReply = {
+    start: -1,
+    end: -1,
+    items: [] as CompletionHandler.ICompletionItems
+  };
+
+  export const EmptyIReply = {
+    start: -1,
+    end: -1,
+    matches: [] as ReadonlyArray<string>,
+    metadata: {}
+  };
 }
