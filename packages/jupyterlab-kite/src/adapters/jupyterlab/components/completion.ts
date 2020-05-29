@@ -128,7 +128,13 @@ export class KiteConnector extends DataConnector<
       cursor_in_root
     );
 
-    if (!this._kernel_connector || !request) {
+    /**
+     * Don't fetch kernel completions if:
+     * - No kernel connector
+     * - No request object
+     * - Token type is string (otherwise kernel completions appear within docstrings)
+     */
+    if (!this._kernel_connector || !request || token.type === 'string') {
       return this.fetch_kite(
         token,
         typed_character,
@@ -264,13 +270,13 @@ export class KiteConnector extends DataConnector<
       return newKernelReply;
     }
 
-    // Dedupe Kernel labels with Kite insertTexts
-    const kiteSet = new Set(kiteReply.items.map(item => item.insertText));
+    // Dedupe Kite and Kernel items based on label
+    const kiteSet = new Set(kiteReply.items.map(item => item.label));
     newKernelReply.items = newKernelReply.items.filter(
       item => !kiteSet.has(item.label)
     );
 
-    console.log('[Kite]: Merging', newKernelReply, kiteReply);
+    console.log('[Kite]: Merging', kiteReply, newKernelReply);
     return {
       ...kiteReply,
       items: kiteReply.items.concat(newKernelReply.items)
