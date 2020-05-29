@@ -263,7 +263,14 @@ export class KiteConnector extends DataConnector<
       console.log('[Kite]: No Kite items, returning kernel reply');
       return newKernelReply;
     }
-    console.log('[Kite]: Merging', kernelReply, kiteReply);
+
+    // Dedupe Kernel labels with Kite insertTexts
+    const kiteSet = new Set(kiteReply.items.map(item => item.insertText));
+    newKernelReply.items = newKernelReply.items.filter(
+      item => !kiteSet.has(item.label)
+    );
+
+    console.log('[Kite]: Merging', newKernelReply, kiteReply);
     return {
       ...kiteReply,
       items: kiteReply.items.concat(newKernelReply.items)
