@@ -35,7 +35,7 @@ export class KiteConnector extends DataConnector<
 
   virtual_editor: VirtualEditor;
   responseType = CompletionHandler.ICompletionItemsResponseType;
-  private _trigger_kind: CompletionTriggerKind;
+  private _trigger_kind: CompletionTriggerKind = CompletionTriggerKind.Invoked;
   private suppress_auto_invoke_in = ['comment'];
   private icon: LabIcon;
 
@@ -146,23 +146,44 @@ export class KiteConnector extends DataConnector<
       );
     }
 
-    const kitePromise = this.fetch_kite(
-      token,
-      typed_character,
-      virtual_start,
-      virtual_end,
-      virtual_cursor,
-      document,
-      position_in_token
-    ).catch(_ => {
-      return KiteConnector.EmptyICompletionItemsReply;
-    }) as Promise<CompletionHandler.ICompletionItemsReply>;
+    const kitePromise = () => {
+      return this.fetch_kite(
+        token,
+        typed_character,
+        virtual_start,
+        virtual_end,
+        virtual_cursor,
+        document,
+        position_in_token
+      ).catch(() => {
+        console.log('kitePromiseReject -- Returning EmptyIReply');
+        return KiteConnector.EmptyICompletionItemsReply;
+      });
+    };
 
-    const kernelPromise = this._kernel_connector.fetch(request).catch(_ => {
-      return KiteConnector.EmptyIReply;
-    }) as Promise<CompletionHandler.IReply>;
+    const kernelPromise = () => {
+      return this._kernel_connector.fetch(request).catch(() => {
+        console.log('kernelPromiseReject -- Returning EmptyIReply');
+        return KiteConnector.EmptyIReply;
+      });
+    };
 
-    const [kernel, kite] = await Promise.all([kernelPromise, kitePromise]);
+    const timeout = new Promise<CompletionHandler.IReply>(resolve => {
+      setTimeout(resolve, 100, KiteConnector.EmptyIReply);
+    });
+    const kernelTimeoutPromise = () => {
+      return Promise.race([timeout, kernelPromise()]).then(reply => {
+        return reply;
+      });
+    };
+
+    const isManual = this._trigger_kind === CompletionTriggerKind.Invoked;
+    console.log('Manual:', isManual);
+
+    const [kernel, kite] = await Promise.all([
+      isManual ? kernelPromise() : kernelTimeoutPromise(),
+      kitePromise()
+    ]);
     return this.merge_replies(kernel, kite);
   }
 
@@ -174,12 +195,12 @@ export class KiteConnector extends DataConnector<
     cursor: IVirtualPosition,
     document: VirtualDocument,
     position_in_token: number
-  ): Promise<CompletionHandler.ICompletionItemsReply | undefined> {
+  ): Promise<CompletionHandler.ICompletionItemsReply> {
     let connection = this._connections.get(document.id_path);
 
     if (!connection) {
       console.log('[Kite][Completer] No LSP Connection found');
-      return;
+      return KiteConnector.EmptyICompletionItemsReply;
     }
 
     console.log('[Kite][Completer] Fetching');
@@ -251,6 +272,7 @@ export class KiteConnector extends DataConnector<
     kernelReply: CompletionHandler.IReply,
     kiteReply: CompletionHandler.ICompletionItemsReply
   ): CompletionHandler.ICompletionItemsReply {
+    console.log('[Kite]: Attempting to merge...', kernelReply, kiteReply);
     const newKernelReply = this.transform(kernelReply);
 
     if (!newKernelReply.items.length) {
