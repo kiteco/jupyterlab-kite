@@ -156,14 +156,12 @@ export class KiteConnector extends DataConnector<
         document,
         position_in_token
       ).catch(() => {
-        console.log('kitePromiseReject -- Returning EmptyIReply');
         return KiteConnector.EmptyICompletionItemsReply;
       });
     };
 
     const kernelPromise = () => {
       return this._kernel_connector.fetch(request).catch(() => {
-        console.log('kernelPromiseReject -- Returning EmptyIReply');
         return KiteConnector.EmptyIReply;
       });
     };
@@ -178,7 +176,6 @@ export class KiteConnector extends DataConnector<
     };
 
     const isManual = this._trigger_kind === CompletionTriggerKind.Invoked;
-    console.log('Manual:', isManual);
 
     const [kernel, kite] = await Promise.all([
       isManual ? kernelPromise() : kernelTimeoutPromise(),
@@ -272,15 +269,12 @@ export class KiteConnector extends DataConnector<
     kernelReply: CompletionHandler.IReply,
     kiteReply: CompletionHandler.ICompletionItemsReply
   ): CompletionHandler.ICompletionItemsReply {
-    console.log('[Kite]: Attempting to merge...', kernelReply, kiteReply);
     const newKernelReply = this.transform(kernelReply);
 
     if (!newKernelReply.items.length) {
-      console.log('[Kite]: No kernel items, returning Kite reply');
       return kiteReply;
     }
     if (!kiteReply.items.length) {
-      console.log('[Kite]: No Kite items, returning kernel reply');
       return newKernelReply;
     }
 
