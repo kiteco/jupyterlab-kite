@@ -2,6 +2,8 @@ import { DataConnector } from '@jupyterlab/statedb';
 import { CompletionHandler, KernelConnector } from '@jupyterlab/completer';
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import { CodeMirrorEditor } from '@jupyterlab/codemirror';
+import { Session } from '@jupyterlab/services';
+import { LabIcon } from '@jupyterlab/ui-components';
 
 import { JSONArray, JSONObject } from '@lumino/coreutils';
 
@@ -17,10 +19,12 @@ import {
   IVirtualPosition
 } from '../../../positioning';
 import { LSPConnection } from '../../../connection';
-import { Session } from '@jupyterlab/services';
-import { LabIcon } from '@jupyterlab/ui-components';
 
 import kiteLogo from '../../../../style/icons/kite-logo.svg';
+
+interface KiteCompletionItem extends CompletionItem {
+  hint: string;
+}
 
 export class KiteConnector extends DataConnector<
   CompletionHandler.ICompletionItemsReply,
@@ -212,7 +216,7 @@ export class KiteConnector extends DataConnector<
       false,
       typed_character,
       this.trigger_kind
-    )) || []) as CompletionItem[];
+    )) || []) as KiteCompletionItem[];
 
     let prefix = token.value.slice(0, position_in_token + 1);
     let all_non_prefixed = true;
@@ -221,7 +225,11 @@ export class KiteConnector extends DataConnector<
       let completionItem = {
         label: match.label,
         insertText: match.insertText,
-        type: match.kind ? completionItemKindNames[match.kind] : '',
+        type: match.hint
+          ? match.hint
+          : match.kind
+          ? completionItemKindNames[match.kind]
+          : '',
         icon: this.icon,
         documentation: MarkupContent.is(match.documentation)
           ? match.documentation.value
