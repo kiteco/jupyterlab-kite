@@ -112,6 +112,12 @@ export class LSPConnection extends LspWsConnection {
     return edit;
   }
 
+  protected initializeParams(): lsProtocol.InitializeParams {
+    const params = super.initializeParams();
+    params.initializationOptions = { kiteTypesEnabled: true };
+    return params;
+  }
+
   public connect(socket: WebSocket): this {
     super.connect(socket);
 
