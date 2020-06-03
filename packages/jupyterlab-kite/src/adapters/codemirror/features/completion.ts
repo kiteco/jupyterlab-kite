@@ -2,6 +2,9 @@ import { CompletionTriggerKind } from '../../../lsp';
 import * as CodeMirror from 'codemirror';
 import { CodeMirrorLSPFeature } from '../feature';
 
+// Defines text insertions that are >1 char and do not suppress the completer
+const allowedLongChanges: string[] = ['()', '[]', '{}'];
+
 export class Completion extends CodeMirrorLSPFeature {
   name = 'Completion';
   private _completionCharacters: string[];
@@ -23,11 +26,16 @@ export class Completion extends CodeMirrorLSPFeature {
   afterChange(change: CodeMirror.EditorChange): void {
     // TODO: maybe the completer could be kicked off in the handleChange() method directly; signature help still
     //  requires an up-to-date virtual document on the LSP side, so we need to wait for sync.
-    if (change.text.length && change.text[0].length > 2) {
+    if (
+      change.text.length &&
+      change.text[0].length > 1 &&
+      !allowedLongChanges.includes(change.text[0])
+    ) {
       // Return early to prevent completions list from
       // popping up right away after a completion is inserted.
       this.virtual_editor.console.log(
-        'Suppressing completion list due to text change >2 char'
+        'Suppressing completion list due to multi-character text change: ',
+        change.text[0]
       );
       return;
     }
