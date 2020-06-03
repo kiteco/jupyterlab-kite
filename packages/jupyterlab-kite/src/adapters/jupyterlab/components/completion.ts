@@ -147,7 +147,9 @@ export class KiteConnector extends DataConnector<
         virtual_cursor,
         document,
         position_in_token
-      );
+      ).catch(() => {
+        return KiteConnector.EmptyICompletionItemsReply;
+      });
     }
 
     const kitePromise = () => {
@@ -205,23 +207,25 @@ export class KiteConnector extends DataConnector<
     }
 
     console.log('[Kite][Completer] Fetching');
-    let lspCompletionItems = ((await connection.getCompletion(
-      cursor,
-      {
-        start,
-        end,
-        text: token.value
-      },
-      document.document_info,
-      false,
-      typed_character,
-      this.trigger_kind
-    )) || []) as KiteCompletionItem[];
+    const lspCompletionItems = await connection
+      .getCompletion(
+        cursor,
+        {
+          start,
+          end,
+          text: token.value
+        },
+        document.document_info,
+        false,
+        typed_character,
+        this.trigger_kind
+      )
+      .catch(err => console.error(err));
 
     let prefix = token.value.slice(0, position_in_token + 1);
     let all_non_prefixed = true;
     let items: CompletionHandler.ICompletionItem[] = [];
-    lspCompletionItems.forEach(match => {
+    (lspCompletionItems as KiteCompletionItem[]).forEach(match => {
       let completionItem = {
         label: match.label,
         insertText: match.insertText,
