@@ -3,7 +3,7 @@ import * as CodeMirror from 'codemirror';
 import { CodeMirrorLSPFeature } from '../feature';
 
 // Defines text insertions that are >1 char and do not suppress the completer
-const allowedLongChanges: string[] = ['()', '[]', '{}', '""', "''"];
+const allowedLongChanges: Set<string> = new Set(['()', '[]', '{}', '""', "''"]);
 
 export class Completion extends CodeMirrorLSPFeature {
   name = 'Completion';
@@ -29,7 +29,7 @@ export class Completion extends CodeMirrorLSPFeature {
     if (
       change.text.length &&
       change.text[0].length > 1 &&
-      !allowedLongChanges.includes(change.text[0])
+      !allowedLongChanges.has(change.text[0])
     ) {
       // Return early to prevent completions list from
       // popping up right away after a completion is inserted.
