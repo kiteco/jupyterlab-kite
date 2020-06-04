@@ -132,29 +132,6 @@ export class KiteConnector extends DataConnector<
       cursor_in_root
     );
 
-    const isManual = this._trigger_kind === CompletionTriggerKind.Invoked;
-    // Don't auto fetch kernel completions if token.type is string
-    const suppress_string = !isManual && token.type === 'string';
-    /**
-     * Don't fetch kernel completions if:
-     * - No kernel connector
-     * - No request object
-     * - Token type is string (otherwise kernel completions appear within docstrings)
-     */
-    if (!this._kernel_connector || !request || suppress_string) {
-      return this.fetch_kite(
-        token,
-        typed_character,
-        virtual_start,
-        virtual_end,
-        virtual_cursor,
-        document,
-        position_in_token
-      ).catch(() => {
-        return KiteConnector.EmptyICompletionItemsReply;
-      });
-    }
-
     const kitePromise = () => {
       return this.fetch_kite(
         token,
@@ -169,7 +146,24 @@ export class KiteConnector extends DataConnector<
       });
     };
 
+    const isManual = this._trigger_kind === CompletionTriggerKind.Invoked;
+    /**
+     * """
+     * """
+     * has token.type string, so we suppress auto fetching.
+     */
+    const should_suppress_strings = !isManual && token.type === 'string';
+
     const kernelPromise = () => {
+      /**
+       * Don't fetch kernel completions if:
+       * - No kernel connector
+       * - No request object
+       * - Token type is string (otherwise kernel completions appear within docstrings)
+       */
+      if (!this._kernel_connector || !request || should_suppress_strings) {
+        return KiteConnector.EmptyIReply;
+      }
       return this._kernel_connector.fetch(request).catch(() => {
         return KiteConnector.EmptyIReply;
       });
