@@ -10,6 +10,7 @@ Parts of this code are derived from:
 # pylint: disable=broad-except
 import asyncio
 import io
+import json
 import os
 from concurrent.futures import ThreadPoolExecutor
 from typing import Text
@@ -160,7 +161,18 @@ class LspStdIoWriter(LspStdIoBase):
                 response = "Content-Length: {}\r\n\r\n{}".format(len(body), message)
                 await convert_yielded(self._write_one(response.encode("utf-8")))
             except Exception:  # pragma: no cover
-                self.log.exception("s couldn't write message: %s", self, response)
+                self.log.exception("%s couldn't write message: %s", self, response)
+                # Send error response message
+                message_json = json.loads(message)
+                if 'id' in message_json:
+                    message_id = message_json['id']
+                else:
+                    message_id = None
+                error = json.dumps({"jsonrpc": "2.0", "error": {"code": -32603, "message": "Internal Error"}, "id": message_id})
+                self.log.info("Sending error response: %s", error)
+                handlers = self.parent.handlers
+                for handler in handlers:
+                    handler.write_message(error)
             finally:
                 self.queue.task_done()
 
