@@ -132,13 +132,16 @@ export class KiteConnector extends DataConnector<
       cursor_in_root
     );
 
+    const isManual = this._trigger_kind === CompletionTriggerKind.Invoked;
+    // Don't auto fetch kernel completions if token.type is string
+    const suppress_string = !isManual && token.type === 'string';
     /**
      * Don't fetch kernel completions if:
      * - No kernel connector
      * - No request object
      * - Token type is string (otherwise kernel completions appear within docstrings)
      */
-    if (!this._kernel_connector || !request || token.type === 'string') {
+    if (!this._kernel_connector || !request || suppress_string) {
       return this.fetch_kite(
         token,
         typed_character,
@@ -180,8 +183,6 @@ export class KiteConnector extends DataConnector<
         return reply;
       });
     };
-
-    const isManual = this._trigger_kind === CompletionTriggerKind.Invoked;
 
     const [kernel, kite] = await Promise.all([
       isManual ? kernelPromise() : kernelTimeoutPromise(),
@@ -282,7 +283,6 @@ export class KiteConnector extends DataConnector<
     kiteReply: CompletionHandler.ICompletionItemsReply
   ): CompletionHandler.ICompletionItemsReply {
     const newKernelReply = this.transform(kernelReply);
-
     if (!newKernelReply.items.length) {
       return kiteReply;
     }
@@ -317,9 +317,7 @@ export class KiteConnector extends DataConnector<
       types.forEach((item: JSONObject) => {
         const text = item.text as string;
         const type = item.type as string;
-        if (type !== '<unknown>') {
-          items.push({ label: text, type });
-        }
+        items.push({ label: text, type: type === '<unknown>' ? '' : type });
       });
     } else {
       const matches = reply.matches;
