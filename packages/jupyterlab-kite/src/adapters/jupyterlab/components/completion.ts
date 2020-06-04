@@ -132,26 +132,6 @@ export class KiteConnector extends DataConnector<
       cursor_in_root
     );
 
-    /**
-     * Don't fetch kernel completions if:
-     * - No kernel connector
-     * - No request object
-     * - Token type is string (otherwise kernel completions appear within docstrings)
-     */
-    if (!this._kernel_connector || !request || token.type === 'string') {
-      return this.fetch_kite(
-        token,
-        typed_character,
-        virtual_start,
-        virtual_end,
-        virtual_cursor,
-        document,
-        position_in_token
-      ).catch(() => {
-        return KiteConnector.EmptyICompletionItemsReply;
-      });
-    }
-
     const kitePromise = () => {
       return this.fetch_kite(
         token,
@@ -166,7 +146,24 @@ export class KiteConnector extends DataConnector<
       });
     };
 
+    const isManual = this._trigger_kind === CompletionTriggerKind.Invoked;
+    /**
+     * """
+     * """
+     * has token.type string, so we suppress auto fetching.
+     */
+    const should_suppress_strings = !isManual && token.type === 'string';
+
     const kernelPromise = () => {
+      /**
+       * Don't fetch kernel completions if:
+       * - No kernel connector
+       * - No request object
+       * - Token type is string (otherwise kernel completions appear within docstrings)
+       */
+      if (!this._kernel_connector || !request || should_suppress_strings) {
+        return KiteConnector.EmptyIReply;
+      }
       return this._kernel_connector.fetch(request).catch(() => {
         return KiteConnector.EmptyIReply;
       });
@@ -180,8 +177,6 @@ export class KiteConnector extends DataConnector<
         return reply;
       });
     };
-
-    const isManual = this._trigger_kind === CompletionTriggerKind.Invoked;
 
     const [kernel, kite] = await Promise.all([
       isManual ? kernelPromise() : kernelTimeoutPromise(),
@@ -282,7 +277,6 @@ export class KiteConnector extends DataConnector<
     kiteReply: CompletionHandler.ICompletionItemsReply
   ): CompletionHandler.ICompletionItemsReply {
     const newKernelReply = this.transform(kernelReply);
-
     if (!newKernelReply.items.length) {
       return kiteReply;
     }
@@ -317,9 +311,7 @@ export class KiteConnector extends DataConnector<
       types.forEach((item: JSONObject) => {
         const text = item.text as string;
         const type = item.type as string;
-        if (type !== '<unknown>') {
-          items.push({ label: text, type });
-        }
+        items.push({ label: text, type: type === '<unknown>' ? '' : type });
       });
     } else {
       const matches = reply.matches;
