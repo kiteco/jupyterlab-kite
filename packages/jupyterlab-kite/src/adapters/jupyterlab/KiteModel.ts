@@ -1,4 +1,10 @@
-import { Completer, CompleterModel } from '@jupyterlab/completer';
+import {
+  Completer,
+  CompleterModel,
+  CompletionHandler
+} from '@jupyterlab/completer';
+
+import { Text } from '@jupyterlab/coreutils';
 
 export class KiteModel extends CompleterModel {
   private _state: Completer.ITextState | undefined;
@@ -11,7 +17,7 @@ export class KiteModel extends CompleterModel {
     return this._state;
   }
 
-  set state(newState: Completer.ITextState) {
+  set state(newState: Completer.ITextState | undefined) {
     this._state = newState;
   }
 
@@ -35,5 +41,23 @@ export class KiteModel extends CompleterModel {
   handleTextChange(change: Completer.ITextState) {
     super.handleTextChange(change);
     this.state = change;
+  }
+
+  /**
+   * Re-implementation of private method _updateModel.
+   * https://github.com/jupyterlab/jupyterlab/blob/1df0e18951194bb5ec230e76441e8108e0b472e7/packages/completer/src/handler.ts#L421
+   * Enables completer to fully update model state when completions are force updated in JupyterLabWidgetAdapter.
+   */
+  update(reply: CompletionHandler.ICompletionItemsReply) {
+    if (this.state) {
+      const text = this.state.text;
+      // Update the original request.
+      this.original = this.state;
+      // Update the cursor.
+      this.cursor = {
+        start: Text.charIndexToJsIndex(reply.start, text),
+        end: Text.charIndexToJsIndex(reply.end, text)
+      };
+    }
   }
 }

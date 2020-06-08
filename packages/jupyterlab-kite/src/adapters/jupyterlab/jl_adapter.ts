@@ -1,38 +1,38 @@
-import * as CodeMirror from 'codemirror';
-import { CodeMirrorAdapter } from '../codemirror/cm_adapter';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { CodeJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/jumper';
-import { PositionConverter } from '../../converter';
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import { CompletionHandler } from '@jupyterlab/completer';
-import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { DocumentRegistry, IDocumentWidget } from '@jupyterlab/docregistry';
-
-import * as lsProtocol from 'vscode-languageserver-protocol';
-import { FreeTooltip } from './components/free_tooltip';
-import { Widget } from '@lumino/widgets';
-import { VirtualEditor } from '../../virtual/editor';
-import { VirtualDocument, IForeignContext } from '../../virtual/document';
-import { Signal } from '@lumino/signaling';
-import { IEditorPosition, IRootPosition } from '../../positioning';
-import { LSPConnection } from '../../connection';
-import { KiteConnector } from './components/completion';
-import { CompletionTriggerKind } from '../../lsp';
-import { Completion } from '../codemirror/features/completion';
-import { Diagnostics } from '../codemirror/features/diagnostics';
-import { Highlights } from '../codemirror/features/highlights';
-import { Hover } from '../codemirror/features/hover';
-import { Signature } from '../codemirror/features/signature';
-import { ILSPFeatureConstructor, ILSPFeature } from '../codemirror/feature';
-import { JumpToDefinition } from '../codemirror/features/jump_to';
-import { ICommandContext } from '../../command_manager';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { CodeJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/jumper';
 import { JSONObject } from '@lumino/coreutils';
+import { Signal } from '@lumino/signaling';
+import { Widget } from '@lumino/widgets';
+import * as CodeMirror from 'codemirror';
+import * as lsProtocol from 'vscode-languageserver-protocol';
+import { ICommandContext } from '../../command_manager';
+import { LSPConnection } from '../../connection';
 import {
   DocumentConnectionManager,
   IDocumentConnectionData,
   ISocketConnectionOptions
 } from '../../connection_manager';
+import { PositionConverter } from '../../converter';
+import { CompletionTriggerKind } from '../../lsp';
+import { IEditorPosition, IRootPosition } from '../../positioning';
+import { IForeignContext, VirtualDocument } from '../../virtual/document';
+import { VirtualEditor } from '../../virtual/editor';
+import { CodeMirrorAdapter } from '../codemirror/cm_adapter';
+import { ILSPFeature, ILSPFeatureConstructor } from '../codemirror/feature';
+import { Completion } from '../codemirror/features/completion';
+import { Diagnostics } from '../codemirror/features/diagnostics';
+import { Highlights } from '../codemirror/features/highlights';
+import { Hover } from '../codemirror/features/hover';
+import { JumpToDefinition } from '../codemirror/features/jump_to';
 import { Rename } from '../codemirror/features/rename';
+import { Signature } from '../codemirror/features/signature';
+import { KiteConnector } from './components/completion';
+import { FreeTooltip } from './components/free_tooltip';
+import { KiteModel } from './KiteModel';
 
 export const lsp_features: Array<ILSPFeatureConstructor> = [
   Completion,
@@ -267,14 +267,21 @@ export abstract class JupyterLabWidgetAdapter
   abstract find_ce_editor(cm_editor: CodeMirror.Editor): CodeEditor.IEditor;
 
   async invoke_completer(kind: CompletionTriggerKind) {
-    if (this.completion_handler && this.completion_handler.completer.model) {
-      const model = this.completion_handler.completer.model;
+    if (this.completion_handler) {
+      let model: KiteModel;
+      try {
+        model = this.completion_handler.completer.model as KiteModel;
+      } catch (e) {
+        console.log('Could not cast model into KiteModel', e);
+        return;
+      }
       if (model.original) {
-        // model.reset(true);
+        // Core would bail, so we force fetch completions here.
         this.current_completion_connector.trigger_kind = kind;
         const reply = await this.current_completion_connector.fetch();
-        if (model && model.setCompletionItems && reply) {
-          model.query = '';
+        if (model.setCompletionItems && reply) {
+          model.query = ''; // Prevent filtering of response
+          model.update(reply);
           model.setCompletionItems(reply.items);
           return;
         }
