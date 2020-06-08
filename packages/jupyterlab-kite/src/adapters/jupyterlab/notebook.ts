@@ -17,6 +17,7 @@ import ILanguageInfoMetadata = nbformat.ILanguageInfoMetadata;
 import { DocumentConnectionManager } from '../../connection_manager';
 import { Session } from '@jupyterlab/services';
 import { SessionContext } from '@jupyterlab/apputils';
+import { KiteModel } from './KiteModel';
 
 export class NotebookAdapter extends JupyterLabWidgetAdapter {
   editor: Notebook;
@@ -195,6 +196,7 @@ export class NotebookAdapter extends JupyterLabWidgetAdapter {
     this.current_completion_handler = handler;
     if (handler instanceof CompletionHandler) {
       this.completion_handler = handler;
+      this.completion_handler.completer.model = new KiteModel();
     }
     this.widget.content.activeCellChanged.connect(this.on_completions, this);
   }
