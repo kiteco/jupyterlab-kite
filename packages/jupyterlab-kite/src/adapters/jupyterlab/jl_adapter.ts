@@ -274,6 +274,7 @@ export abstract class JupyterLabWidgetAdapter
         this.current_completion_connector.trigger_kind = kind;
         const reply = await this.current_completion_connector.fetch();
         if (model && model.setCompletionItems && reply) {
+          model.query = '';
           model.setCompletionItems(reply.items);
           return;
         }
