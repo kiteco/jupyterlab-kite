@@ -9,7 +9,7 @@ At a high level, Kite provides you with:
 
 ## Requirements
 
-* JupyterLab v2.2.0
+* JupyterLab v2.2.0 and above
 * [Kite Engine](https://kite.com/)
 
 Use another editor? Check out [Kite’s other editor integrations](https://kite.com/integrations/).
