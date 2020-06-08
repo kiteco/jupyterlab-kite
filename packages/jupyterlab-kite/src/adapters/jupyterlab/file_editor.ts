@@ -11,6 +11,7 @@ import { KiteConnector } from './components/completion';
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import { VirtualFileEditor } from '../../virtual/editors/file_editor';
 import { DocumentConnectionManager } from '../../connection_manager';
+import { KiteModel } from './KiteModel';
 
 export class FileEditorAdapter extends JupyterLabWidgetAdapter {
   editor: FileEditor;
@@ -95,6 +96,7 @@ export class FileEditorAdapter extends JupyterLabWidgetAdapter {
     });
     if (handler instanceof CompletionHandler) {
       this.completion_handler = handler;
+      this.completion_handler.completer.model = new KiteModel();
     }
   }
 
