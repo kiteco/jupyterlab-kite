@@ -41,7 +41,10 @@ export class KiteConnector extends DataConnector<
   responseType = CompletionHandler.ICompletionItemsResponseType;
   private _trigger_kind: CompletionTriggerKind = CompletionTriggerKind.Invoked;
   private suppress_auto_invoke_in = ['comment'];
-  private icon: LabIcon;
+  private icon: LabIcon = new LabIcon({
+    name: 'jupyterlab-kite:completion-icon',
+    svgstr: kiteLogo
+  });
 
   /**
    * Create a new Kite connector for completion requests.
@@ -61,10 +64,6 @@ export class KiteConnector extends DataConnector<
       });
     }
 
-    this.icon = new LabIcon({
-      name: 'jupyterlab-kite:completion-icon',
-      svgstr: kiteLogo
-    });
     this.icon.bindprops({ className: 'kite-logo' });
   }
 
