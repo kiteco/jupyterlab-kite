@@ -169,7 +169,7 @@ export class KiteConnector extends DataConnector<
     };
 
     const timeout = new Promise<CompletionHandler.IReply>(resolve => {
-      setTimeout(resolve, 100, KiteConnector.EmptyIReply);
+      setTimeout(resolve, 500, KiteConnector.EmptyIReply);
     });
     const kernelTimeoutPromise = () => {
       return Promise.race([timeout, kernelPromise()]).then(reply => {
