@@ -4,34 +4,31 @@ import {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import { ICommandPalette } from '@jupyterlab/apputils';
-import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { CodeMirrorEditor } from '@jupyterlab/codemirror';
-import { FileEditor, IEditorTracker } from '@jupyterlab/fileeditor';
-import { ISettingRegistry } from '@jupyterlab/settingregistry';
+import { ICompletionManager } from '@jupyterlab/completer';
 import { IDocumentManager } from '@jupyterlab/docmanager';
-
-import { registerKiteCommands } from './kite_commands';
-import { LanguageServerManager } from './manager';
-
+import {
+  DocumentRegistry,
+  IDocumentWidget
+} from '@jupyterlab/docregistry/lib/registry';
+import { FileEditor, IEditorTracker } from '@jupyterlab/fileeditor';
+import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
+import { IStatusBar } from '@jupyterlab/statusbar';
 import { FileEditorJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/fileeditor';
 import { NotebookJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/notebook';
-
 import '../style/index.css';
-
-import { ICompletionManager } from '@jupyterlab/completer';
-import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { NotebookAdapter } from './adapters/jupyterlab/notebook';
-import { FileEditorAdapter } from './adapters/jupyterlab/file_editor';
-import { file_editor_adapters, notebook_adapters } from './command_manager';
-import IPaths = JupyterFrontEnd.IPaths;
-import { IStatusBar } from '@jupyterlab/statusbar';
 import { KiteStatus } from './adapters/jupyterlab/components/statusbar';
-import {
-  IDocumentWidget,
-  DocumentRegistry
-} from '@jupyterlab/docregistry/lib/registry';
-import { DocumentConnectionManager } from './connection_manager';
 import { KiteStatusModel } from './adapters/jupyterlab/components/status_model';
+import { FileEditorAdapter } from './adapters/jupyterlab/file_editor';
+import { NotebookAdapter } from './adapters/jupyterlab/notebook';
+import { file_editor_adapters, notebook_adapters } from './command_manager';
+import { DocumentConnectionManager } from './connection_manager';
+import { registerKiteCommands } from './KiteCommands';
+import { LanguageServerManager } from './manager';
+
+import IPaths = JupyterFrontEnd.IPaths;
 
 /**
  * The plugin registration information.
