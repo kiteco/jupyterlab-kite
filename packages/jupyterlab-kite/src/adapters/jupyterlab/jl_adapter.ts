@@ -1,6 +1,7 @@
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import { CompletionHandler } from '@jupyterlab/completer';
+import { Text } from '@jupyterlab/coreutils';
 import { DocumentRegistry, IDocumentWidget } from '@jupyterlab/docregistry';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { CodeJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/jumper';
@@ -268,6 +269,7 @@ export abstract class JupyterLabWidgetAdapter
 
   async invoke_completer(kind: CompletionTriggerKind) {
     if (this.completion_handler) {
+      const editor = this.completion_handler.editor;
       let model: KiteModel;
       try {
         model = this.completion_handler.completer.model as KiteModel;
@@ -275,10 +277,21 @@ export abstract class JupyterLabWidgetAdapter
         console.log('Could not cast model into KiteModel', e);
         return;
       }
+
       if (model.original) {
         // Core would bail, so we force fetch completions here.
         this.current_completion_connector.trigger_kind = kind;
-        const reply = await this.current_completion_connector.fetch();
+        // Construct request
+        // https://github.com/jupyterlab/jupyterlab/blob/1df0e18951194bb5ec230e76441e8108e0b472e7/packages/completer/src/handler.ts#L349
+        const position = editor.getCursorPosition();
+        const text = editor.model.value.text;
+        const offset = Text.jsIndexToCharIndex(
+          editor.getOffsetAt(position),
+          text
+        );
+        const request: CompletionHandler.IRequest = { text, offset };
+
+        const reply = await this.current_completion_connector.fetch(request);
         if (model.setCompletionItems && reply) {
           model.query = ''; // Prevent filtering of response
           model.update(reply);
