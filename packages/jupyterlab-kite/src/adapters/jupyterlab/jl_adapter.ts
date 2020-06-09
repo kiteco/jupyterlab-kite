@@ -33,7 +33,7 @@ import { Rename } from '../codemirror/features/rename';
 import { Signature } from '../codemirror/features/signature';
 import { KiteConnector } from './components/completion';
 import { FreeTooltip } from './components/free_tooltip';
-import { KiteModel } from './KiteModel';
+import { KiteModel } from './kite_model';
 
 export const lsp_features: Array<ILSPFeatureConstructor> = [
   Completion,

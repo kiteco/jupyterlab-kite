@@ -11,7 +11,7 @@ import { KiteConnector } from './components/completion';
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import { VirtualFileEditor } from '../../virtual/editors/file_editor';
 import { DocumentConnectionManager } from '../../connection_manager';
-import { KiteModel } from './KiteModel';
+import { KiteModel } from './kite_model';
 
 export class FileEditorAdapter extends JupyterLabWidgetAdapter {
   editor: FileEditor;

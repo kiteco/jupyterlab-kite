@@ -25,7 +25,7 @@ import { FileEditorAdapter } from './adapters/jupyterlab/file_editor';
 import { NotebookAdapter } from './adapters/jupyterlab/notebook';
 import { file_editor_adapters, notebook_adapters } from './command_manager';
 import { DocumentConnectionManager } from './connection_manager';
-import { registerKiteCommands } from './KiteCommands';
+import { registerKiteCommands } from './kite_commands';
 import { LanguageServerManager } from './manager';
 
 import IPaths = JupyterFrontEnd.IPaths;

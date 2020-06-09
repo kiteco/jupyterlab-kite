@@ -17,7 +17,7 @@ import ILanguageInfoMetadata = nbformat.ILanguageInfoMetadata;
 import { DocumentConnectionManager } from '../../connection_manager';
 import { Session } from '@jupyterlab/services';
 import { SessionContext } from '@jupyterlab/apputils';
-import { KiteModel } from './KiteModel';
+import { KiteModel } from './kite_model';
 
 export class NotebookAdapter extends JupyterLabWidgetAdapter {
   editor: Notebook;
