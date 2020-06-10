@@ -1,6 +1,20 @@
 @import url('./highlight.css');
 @import url('./logo.css');
 
+.jp-Completer {
+    align-items: flex-start;
+    background: none;
+    border: none;
+}
+
+.jp-Completer-list {
+    background: var(--jp-layout-color1);
+    border: var(--jp-border-width) solid var(--jp-border-color1);
+    overflow-y: auto;
+}
+
 .jp-Completer-docpanel {
+    background: var(--jp-layout-color1);
+    border: var(--jp-border-width) solid var(--jp-border-color1);
     overflow: auto;
 }
