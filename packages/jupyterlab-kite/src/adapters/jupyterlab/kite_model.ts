@@ -51,8 +51,11 @@ export class KiteModel extends CompleterModel {
   update(reply: CompletionHandler.ICompletionItemsReply) {
     if (this.state) {
       const text = this.state.text;
+      const query = this.query;
       // Update the original request.
       this.original = this.state;
+      // Setting this.original resets the query string.
+      this.query = query;
       // Update the cursor.
       this.cursor = {
         start: Text.charIndexToJsIndex(reply.start, text),

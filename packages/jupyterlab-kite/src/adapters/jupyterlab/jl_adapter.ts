@@ -293,7 +293,6 @@ export abstract class JupyterLabWidgetAdapter
 
         const reply = await this.current_completion_connector.fetch(request);
         if (model.setCompletionItems && reply) {
-          model.query = ''; // Prevent filtering of response
           model.update(reply);
           model.setCompletionItems(reply.items);
           return;
