@@ -219,18 +219,35 @@ export class KiteConnector extends DataConnector<
     let prefix = token.value.slice(0, position_in_token + 1);
     let all_non_prefixed = true;
     let items: CompletionHandler.ICompletionItem[] = [];
+    let lineText = document
+      .get_editor_at_virtual_line(cursor)
+      .getLineTokens(cursor.line)
+      .map(token => token.string)
+      .join('');
     (lspCompletionItems as KiteCompletionItem[]).forEach(match => {
-      if (token.type === 'string') {
-        let text = match.insertText ? match.insertText : match.label;
-        let quote = token.value.charAt(0); // Currently doesn't address triple-quoted strings
-        let fragments = text.split(quote);
-        if (fragments.length === 2 || fragments.length === 3) {
-          // Strip out the completion prefix (area before the string)
-          // and, if present, the suffix
-          // e.g. ['foo'] -> foo
-          //      ['bar -> bar
-          match.insertText = fragments[1];
+      let range = match.textEdit.range;
+      let insertion = match.insertText ? match.insertText : match.label;
+      if (range.start.character < start.ch) {
+        let preToken = lineText.substring(range.start.character, start.ch);
+        if (insertion.startsWith(preToken)) {
+          insertion = insertion.substring(preToken.length);
         }
+      }
+      if (range.end.character > cursor.ch) {
+        // Need to trim all suffix text, even inside the token
+        let postCursor = lineText.substring(cursor.ch, range.end.character);
+        if (insertion.endsWith(postCursor)) {
+          insertion = insertion.substring(
+            0,
+            insertion.length - postCursor.length
+          );
+        }
+      }
+      if (insertion !== match.insertText) {
+        console.log(
+          '[Kite][Completer] Trimmed ' + match.insertText + ' => ' + insertion
+        );
+        match.insertText = insertion;
       }
 
       let completionItem = {
