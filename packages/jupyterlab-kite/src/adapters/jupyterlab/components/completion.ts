@@ -231,6 +231,15 @@ export class KiteConnector extends DataConnector<
         let preToken = lineText.substring(range.start.character, start.ch);
         if (insertion.startsWith(preToken)) {
           insertion = insertion.substring(preToken.length);
+        } else {
+          // This completion will be inserted malformed, and so we will dispose of it
+          console.log(
+            '[Kite][Completer] Disposing of un-insertable completion: ' +
+              match.insertText
+              ? match.insertText
+              : match.label
+          );
+          return;
         }
       }
       if (range.end.character > cursor.ch) {
@@ -241,6 +250,15 @@ export class KiteConnector extends DataConnector<
             0,
             insertion.length - postCursor.length
           );
+        } else {
+          // This completion will be inserted malformed, and so we will dispose of it
+          console.log(
+            '[Kite][Completer] Disposing of un-insertable completion: ' +
+              match.insertText
+              ? match.insertText
+              : match.label
+          );
+          return;
         }
       }
       if (insertion !== match.insertText) {
