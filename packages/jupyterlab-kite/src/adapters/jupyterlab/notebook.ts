@@ -1,23 +1,24 @@
-import { JupyterLabWidgetAdapter } from './jl_adapter';
-import { Notebook, NotebookPanel } from '@jupyterlab/notebook';
-import * as CodeMirror from 'codemirror';
-import { VirtualEditorForNotebook } from '../../virtual/editors/notebook';
-import { ICompletionManager, CompletionHandler } from '@jupyterlab/completer';
-import { NotebookJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/notebook';
-import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { until_ready } from '../../utils';
-import { KiteConnector } from './components/completion';
-import { CodeEditor } from '@jupyterlab/codeeditor';
-import { language_specific_overrides } from '../../magics/defaults';
-import { foreign_code_extractors } from '../../extractors/defaults';
-import { Cell } from '@jupyterlab/cells';
-import * as nbformat from '@jupyterlab/nbformat';
-import ILanguageInfoMetadata = nbformat.ILanguageInfoMetadata;
-import { DocumentConnectionManager } from '../../connection_manager';
-import { Session } from '@jupyterlab/services';
 import { SessionContext } from '@jupyterlab/apputils';
+import { Cell } from '@jupyterlab/cells';
+import { CodeEditor } from '@jupyterlab/codeeditor';
+import { CompletionHandler, ICompletionManager } from '@jupyterlab/completer';
+import * as nbformat from '@jupyterlab/nbformat';
+import { Notebook, NotebookPanel } from '@jupyterlab/notebook';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { Session } from '@jupyterlab/services';
+import { NotebookJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/notebook';
+import * as CodeMirror from 'codemirror';
+import { DocumentConnectionManager } from '../../connection_manager';
+import { foreign_code_extractors } from '../../extractors/defaults';
+import { language_specific_overrides } from '../../magics/defaults';
+import { until_ready } from '../../utils';
+import { VirtualEditorForNotebook } from '../../virtual/editors/notebook';
+import { KiteConnector } from './components/completion';
+import { JupyterLabWidgetAdapter } from './jl_adapter';
+import { KiteCompleter } from './kite_completer';
 import { KiteModel } from './kite_model';
+import ILanguageInfoMetadata = nbformat.ILanguageInfoMetadata;
 
 export class NotebookAdapter extends JupyterLabWidgetAdapter {
   editor: Notebook;
@@ -184,6 +185,7 @@ export class NotebookAdapter extends JupyterLabWidgetAdapter {
   connect_completion() {
     // see https://github.com/jupyterlab/jupyterlab/blob/c0e9eb94668832d1208ad3b00a9791ef181eca4c/packages/completer-extension/src/index.ts#L198-L213
     const cell = this.widget.content.activeCell;
+    console.log('Connecting Completion Notebook');
     if (cell == null) {
       return;
     }
@@ -196,7 +198,19 @@ export class NotebookAdapter extends JupyterLabWidgetAdapter {
     this.current_completion_handler = handler;
     if (handler instanceof CompletionHandler) {
       this.completion_handler = handler;
-      this.completion_handler.completer.model = new KiteModel();
+      const kiteModel = new KiteModel();
+      this.completion_handler.completer.model = kiteModel;
+      const kiteCompleter = new KiteCompleter({
+        editor: cell.editor,
+        model: kiteModel
+      });
+      try {
+        const jlCompleter = this.completion_handler.completer as KiteCompleter;
+        jlCompleter.onUpdateRequest = kiteCompleter.onUpdateRequest;
+        jlCompleter.handleEvent = kiteCompleter.handleEvent;
+      } catch {
+        // no-op
+      }
     }
     this.widget.content.activeCellChanged.connect(this.on_completions, this);
   }

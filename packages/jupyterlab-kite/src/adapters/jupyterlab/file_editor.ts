@@ -1,16 +1,17 @@
-import { JupyterLabWidgetAdapter } from './jl_adapter';
-import { FileEditor } from '@jupyterlab/fileeditor';
+import { JupyterFrontEnd } from '@jupyterlab/application';
+import { CodeEditor } from '@jupyterlab/codeeditor';
+import { CodeMirrorEditor } from '@jupyterlab/codemirror';
+import { CompletionHandler, ICompletionManager } from '@jupyterlab/completer';
 import { IDocumentWidget } from '@jupyterlab/docregistry';
+import { FileEditor } from '@jupyterlab/fileeditor';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { FileEditorJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/fileeditor';
 import * as CodeMirror from 'codemirror';
-import { JupyterFrontEnd } from '@jupyterlab/application';
-import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { CodeMirrorEditor } from '@jupyterlab/codemirror';
-import { ICompletionManager, CompletionHandler } from '@jupyterlab/completer';
-import { KiteConnector } from './components/completion';
-import { CodeEditor } from '@jupyterlab/codeeditor';
-import { VirtualFileEditor } from '../../virtual/editors/file_editor';
 import { DocumentConnectionManager } from '../../connection_manager';
+import { VirtualFileEditor } from '../../virtual/editors/file_editor';
+import { KiteConnector } from './components/completion';
+import { JupyterLabWidgetAdapter } from './jl_adapter';
+import { KiteCompleter } from './kite_completer';
 import { KiteModel } from './kite_model';
 
 export class FileEditorAdapter extends JupyterLabWidgetAdapter {
@@ -96,7 +97,19 @@ export class FileEditorAdapter extends JupyterLabWidgetAdapter {
     });
     if (handler instanceof CompletionHandler) {
       this.completion_handler = handler;
-      this.completion_handler.completer.model = new KiteModel();
+      const kiteModel = new KiteModel();
+      this.completion_handler.completer.model = kiteModel;
+      const kiteCompleter = new KiteCompleter({
+        editor: this.editor.editor,
+        model: kiteModel
+      });
+      try {
+        const jlCompleter = this.completion_handler.completer as KiteCompleter;
+        jlCompleter.onUpdateRequest = kiteCompleter.onUpdateRequest;
+        jlCompleter.handleEvent = kiteCompleter.handleEvent;
+      } catch {
+        // no-op
+      }
     }
   }
 
