@@ -57,29 +57,33 @@ The following is a brief guide to using Kite in its default configuration.
 
 When starting JupyterLab with the Kite Assistant for the first time, you'll be guided through a tutorial that shows you how to use Kite.
 
-![tutorial](https://github.com/kiteco/atom-plugin/blob/master/docs/images/tutorial.png?raw=true)
+![tutorial](https://www.dropbox.com/s/ne0iigy5317bk8c/tutorial_file.png?raw=1)
 
 This tutorial will only be displayed once. You can show it again at any time by running the command `Kite: Tutorial` from JupyterLab's command palette.
 
 ### Autocompletions
 
-Simply start typing in a saved Python file or Jupyter notebook and Kite will automatically suggest completions for what you're typing. Kite's autocompletions are all labeled with the `⟠` symbol.
+Simply start typing in a saved Python file or Jupyter notebook and Kite will automatically suggest completions for what you're typing. Kite's autocompletions are all labeled with the 🪁 symbol.
 
-![completions](https://github.com/kiteco/atom-plugin/blob/master/docs/images/completions.png?raw=true)
+![completions](https://www.dropbox.com/s/iiondsnu3hoqg4p/import%20statement.png?raw=1)
 
 
-### Function documentation
+### Completion documentation
 
-When you're calling a function, Kite will show you the function's documentation to help you remember what arguments you need to pass in.
+Kite's completions come with documentation to help you remember how each completion works.
 
-![Function docs](https://www.dropbox.com/s/d4sxqf0i3ymhxrk/function_docs.png?raw=1)
+![Completion docs](https://www.dropbox.com/s/jrvudfklld2ceeq/completion_docs.png?raw=1)
 
 
 ### Instant Documentation
 
-Kite can show you documentation for the symbols in your code in the Copilot application. To do so, open Kite's Copilot, ensure that the button labeled "Click for docs to follow cursor" in the upper right corner is enabled, and then simply position your cursor over a symbol.
+Kite can show you documentation for the symbols in your code in the separate Copilot application. 
 
-![copilot](https://github.com/kiteco/atom-plugin/blob/master/docs/images/copilot.png?raw=true)
+![Copilot](https://www.dropbox.com/s/tk4b7pkfotge1go/copilot_small.png?raw=1)
+
+To do so, open Kite's Copilot, ensure that the button labeled "Click for docs to follow cursor" in the upper right corner is enabled, and then simply position your cursor over a symbol.
+
+To open Kite's Copilot, visit the URL kite://home in your browser.
 
 
 ### Commands
