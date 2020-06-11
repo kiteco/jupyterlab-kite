@@ -79,11 +79,9 @@ Kite's completions come with documentation to help you remember how each complet
 
 Kite can show you documentation for the symbols in your code in the separate Copilot application. 
 
+To do so, open Kite's Copilot (visit the URL kite://home in your browser), ensure that the button labeled "Click for docs to follow cursor" in the upper right corner is enabled, and then simply position your cursor over a symbol.
+
 ![Copilot](https://www.dropbox.com/s/tk4b7pkfotge1go/copilot_small.png?raw=1)
-
-To do so, open Kite's Copilot, ensure that the button labeled "Click for docs to follow cursor" in the upper right corner is enabled, and then simply position your cursor over a symbol.
-
-To open Kite's Copilot, visit the URL kite://home in your browser.
 
 
 ### Commands
