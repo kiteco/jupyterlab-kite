@@ -220,6 +220,19 @@ export class KiteConnector extends DataConnector<
     let all_non_prefixed = true;
     let items: CompletionHandler.ICompletionItem[] = [];
     (lspCompletionItems as KiteCompletionItem[]).forEach(match => {
+      if (token.type === 'string') {
+        let text = match.insertText ? match.insertText : match.label;
+        let quote = token.value.charAt(0); // Currently doesn't address triple-quoted strings
+        let fragments = text.split(quote);
+        if (fragments.length === 2 || fragments.length === 3) {
+          // Strip out the completion prefix (area before the string)
+          // and, if present, the suffix
+          // e.g. ['foo'] -> foo
+          //      ['bar -> bar
+          match.insertText = fragments[1];
+        }
+      }
+
       let completionItem = {
         label: match.label,
         insertText: match.insertText,
