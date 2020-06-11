@@ -104,8 +104,9 @@ export class FileEditorAdapter extends JupyterLabWidgetAdapter {
         model: kiteModel
       });
       try {
-        (this.completion_handler.completer as KiteCompleter).handleEvent =
-          kiteCompleter.handleEvent;
+        const jlCompleter = this.completion_handler.completer as KiteCompleter;
+        jlCompleter.onUpdateRequest = kiteCompleter.onUpdateRequest;
+        jlCompleter.handleEvent = kiteCompleter.handleEvent;
       } catch {
         // no-op
       }

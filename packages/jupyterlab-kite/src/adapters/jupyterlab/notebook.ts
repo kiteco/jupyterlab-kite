@@ -185,6 +185,7 @@ export class NotebookAdapter extends JupyterLabWidgetAdapter {
   connect_completion() {
     // see https://github.com/jupyterlab/jupyterlab/blob/c0e9eb94668832d1208ad3b00a9791ef181eca4c/packages/completer-extension/src/index.ts#L198-L213
     const cell = this.widget.content.activeCell;
+    console.log('Connecting Completion Notebook');
     if (cell == null) {
       return;
     }
@@ -204,8 +205,9 @@ export class NotebookAdapter extends JupyterLabWidgetAdapter {
         model: kiteModel
       });
       try {
-        (this.completion_handler.completer as KiteCompleter).handleEvent =
-          kiteCompleter.handleEvent;
+        const jlCompleter = this.completion_handler.completer as KiteCompleter;
+        jlCompleter.onUpdateRequest = kiteCompleter.onUpdateRequest;
+        jlCompleter.handleEvent = kiteCompleter.handleEvent;
       } catch {
         // no-op
       }

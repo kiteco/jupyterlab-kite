@@ -2,5 +2,8 @@
 @import url('./logo.css');
 
 .jp-Completer-docpanel {
-    overflow: auto;
+  overflow: auto;
+}
+.jp-Completer-docpanel.hidden {
+  display: none;
 }
