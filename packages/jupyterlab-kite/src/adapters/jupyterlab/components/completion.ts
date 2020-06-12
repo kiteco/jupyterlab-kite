@@ -219,7 +219,55 @@ export class KiteConnector extends DataConnector<
     let prefix = token.value.slice(0, position_in_token + 1);
     let all_non_prefixed = true;
     let items: CompletionHandler.ICompletionItem[] = [];
+    let lineText = document
+      .get_editor_at_virtual_line(cursor)
+      .getLineTokens(cursor.line)
+      .map(token => token.string)
+      .join('');
     (lspCompletionItems as KiteCompletionItem[]).forEach(match => {
+      let range = match.textEdit.range;
+      let insertion = match.insertText ? match.insertText : match.label;
+      if (range.start.character < start.ch) {
+        let preToken = lineText.substring(range.start.character, start.ch);
+        if (insertion.startsWith(preToken)) {
+          insertion = insertion.substring(preToken.length);
+        } else {
+          // This completion will be inserted malformed, and so we will dispose of it
+          console.log(
+            '[Kite][Completer] Disposing of un-insertable completion: ' +
+              match.insertText
+              ? match.insertText
+              : match.label
+          );
+          return;
+        }
+      }
+      if (range.end.character > cursor.ch) {
+        // Need to trim all suffix text, even inside the token
+        let postCursor = lineText.substring(cursor.ch, range.end.character);
+        if (insertion.endsWith(postCursor)) {
+          insertion = insertion.substring(
+            0,
+            insertion.length - postCursor.length
+          );
+        } else {
+          // This completion will be inserted malformed, and so we will dispose of it
+          console.log(
+            '[Kite][Completer] Disposing of un-insertable completion: ' +
+              match.insertText
+              ? match.insertText
+              : match.label
+          );
+          return;
+        }
+      }
+      if (insertion !== match.insertText) {
+        console.log(
+          '[Kite][Completer] Trimmed ' + match.insertText + ' => ' + insertion
+        );
+        match.insertText = insertion;
+      }
+
       let completionItem = {
         label: match.label,
         insertText: match.insertText,
