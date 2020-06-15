@@ -234,22 +234,11 @@ export class KiteConnector extends DataConnector<
         } else {
           // This completion will be inserted malformed, and so we will dispose of it
           console.log(
-            '[Kite][Completer] Disposing of un-insertable completion: ' +
-              match.insertText
-              ? match.insertText
-              : match.label
+            '[Kite][Completer] Disposing of un-insertable completion: %s',
+            match.insertText ? match.insertText : match.label
           );
           return;
         }
-      } else if (range.start.character > start.ch) {
-        // This completion will be inserted malformed, and so we will dispose of it
-        console.log(
-          '[Kite][Completer] Disposing of un-insertable completion: ' +
-            match.insertText
-            ? match.insertText
-            : match.label
-        );
-        return;
       }
       if (range.end.character > cursor.ch) {
         // Need to trim all suffix text, even inside the token
@@ -262,26 +251,24 @@ export class KiteConnector extends DataConnector<
         } else {
           // This completion will be inserted malformed, and so we will dispose of it
           console.log(
-            '[Kite][Completer] Disposing of un-insertable completion: ' +
-              match.insertText
-              ? match.insertText
-              : match.label
+            '[Kite][Completer] Disposing of un-insertable completion: %s',
+            match.insertText ? match.insertText : match.label
           );
           return;
         }
       } else if (range.end.character < cursor.ch) {
         // This completion will be inserted malformed, and so we will dispose of it
         console.log(
-          '[Kite][Completer] Disposing of un-insertable completion: ' +
-            match.insertText
-            ? match.insertText
-            : match.label
+          '[Kite][Completer] Disposing of un-insertable completion: %s',
+          match.insertText ? match.insertText : match.label
         );
         return;
       }
       if (insertion !== match.insertText) {
         console.log(
-          '[Kite][Completer] Trimmed ' + match.insertText + ' => ' + insertion
+          '[Kite][Completer] Trimmed %s => %s',
+          match.insertText,
+          insertion
         );
         match.insertText = insertion;
       }
