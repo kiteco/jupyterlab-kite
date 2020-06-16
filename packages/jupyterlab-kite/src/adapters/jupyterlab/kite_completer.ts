@@ -1,5 +1,10 @@
 import { Completer } from '@jupyterlab/completer';
+import { IStateDB } from '@jupyterlab/statedb';
 import { Message } from '@lumino/messaging';
+
+export const hideDocsKey = 'showDocs';
+export let shouldHideDocs = false;
+export let state: IStateDB;
 
 /**
  * CompletionHandler's Completer property is readonly,
@@ -7,13 +12,23 @@ import { Message } from '@lumino/messaging';
  * "this" will still be bound to the base class.
  */
 export class KiteCompleter extends Completer {
-  private static SHOULD_SHOW_DOCS = true;
+  constructor(options: Completer.IOptions, stateDB: IStateDB) {
+    super(options);
+    state = stateDB;
+    console.log('Constructor', state);
+    state.fetch(hideDocsKey).then(value => {
+      console.log('Found saved state:', value);
+      if (value) {
+        shouldHideDocs = value as boolean;
+      }
+    });
+  }
 
   onUpdateRequest(msg: Message) {
     super.onUpdateRequest(msg);
-    if (!KiteCompleter.SHOULD_SHOW_DOCS) {
+    if (shouldHideDocs) {
       // Toggle classNames to correct state on subsequent updates.
-      toggle(this.node, KiteCompleter.SHOULD_SHOW_DOCS);
+      toggle(this.node, shouldHideDocs, state);
     }
   }
 
@@ -28,9 +43,9 @@ export class KiteCompleter extends Completer {
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
-        KiteCompleter.SHOULD_SHOW_DOCS = !KiteCompleter.SHOULD_SHOW_DOCS;
+        shouldHideDocs = !shouldHideDocs;
         // Toggle docs immediately.
-        toggle(this.node, KiteCompleter.SHOULD_SHOW_DOCS);
+        toggle(this.node, shouldHideDocs, state);
         return;
       }
       // Since we replace the default handler if the completer is active,
@@ -47,15 +62,22 @@ export class KiteCompleter extends Completer {
   }
 }
 
-export function toggle(node: HTMLElement, shouldShow: boolean) {
+export function toggle(
+  node: HTMLElement,
+  shouldHide: boolean,
+  state?: IStateDB
+) {
+  console.log('STATE:', state);
   const docpanels = node.querySelectorAll('.jp-Completer-docpanel');
-  if (shouldShow) {
-    docpanels.forEach(docpanel => {
-      docpanel.classList.remove('hidden');
-    });
-  } else {
+  if (shouldHide) {
     docpanels.forEach(docpanel => {
       docpanel.classList.add('hidden');
     });
+    state?.save(hideDocsKey, true);
+  } else {
+    docpanels.forEach(docpanel => {
+      docpanel.classList.remove('hidden');
+    });
+    state?.remove(hideDocsKey);
   }
 }

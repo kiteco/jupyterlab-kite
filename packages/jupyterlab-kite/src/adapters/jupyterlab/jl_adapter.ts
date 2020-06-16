@@ -4,6 +4,7 @@ import { CompletionHandler, ICompletionManager } from '@jupyterlab/completer';
 import { Text } from '@jupyterlab/coreutils';
 import { DocumentRegistry, IDocumentWidget } from '@jupyterlab/docregistry';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { IStateDB } from '@jupyterlab/statedb';
 import { CodeJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/jumper';
 import { JSONObject } from '@lumino/coreutils';
 import { Signal } from '@lumino/signaling';
@@ -110,6 +111,7 @@ const mime_type_language_map: JSONObject = {
 export abstract class JupyterLabWidgetAdapter
   implements IJupyterLabComponentsManager {
   jumper: CodeJumper;
+  state: IStateDB;
   protected adapters: Map<VirtualDocument.id_path, CodeMirrorAdapter>;
   private readonly invoke_command: string;
   protected document_connected: Signal<
@@ -129,13 +131,15 @@ export abstract class JupyterLabWidgetAdapter
     protected widget: IDocumentWidget,
     protected rendermime_registry: IRenderMimeRegistry,
     invoke: string,
-    connection_manager: DocumentConnectionManager
+    connection_manager: DocumentConnectionManager,
+    state: IStateDB
   ) {
     this.document_connected = new Signal(this);
     this.invoke_command = invoke;
     this.adapters = new Map();
     this.status_message = new StatusMessage();
     this.connection_manager = connection_manager;
+    this.state = state;
 
     // set up signal connections
     this.widget.context.saveState.connect(this.on_save_state, this);
@@ -618,16 +622,20 @@ export abstract class JupyterLabWidgetAdapter
 
   registerKiteModules(
     handler: ICompletionManager.ICompletableAttributes,
-    editor: CodeEditor.IEditor
+    editor: CodeEditor.IEditor,
+    state: IStateDB
   ) {
     if (handler instanceof CompletionHandler) {
       this.completion_handler = handler;
       const kiteModel = new KiteModel();
       this.completion_handler.completer.model = kiteModel;
-      const kiteCompleter = new KiteCompleter({
-        editor: editor,
-        model: kiteModel
-      });
+      const kiteCompleter = new KiteCompleter(
+        {
+          editor: editor,
+          model: kiteModel
+        },
+        state
+      );
       try {
         const jlCompleter = this.completion_handler.completer as KiteCompleter;
         jlCompleter.onUpdateRequest = kiteCompleter.onUpdateRequest;
