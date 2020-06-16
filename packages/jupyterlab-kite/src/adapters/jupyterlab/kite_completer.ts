@@ -33,6 +33,15 @@ export class KiteCompleter extends Completer {
         toggle(this.node, KiteCompleter.SHOULD_SHOW_DOCS);
         return;
       }
+      // Since we replace the default handler if the completer is active,
+      // handle enter keypresses here.
+      if (keydownEvt.keyCode === 13) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        this.selectActive();
+        return;
+      }
     }
     super.handleEvent(event);
   }
