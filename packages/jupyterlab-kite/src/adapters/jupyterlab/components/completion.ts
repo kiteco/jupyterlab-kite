@@ -239,6 +239,13 @@ export class KiteConnector extends DataConnector<
           );
           return;
         }
+      } else if (range.start.character > start.ch + 1) {
+        // This completion will be inserted malformed, and so we will dispose of it
+        console.log(
+          '[Kite][Completer] Disposing of un-insertable completion: %s',
+          match.insertText ? match.insertText : match.label
+        );
+        return;
       }
       if (range.end.character > cursor.ch) {
         // Need to trim all suffix text, even inside the token
