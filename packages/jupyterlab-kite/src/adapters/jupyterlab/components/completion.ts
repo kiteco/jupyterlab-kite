@@ -228,11 +228,14 @@ export class KiteConnector extends DataConnector<
       let range = match.textEdit.range;
       let insertion = match.insertText ? match.insertText : match.label;
       if (range.start.character < start.ch) {
+        // If this completion begins before the given token begins,
+        // we need to trim it so that it begins within the given token instead.
         let preToken = lineText.substring(range.start.character, start.ch);
         if (insertion.startsWith(preToken)) {
+          // We can trim this completion because the trimmed portion will match the existing text in the line.
           insertion = insertion.substring(preToken.length);
         } else {
-          // This completion will be inserted malformed, and so we will dispose of it
+          // We can't trim the beginning of this completion.
           console.log(
             '[Kite][Completer] Disposing of un-insertable completion: %s',
             match.insertText ? match.insertText : match.label
@@ -240,7 +243,9 @@ export class KiteConnector extends DataConnector<
           return;
         }
       } else if (range.start.character > start.ch + 1) {
-        // This completion will be inserted malformed, and so we will dispose of it
+        // The start of the completion can be 1 character past the start of the token,
+        // to accommodate completions after single character tokens like '.' or ' '.
+        // Completions that start further than that fall outside of the standard insertion range.
         console.log(
           '[Kite][Completer] Disposing of un-insertable completion: %s',
           match.insertText ? match.insertText : match.label
@@ -248,15 +253,20 @@ export class KiteConnector extends DataConnector<
         return;
       }
       if (range.end.character > cursor.ch) {
-        // Need to trim all suffix text, even inside the token
+        // If the completion goes past the cursor, it is either a type-through completion,
+        // or it modifies characters past the cursor. However, the standard insertion range
+        // only extends past the cursor if all the completions are type-through, so no completions
+        // that modify characters past the cursor are insertable.
         let postCursor = lineText.substring(cursor.ch, range.end.character);
         if (insertion.endsWith(postCursor)) {
+          // This will result in the cursor being placed before what the user perceives
+          // as a type-through, instead of after it, which is not ideal.
           insertion = insertion.substring(
             0,
             insertion.length - postCursor.length
           );
         } else {
-          // This completion will be inserted malformed, and so we will dispose of it
+          // This completion modifies characters past the cursor, so it's un-insertable.
           console.log(
             '[Kite][Completer] Disposing of un-insertable completion: %s',
             match.insertText ? match.insertText : match.label
@@ -264,7 +274,9 @@ export class KiteConnector extends DataConnector<
           return;
         }
       } else if (range.end.character < cursor.ch) {
-        // This completion will be inserted malformed, and so we will dispose of it
+        // The end of the standard completion range will not be before the cursor.
+        // It is either on the cursor, or after it (in a type-through case).
+        // Therefore any completion that ends before the cursor cannot be inserted.
         console.log(
           '[Kite][Completer] Disposing of un-insertable completion: %s',
           match.insertText ? match.insertText : match.label
