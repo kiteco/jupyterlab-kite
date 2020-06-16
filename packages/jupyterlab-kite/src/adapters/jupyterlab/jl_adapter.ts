@@ -1,6 +1,6 @@
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { CodeEditor } from '@jupyterlab/codeeditor';
-import { CompletionHandler } from '@jupyterlab/completer';
+import { CompletionHandler, ICompletionManager } from '@jupyterlab/completer';
 import { Text } from '@jupyterlab/coreutils';
 import { DocumentRegistry, IDocumentWidget } from '@jupyterlab/docregistry';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
@@ -33,6 +33,7 @@ import { Rename } from '../codemirror/features/rename';
 import { Signature } from '../codemirror/features/signature';
 import { KiteConnector } from './components/completion';
 import { FreeTooltip } from './components/free_tooltip';
+import { KiteCompleter } from './kite_completer';
 import { KiteModel } from './kite_model';
 
 export const lsp_features: Array<ILSPFeatureConstructor> = [
@@ -612,6 +613,36 @@ export abstract class JupyterLabWidgetAdapter
   remove_tooltip() {
     if (this._tooltip !== undefined) {
       this._tooltip.dispose();
+    }
+  }
+
+  registerKiteModules(
+    handler: ICompletionManager.ICompletableAttributes,
+    editor: CodeEditor.IEditor
+  ) {
+    if (handler instanceof CompletionHandler) {
+      this.completion_handler = handler;
+      const kiteModel = new KiteModel();
+      this.completion_handler.completer.model = kiteModel;
+      const kiteCompleter = new KiteCompleter({
+        editor: editor,
+        model: kiteModel
+      });
+      try {
+        const jlCompleter = this.completion_handler.completer as KiteCompleter;
+        jlCompleter.onUpdateRequest = kiteCompleter.onUpdateRequest;
+        jlCompleter.handleEvent = kiteCompleter.handleEvent;
+        const appEventHandler = this.app.handleEvent;
+        jlCompleter.visibilityChanged.connect(() => {
+          if (jlCompleter.isVisible) {
+            this.app.handleEvent = kiteCompleter.handleEvent;
+          } else {
+            this.app.handleEvent = appEventHandler;
+          }
+        });
+      } catch {
+        // no-op
+      }
     }
   }
 }

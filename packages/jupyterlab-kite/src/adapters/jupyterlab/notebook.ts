@@ -16,8 +16,6 @@ import { until_ready } from '../../utils';
 import { VirtualEditorForNotebook } from '../../virtual/editors/notebook';
 import { KiteConnector } from './components/completion';
 import { JupyterLabWidgetAdapter } from './jl_adapter';
-import { KiteCompleter } from './kite_completer';
-import { KiteModel } from './kite_model';
 import ILanguageInfoMetadata = nbformat.ILanguageInfoMetadata;
 
 export class NotebookAdapter extends JupyterLabWidgetAdapter {
@@ -196,22 +194,7 @@ export class NotebookAdapter extends JupyterLabWidgetAdapter {
       parent: this.widget
     });
     this.current_completion_handler = handler;
-    if (handler instanceof CompletionHandler) {
-      this.completion_handler = handler;
-      const kiteModel = new KiteModel();
-      this.completion_handler.completer.model = kiteModel;
-      const kiteCompleter = new KiteCompleter({
-        editor: cell.editor,
-        model: kiteModel
-      });
-      try {
-        const jlCompleter = this.completion_handler.completer as KiteCompleter;
-        jlCompleter.onUpdateRequest = kiteCompleter.onUpdateRequest;
-        jlCompleter.handleEvent = kiteCompleter.handleEvent;
-      } catch {
-        // no-op
-      }
-    }
+    this.registerKiteModules(handler, cell.editor);
     this.widget.content.activeCellChanged.connect(this.on_completions, this);
   }
 
