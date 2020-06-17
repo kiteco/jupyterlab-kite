@@ -200,7 +200,6 @@ export class KiteConnector extends DataConnector<
       return KiteConnector.EmptyICompletionItemsReply;
     }
 
-    console.log('[Kite][Completer] Fetching');
     const lspCompletionItems = await connection
       .getCompletion(
         cursor,
@@ -215,6 +214,8 @@ export class KiteConnector extends DataConnector<
         this.trigger_kind
       )
       .catch(err => console.error(err));
+
+    console.log('[Kite][Completer] Fetched', lspCompletionItems);
 
     let prefix = token.value.slice(0, position_in_token + 1);
     let all_non_prefixed = true;
