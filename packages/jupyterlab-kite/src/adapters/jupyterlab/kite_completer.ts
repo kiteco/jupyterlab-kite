@@ -25,57 +25,18 @@ export class KiteCompleter extends Completer {
 
   onUpdateRequest(msg: Message) {
     super.onUpdateRequest(msg);
+    const docpanel: Element | null = this.node.querySelector(
+      '.jp-Completer-docpanel'
+    );
     if (shouldHideDocs) {
-      // Toggle classNames to correct state on subsequent updates.
-      toggle(this.node, shouldHideDocs, state);
+      docpanel?.classList.add('hidden');
+    } else {
+      docpanel?.classList.remove('hidden');
     }
-  }
-
-  handleEvent(event: Event): void {
-    if (this.isHidden || !this.editor) {
-      return;
-    }
-    if (event.type === 'keydown') {
-      const keydownEvt = event as KeyboardEvent;
-      // Shift + Tab
-      if (keydownEvt.shiftKey && keydownEvt.keyCode === 9) {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        shouldHideDocs = !shouldHideDocs;
-        // Toggle docs immediately.
-        toggle(this.node, shouldHideDocs, state);
-        return;
-      }
-      // Since we replace the default handler if the completer is active,
-      // handle enter keypresses here.
-      if (keydownEvt.keyCode === 13) {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        this.selectActive();
-        return;
-      }
-    }
-    super.handleEvent(event);
   }
 }
 
-export function toggle(
-  node: HTMLElement,
-  shouldHide: boolean,
-  state?: IStateDB
-) {
-  const docpanels = node.querySelectorAll('.jp-Completer-docpanel');
-  if (shouldHide) {
-    docpanels.forEach(docpanel => {
-      docpanel.classList.add('hidden');
-    });
-    state?.save(hideDocsKey, true);
-  } else {
-    docpanels.forEach(docpanel => {
-      docpanel.classList.remove('hidden');
-    });
-    state?.remove(hideDocsKey);
-  }
+export function toggle() {
+  shouldHideDocs = !shouldHideDocs;
+  state.save(hideDocsKey, shouldHideDocs);
 }

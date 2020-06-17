@@ -1,6 +1,7 @@
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { ICommandPalette } from '@jupyterlab/apputils';
 import { CommandRegistry } from '@lumino/commands';
+import { toggle } from './adapters/jupyterlab/kite_completer';
 
 const category = 'kite';
 interface IKiteCommand {
@@ -11,7 +12,8 @@ const cmdIds = {
   tutorial: 'kite:tutorial',
   copilot: 'kite:copilot',
   settings: 'kite:settings',
-  help: 'kite:help'
+  help: 'kite:help',
+  toggleDocs: 'kite:toggle-docs'
 };
 
 const paletteCommands: ReadonlyArray<IKiteCommand> = [
@@ -48,6 +50,15 @@ const paletteCommands: ReadonlyArray<IKiteCommand> = [
       label: 'Kite: Help',
       execute: () => {
         window.open('https://help.kite.com/');
+      }
+    }
+  },
+  {
+    id: cmdIds.toggleDocs,
+    options: {
+      label: 'Kite: Toggle Docs Panel',
+      execute: () => {
+        toggle();
       }
     }
   }
