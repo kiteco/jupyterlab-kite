@@ -1,6 +1,6 @@
 {
   "name": "@kiteco/jupyterlab-kite",
-  "version": "0.0.1",
+  "version": "0.2.0-a.0",
   "description": "Kite integration for JupyterLab",
   "keywords": [
     "jupyter",
