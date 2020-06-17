@@ -15,6 +15,7 @@ import { FileEditor, IEditorTracker } from '@jupyterlab/fileeditor';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
+import { IStateDB } from '@jupyterlab/statedb';
 import { IStatusBar } from '@jupyterlab/statusbar';
 import { FileEditorJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/fileeditor';
 import { NotebookJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/notebook';
@@ -45,7 +46,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
     IRenderMimeRegistry,
     IPaths,
     ILabShell,
-    IStatusBar
+    IStatusBar,
+    IStateDB
   ],
   activate: (
     app: JupyterFrontEnd,
@@ -58,7 +60,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
     rendermime_registry: IRenderMimeRegistry,
     paths: IPaths,
     labShell: ILabShell,
-    status_bar: IStatusBar
+    status_bar: IStatusBar,
+    state: IStateDB
   ) => {
     registerKiteCommands(app, palette);
 
@@ -126,7 +129,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
           app,
           completion_manager,
           rendermime_registry,
-          connection_manager
+          connection_manager,
+          state
         );
         file_editor_adapters.set(fileEditor.id, adapter);
 
@@ -165,7 +169,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
         app,
         completion_manager,
         rendermime_registry,
-        connection_manager
+        connection_manager,
+        state
       );
       notebook_adapters.set(widget.id, adapter);
 

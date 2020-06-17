@@ -5,6 +5,7 @@ import { CompletionHandler, ICompletionManager } from '@jupyterlab/completer';
 import { IDocumentWidget } from '@jupyterlab/docregistry';
 import { FileEditor } from '@jupyterlab/fileeditor';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { IStateDB } from '@jupyterlab/statedb';
 import { FileEditorJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/fileeditor';
 import * as CodeMirror from 'codemirror';
 import { DocumentConnectionManager } from '../../connection_manager';
@@ -51,14 +52,16 @@ export class FileEditorAdapter extends JupyterLabWidgetAdapter {
     app: JupyterFrontEnd,
     protected completion_manager: ICompletionManager,
     rendermime_registry: IRenderMimeRegistry,
-    connection_manager: DocumentConnectionManager
+    connection_manager: DocumentConnectionManager,
+    state: IStateDB
   ) {
     super(
       app,
       editor_widget,
       rendermime_registry,
       'completer:invoke-file',
-      connection_manager
+      connection_manager,
+      state
     );
     this.jumper = jumper;
     this.editor = editor_widget.content;
@@ -93,7 +96,7 @@ export class FileEditorAdapter extends JupyterLabWidgetAdapter {
       editor: this.editor.editor,
       parent: this.widget
     });
-    this.registerKiteModules(handler, this.editor.editor);
+    this.registerKiteModules(handler, this.editor.editor, this.state);
   }
 
   get path() {

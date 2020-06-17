@@ -7,6 +7,7 @@ import * as nbformat from '@jupyterlab/nbformat';
 import { Notebook, NotebookPanel } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { Session } from '@jupyterlab/services';
+import { IStateDB } from '@jupyterlab/statedb';
 import { NotebookJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/notebook';
 import * as CodeMirror from 'codemirror';
 import { DocumentConnectionManager } from '../../connection_manager';
@@ -37,14 +38,16 @@ export class NotebookAdapter extends JupyterLabWidgetAdapter {
     app: JupyterFrontEnd,
     completion_manager: ICompletionManager,
     rendermime_registry: IRenderMimeRegistry,
-    connection_manager: DocumentConnectionManager
+    connection_manager: DocumentConnectionManager,
+    state: IStateDB
   ) {
     super(
       app,
       editor_widget,
       rendermime_registry,
       'completer:invoke-notebook',
-      connection_manager
+      connection_manager,
+      state
     );
     this.editor = editor_widget.content;
     this.completion_manager = completion_manager;
@@ -194,7 +197,7 @@ export class NotebookAdapter extends JupyterLabWidgetAdapter {
       parent: this.widget
     });
     this.current_completion_handler = handler;
-    this.registerKiteModules(handler, cell.editor);
+    this.registerKiteModules(handler, cell.editor, this.state);
     this.widget.content.activeCellChanged.connect(this.on_completions, this);
   }
 
