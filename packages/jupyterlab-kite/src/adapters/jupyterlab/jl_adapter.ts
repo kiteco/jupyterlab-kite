@@ -639,17 +639,8 @@ export abstract class JupyterLabWidgetAdapter
       try {
         const jlCompleter = this.completion_handler.completer as KiteCompleter;
         jlCompleter.onUpdateRequest = kiteCompleter.onUpdateRequest;
-        jlCompleter.handleEvent = kiteCompleter.handleEvent;
-        const appEventHandler = this.app.handleEvent;
-        jlCompleter.visibilityChanged.connect(() => {
-          if (jlCompleter.isVisible) {
-            this.app.handleEvent = kiteCompleter.handleEvent;
-          } else {
-            this.app.handleEvent = appEventHandler;
-          }
-        });
-      } catch {
-        // no-op
+      } catch (err) {
+        console.error(err);
       }
     }
   }
