@@ -15,10 +15,9 @@ export class KiteCompleter extends Completer {
   constructor(options: Completer.IOptions, stateDB: IStateDB) {
     super(options);
     state = stateDB;
-    console.log('Constructor', state);
     state.fetch(hideDocsKey).then(value => {
-      console.log('Found saved state:', value);
       if (value) {
+        console.log('[Kite] Stored Hide Docs State:', value);
         shouldHideDocs = value as boolean;
       }
     });
@@ -67,7 +66,6 @@ export function toggle(
   shouldHide: boolean,
   state?: IStateDB
 ) {
-  console.log('STATE:', state);
   const docpanels = node.querySelectorAll('.jp-Completer-docpanel');
   if (shouldHide) {
     docpanels.forEach(docpanel => {
