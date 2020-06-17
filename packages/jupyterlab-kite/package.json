@@ -107,7 +107,6 @@
           "pip"
         ]
       }
-    },
-    "schemaDir": "schema"
+    }
   }
 }
