@@ -49,7 +49,7 @@ const paletteCommands: ReadonlyArray<IKiteCommand> = [
     options: {
       label: 'Kite: Help',
       execute: () => {
-        window.open('https://help.kite.com/');
+        window.open('https://help.kite.com/category/138-jupyterlab-plugin');
       }
     }
   },
