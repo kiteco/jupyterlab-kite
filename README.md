@@ -86,7 +86,7 @@ To do so, open Kite's Copilot (visit the URL kite://home in your browser), ensur
 
 ### Commands
 
-Kite comes with sevaral commands that you can run from JupyterLab's command palette.
+Kite comes with several commands that you can run from JupyterLab's command palette.
 
 ![commands](https://kite.com/kite-public/commands.png)
 
