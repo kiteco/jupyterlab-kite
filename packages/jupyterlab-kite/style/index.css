@@ -1,7 +1,6 @@
 @import url('./highlight.css');
 @import url('./logo.css');
 
-/* All the stylings below this point should eventually be contributed upstream to jupyterlab/jupyterlab */
 .jp-Completer-docpanel {
   overflow: auto;
 }
