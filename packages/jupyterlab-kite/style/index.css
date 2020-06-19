@@ -7,3 +7,32 @@
 .jp-Completer-docpanel.hidden {
   display: none;
 }
+
+.jp-Completer-list {
+  scrollbar-width: thin;
+}
+
+.jp-Completer-type {
+  display: table-cell;
+  min-width: 24px;
+  vertical-align: middle;
+}
+
+.jp-Completer-monogram {
+  display: table-cell;
+}
+
+.jp-Completer-icon svg {
+  vertical-align: middle;
+}
+
+.jp-Completer-match {
+  max-width: 320px;
+  min-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.jp-Completer-typeExtended {
+  padding-left: 40px;
+}
