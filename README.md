@@ -57,7 +57,7 @@ The following is a brief guide to using Kite in its default configuration.
 
 When starting JupyterLab with the Kite Assistant for the first time, you'll be guided through a tutorial that shows you how to use Kite.
 
-![tutorial](https://www.dropbox.com/s/ne0iigy5317bk8c/tutorial_file.png?raw=1)
+![tutorial](https://kite.com/kite-public/tutorial_file.png)
 
 This tutorial will only be displayed once. You can show it again at any time by running the command `Kite: Tutorial` from JupyterLab's command palette.
 
@@ -65,14 +65,14 @@ This tutorial will only be displayed once. You can show it again at any time by 
 
 Simply start typing in a saved Python file or Jupyter notebook and Kite will automatically suggest completions for what you're typing. Kite's autocompletions are all labeled with the 🪁 symbol.
 
-![completions](https://www.dropbox.com/s/iiondsnu3hoqg4p/import%20statement.png?raw=1)
+![completions](https://kite.com/kite-public/import_statement.png)
 
 
 ### Completion documentation
 
 Kite's completions come with documentation to help you remember how each completion works.
 
-![Completion docs](https://www.dropbox.com/s/jrvudfklld2ceeq/completion_docs.png?raw=1)
+![Completion docs](https://kite.com/kite-public/completion_docs.png)
 
 
 ### Instant Documentation
@@ -81,26 +81,27 @@ Kite can show you documentation for the symbols in your code in the separate Cop
 
 To do so, open Kite's Copilot (visit the URL kite://home in your browser), ensure that the button labeled "Click for docs to follow cursor" in the upper right corner is enabled, and then simply position your cursor over a symbol.
 
-![Copilot](https://www.dropbox.com/s/tk4b7pkfotge1go/copilot_small.png?raw=1)
+![Copilot](https://kite.com/kite-public/copilot_small.png)
 
 
 ### Commands
 
 Kite comes with sevaral commands that you can run from JupyterLab's command palette.
 
-![commands](https://github.com/kiteco/atom-plugin/blob/master/docs/images/commands.png?raw=true)
+![commands](https://kite.com/kite-public/commands.png)
 
 |Command|Description|
 |:---|:---|
-|`kite:open-copilot`|Open the Copilot|
-|`kite:engine-settings`|Open the settings for the Kite Engine|
-|`kite:tutorial`|Open the Kite tutorial file|
-|`kite:help`|Open Kite's help website in the browser|
+|`Kite: Open Copilot`|Open the Copilot|
+|`Kite: Engine Settings`|Open the settings for the Kite Engine|
+|`Kite: Tutorial`|Open the Kite tutorial file|
+|`Kite: Help`|Open Kite's help website in the browser|
+|`Kite: Toggle Docs Panel`|Toggle the docs panel|
 
 
 ## Troubleshooting
 
-Visit our [help docs](https://help.kite.com) for FAQs and troubleshooting support.
+Visit our [help docs](https://help.kite.com/category/138-jupyterlab-plugin) for FAQs and troubleshooting support.
 
 Happy coding!
 
