@@ -62,6 +62,22 @@ export class LSPConnection extends LspWsConnection {
     }
   }
 
+  sendSelection(
+    location: IPosition,
+    documentInfo: IDocumentInfo,
+    text: string
+  ) {
+    try {
+      this.connection.sendNotification('kite/selection', {
+        positions: [{ line: location.line, character: location.ch }],
+        textDocument: { uri: documentInfo.uri },
+        text
+      });
+    } catch (e) {
+      console.warn('[Kite] Selection Notification Error:', e);
+    }
+  }
+
   public sendSelectiveChange(
     changeEvent: lsProtocol.TextDocumentContentChangeEvent,
     documentInfo: IDocumentInfo

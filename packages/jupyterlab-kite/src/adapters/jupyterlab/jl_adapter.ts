@@ -26,12 +26,7 @@ import { VirtualEditor } from '../../virtual/editor';
 import { CodeMirrorAdapter } from '../codemirror/cm_adapter';
 import { ILSPFeature, ILSPFeatureConstructor } from '../codemirror/feature';
 import { Completion } from '../codemirror/features/completion';
-import { Diagnostics } from '../codemirror/features/diagnostics';
-import { Highlights } from '../codemirror/features/highlights';
-import { Hover } from '../codemirror/features/hover';
-import { JumpToDefinition } from '../codemirror/features/jump_to';
-import { Rename } from '../codemirror/features/rename';
-import { Signature } from '../codemirror/features/signature';
+import { Selection } from '../codemirror/features/selection';
 import { KiteConnector } from './components/completion';
 import { FreeTooltip } from './components/free_tooltip';
 import { KiteCompleter } from './kite_completer';
@@ -39,12 +34,7 @@ import { KiteModel } from './kite_model';
 
 export const lsp_features: Array<ILSPFeatureConstructor> = [
   Completion,
-  Diagnostics,
-  Highlights,
-  Hover,
-  Signature,
-  JumpToDefinition,
-  Rename
+  Selection
 ];
 
 export interface IJupyterLabComponentsManager {
