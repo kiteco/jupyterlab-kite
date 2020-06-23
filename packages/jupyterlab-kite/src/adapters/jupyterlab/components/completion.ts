@@ -37,6 +37,8 @@ export class KiteConnector extends DataConnector<
   private _connections: Map<VirtualDocument.id_path, LSPConnection>;
   protected options: KiteConnector.IOptions;
 
+  private fetchAbort: AbortController;
+
   virtual_editor: VirtualEditor;
   responseType = CompletionHandler.ICompletionItemsResponseType;
   private _trigger_kind: CompletionTriggerKind = CompletionTriggerKind.Invoked;
@@ -58,6 +60,8 @@ export class KiteConnector extends DataConnector<
     this.virtual_editor = options.virtual_editor;
     this.options = options;
 
+    this.fetchAbort = new AbortController();
+
     if (options.session) {
       this._kernel_connector = new KernelConnector({
         session: options.session
@@ -78,6 +82,7 @@ export class KiteConnector extends DataConnector<
     delete this._editor;
     delete this.icon;
     delete this.isDisposed;
+    delete this.fetchAbort;
   }
 
   /**
@@ -85,103 +90,118 @@ export class KiteConnector extends DataConnector<
    *
    * @param request - The completion request text and details.
    */
-  async fetch(
+  fetch(
     request?: CompletionHandler.IRequest
   ): Promise<CompletionHandler.ICompletionItemsReply | undefined> {
-    let editor = this._editor;
-
-    const cursor = editor.getCursorPosition();
-    const token = editor.getTokenForPosition(cursor);
-
-    if (token.type && this.suppress_auto_invoke_in.indexOf(token.type) !== -1) {
-      console.log(
-        '[Kite][Completer] Suppressing completer auto-invoke in',
-        token.type
+    return new Promise(async (resolve, reject) => {
+      this.fetchAbort.abort();
+      this.fetchAbort = new AbortController();
+      this.fetchAbort.signal.addEventListener(
+        'abort',
+        () => {
+          resolve(KiteConnector.EmptyICompletionItemsReply);
+        },
+        { once: true }
       );
-      return;
-    }
+      let editor = this._editor;
 
-    const start = editor.getPositionAt(token.offset);
-    const end = editor.getPositionAt(token.offset + token.value.length);
+      const cursor = editor.getCursorPosition();
+      const token = editor.getTokenForPosition(cursor);
 
-    if (!start || !end) {
-      console.log('[Kite][Completer] No start or end position found');
-      return;
-    }
-
-    let position_in_token = cursor.column - start.column - 1;
-    const typed_character = token.value[cursor.column - start.column - 1];
-
-    let start_in_root = this.transform_from_editor_to_root(start);
-    let end_in_root = this.transform_from_editor_to_root(end);
-    let cursor_in_root = this.transform_from_editor_to_root(cursor);
-
-    let virtual_editor = this.virtual_editor;
-
-    // find document for position
-    let document = virtual_editor.document_at_root_position(start_in_root);
-
-    let virtual_start = virtual_editor.root_position_to_virtual_position(
-      start_in_root
-    );
-    let virtual_end = virtual_editor.root_position_to_virtual_position(
-      end_in_root
-    );
-    let virtual_cursor = virtual_editor.root_position_to_virtual_position(
-      cursor_in_root
-    );
-
-    const kitePromise = () => {
-      return this.fetch_kite(
-        token,
-        typed_character,
-        virtual_start,
-        virtual_end,
-        virtual_cursor,
-        document,
-        position_in_token
-      ).catch(() => {
-        return KiteConnector.EmptyICompletionItemsReply;
-      });
-    };
-
-    const isManual = this._trigger_kind === CompletionTriggerKind.Invoked;
-    /**
-     * """
-     * """
-     * has token.type string, so we suppress auto fetching.
-     */
-    const should_suppress_strings = !isManual && token.type === 'string';
-
-    const kernelPromise = () => {
-      /**
-       * Don't fetch kernel completions if:
-       * - No kernel connector
-       * - No request object
-       * - Token type is string (otherwise kernel completions appear within docstrings)
-       */
-      if (!this._kernel_connector || !request || should_suppress_strings) {
-        return KiteConnector.EmptyIReply;
+      if (
+        token.type &&
+        this.suppress_auto_invoke_in.indexOf(token.type) !== -1
+      ) {
+        console.log(
+          '[Kite][Completer] Suppressing completer auto-invoke in',
+          token.type
+        );
+        return;
       }
-      return this._kernel_connector.fetch(request).catch(() => {
-        return KiteConnector.EmptyIReply;
-      });
-    };
 
-    const timeout = new Promise<CompletionHandler.IReply>(resolve => {
-      setTimeout(resolve, 500, KiteConnector.EmptyIReply);
+      const start = editor.getPositionAt(token.offset);
+      const end = editor.getPositionAt(token.offset + token.value.length);
+
+      if (!start || !end) {
+        console.log('[Kite][Completer] No start or end position found');
+        resolve(KiteConnector.EmptyICompletionItemsReply);
+        return;
+      }
+
+      let position_in_token = cursor.column - start.column - 1;
+      const typed_character = token.value[cursor.column - start.column - 1];
+
+      let start_in_root = this.transform_from_editor_to_root(start);
+      let end_in_root = this.transform_from_editor_to_root(end);
+      let cursor_in_root = this.transform_from_editor_to_root(cursor);
+
+      let virtual_editor = this.virtual_editor;
+
+      // find document for position
+      let document = virtual_editor.document_at_root_position(start_in_root);
+
+      let virtual_start = virtual_editor.root_position_to_virtual_position(
+        start_in_root
+      );
+      let virtual_end = virtual_editor.root_position_to_virtual_position(
+        end_in_root
+      );
+      let virtual_cursor = virtual_editor.root_position_to_virtual_position(
+        cursor_in_root
+      );
+
+      const kitePromise = () => {
+        return this.fetch_kite(
+          token,
+          typed_character,
+          virtual_start,
+          virtual_end,
+          virtual_cursor,
+          document,
+          position_in_token
+        ).catch(() => {
+          return KiteConnector.EmptyICompletionItemsReply;
+        });
+      };
+
+      const isManual = this._trigger_kind === CompletionTriggerKind.Invoked;
+      /**
+       * """
+       * """
+       * has token.type string, so we suppress auto fetching.
+       */
+      const should_suppress_strings = !isManual && token.type === 'string';
+
+      const kernelPromise = () => {
+        /**
+         * Don't fetch kernel completions if:
+         * - No kernel connector
+         * - No request object
+         * - Token type is string (otherwise kernel completions appear within docstrings)
+         */
+        if (!this._kernel_connector || !request || should_suppress_strings) {
+          return KiteConnector.EmptyIReply;
+        }
+        return this._kernel_connector.fetch(request).catch(() => {
+          return KiteConnector.EmptyIReply;
+        });
+      };
+
+      const timeout = new Promise<CompletionHandler.IReply>(resolve => {
+        setTimeout(resolve, 500, KiteConnector.EmptyIReply);
+      });
+      const kernelTimeoutPromise = () => {
+        return Promise.race([timeout, kernelPromise()]).then(reply => {
+          return reply;
+        });
+      };
+
+      const [kernel, kite] = await Promise.all([
+        isManual ? kernelPromise() : kernelTimeoutPromise(),
+        kitePromise()
+      ]);
+      resolve(this.merge_replies(kernel, kite));
     });
-    const kernelTimeoutPromise = () => {
-      return Promise.race([timeout, kernelPromise()]).then(reply => {
-        return reply;
-      });
-    };
-
-    const [kernel, kite] = await Promise.all([
-      isManual ? kernelPromise() : kernelTimeoutPromise(),
-      kitePromise()
-    ]);
-    return this.merge_replies(kernel, kite);
   }
 
   async fetch_kite(
