@@ -27,6 +27,7 @@ import { NotebookAdapter } from './adapters/jupyterlab/notebook';
 import { file_editor_adapters, notebook_adapters } from './command_manager';
 import { DocumentConnectionManager } from './connection_manager';
 import { registerKiteCommands } from './kite_commands';
+import { KiteOnboarding } from './kite_onboarding';
 import { LanguageServerManager } from './manager';
 
 import IPaths = JupyterFrontEnd.IPaths;
@@ -92,6 +93,15 @@ const plugin: JupyterFrontEndPlugin<void> = {
       if (adapter != null) {
         status_bar_item.model.adapter = adapter;
       }
+
+      new KiteOnboarding(
+        app,
+        palette,
+        documentManager,
+        paths,
+        state,
+        connection_manager
+      );
     });
 
     status_bar.registerStatusItem(
