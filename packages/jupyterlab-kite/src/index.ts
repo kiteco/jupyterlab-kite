@@ -72,7 +72,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
       language_server_manager,
       kite_status_model
     });
-
     const status_bar_item = new KiteStatus(kite_status_model);
     status_bar_item.model.connection_manager = connection_manager;
 
@@ -94,7 +93,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         status_bar_item.model.adapter = adapter;
       }
 
-      new KiteOnboarding(
+      const onboarding_manager = new KiteOnboarding(
         app,
         palette,
         documentManager,
@@ -102,6 +101,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         state,
         connection_manager
       );
+      onboarding_manager.showOnBoot();
     });
 
     status_bar.registerStatusItem(
@@ -124,6 +124,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     fileEditorTracker.widgetUpdated.connect((_sender, _widget) => {
       console.log(_sender);
       console.log(_widget);
+      console.log('widgetUpdated!');
     });
 
     const connect_file_editor = (
@@ -167,6 +168,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     };
 
     fileEditorTracker.widgetAdded.connect((sender, widget) => {
+      console.log('fileEditorTracker widgetAdded!');
       connect_file_editor(widget);
     });
 

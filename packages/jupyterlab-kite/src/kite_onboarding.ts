@@ -7,15 +7,15 @@ import { category, cmdIds, IKiteCommand } from './kite_commands';
 import { VirtualDocument } from './virtual/document';
 
 import IPaths = JupyterFrontEnd.IPaths;
+export const onboardingShownKey = 'onboardingShown';
 
 export class KiteOnboarding {
-  app: JupyterFrontEnd;
-  palette: ICommandPalette;
-  documentManager: IDocumentManager;
-  paths: IPaths;
-  state: IStateDB;
-  connectionManager: DocumentConnectionManager;
-  file: string;
+  private app: JupyterFrontEnd;
+  private palette: ICommandPalette;
+  private documentManager: IDocumentManager;
+  private paths: IPaths;
+  private state: IStateDB;
+  private connectionManager: DocumentConnectionManager;
 
   constructor(
     app: JupyterFrontEnd,
@@ -45,8 +45,19 @@ export class KiteOnboarding {
         }
       }
     };
+    if (this.app.commands.hasCommand(cmd.id)) {
+      return;
+    }
     this.app.commands.addCommand(cmd.id, cmd.options);
     this.palette.addItem({ command: cmd.id, category });
+  }
+
+  async showOnBoot() {
+    const onboardingShown = await this.state.fetch(onboardingShownKey);
+    if (!onboardingShown) {
+      this._show();
+    }
+    this.state.save(onboardingShownKey, true);
   }
 
   async _fetch(): Promise<string> {

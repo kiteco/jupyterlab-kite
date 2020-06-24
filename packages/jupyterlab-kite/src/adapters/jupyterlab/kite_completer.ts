@@ -2,7 +2,7 @@ import { Completer } from '@jupyterlab/completer';
 import { IStateDB } from '@jupyterlab/statedb';
 import { Message } from '@lumino/messaging';
 
-export const hideDocsKey = 'showDocs';
+export const hideDocsKey = 'hideDocs';
 export let shouldHideDocs = false;
 export let state: IStateDB;
 
