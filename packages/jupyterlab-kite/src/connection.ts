@@ -55,8 +55,8 @@ export class LSPConnection extends LspWsConnection {
         serverRoot
       });
       return path.basename(filepath);
-    } catch (err) {
-      console.warn('Could not get Kite Onboarding file.', err);
+    } catch {
+      console.warn('Could not get Kite Onboarding file.');
     }
     return '';
   }

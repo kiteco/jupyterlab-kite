@@ -124,7 +124,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
     fileEditorTracker.widgetUpdated.connect((_sender, _widget) => {
       console.log(_sender);
       console.log(_widget);
-      console.log('widgetUpdated!');
     });
 
     const connect_file_editor = (
@@ -168,7 +167,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
     };
 
     fileEditorTracker.widgetAdded.connect((sender, widget) => {
-      console.log('fileEditorTracker widgetAdded!');
       connect_file_editor(widget);
     });
 
