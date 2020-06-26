@@ -97,7 +97,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
         app,
         palette,
         documentManager,
-        paths,
         state,
         connection_manager
       );

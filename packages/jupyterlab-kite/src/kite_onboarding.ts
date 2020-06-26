@@ -6,14 +6,12 @@ import { DocumentConnectionManager } from './connection_manager';
 import { category, cmdIds, IKiteCommand } from './kite_commands';
 import { VirtualDocument } from './virtual/document';
 
-import IPaths = JupyterFrontEnd.IPaths;
 export const onboardingShownKey = 'onboardingShown';
 
 export class KiteOnboarding {
   private app: JupyterFrontEnd;
   private palette: ICommandPalette;
   private documentManager: IDocumentManager;
-  private paths: IPaths;
   private state: IStateDB;
   private connectionManager: DocumentConnectionManager;
 
@@ -21,14 +19,12 @@ export class KiteOnboarding {
     app: JupyterFrontEnd,
     palette: ICommandPalette,
     documentManager: IDocumentManager,
-    paths: IPaths,
     state: IStateDB,
     connectionManager: DocumentConnectionManager
   ) {
     this.app = app;
     this.palette = palette;
     this.documentManager = documentManager;
-    this.paths = paths;
     this.state = state;
     this.connectionManager = connectionManager;
 
@@ -78,7 +74,7 @@ export class KiteOnboarding {
     };
     const connection = await this.connectionManager.connect(options);
     if (connection) {
-      return connection.fetchKiteOnboarding(this.paths.directories.serverRoot);
+      return connection.fetchKiteOnboarding();
     } else {
       return '';
     }

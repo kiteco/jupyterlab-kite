@@ -48,12 +48,10 @@ export class LSPConnection extends LspWsConnection {
     }
   }
 
-  async fetchKiteOnboarding(serverRoot: string): Promise<string> {
+  async fetchKiteOnboarding(): Promise<string> {
     let filepath: string;
     try {
-      filepath = await this.connection.sendRequest('kite/onboarding', {
-        serverRoot
-      });
+      filepath = await this.connection.sendRequest('kite/onboarding');
       return path.basename(filepath);
     } catch {
       console.warn('Could not get Kite Onboarding file.');
