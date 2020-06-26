@@ -72,6 +72,13 @@ const plugin: JupyterFrontEndPlugin<void> = {
       language_server_manager,
       kite_status_model
     });
+    const onboarding_manager = new KiteOnboarding(
+      app,
+      palette,
+      documentManager,
+      state,
+      connection_manager
+    );
     const status_bar_item = new KiteStatus(kite_status_model);
     status_bar_item.model.connection_manager = connection_manager;
 
@@ -92,14 +99,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
       if (adapter != null) {
         status_bar_item.model.adapter = adapter;
       }
-
-      const onboarding_manager = new KiteOnboarding(
-        app,
-        palette,
-        documentManager,
-        state,
-        connection_manager
-      );
       onboarding_manager.showOnBoot();
     });
 
