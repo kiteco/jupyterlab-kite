@@ -3,29 +3,20 @@ import { ICommandPalette } from '@jupyterlab/apputils';
 import { CommandRegistry } from '@lumino/commands';
 import { toggle } from './adapters/jupyterlab/kite_completer';
 
-const category = 'kite';
-interface IKiteCommand {
-  id: string;
-  options: CommandRegistry.ICommandOptions;
-}
-const cmdIds = {
+export const category = 'kite';
+export const cmdIds = {
   tutorial: 'kite:tutorial',
   copilot: 'kite:copilot',
   settings: 'kite:settings',
   help: 'kite:help',
   toggleDocs: 'kite:toggle-docs'
 };
+export interface IKiteCommand {
+  id: string;
+  options: CommandRegistry.ICommandOptions;
+}
 
 const paletteCommands: ReadonlyArray<IKiteCommand> = [
-  {
-    id: cmdIds.tutorial,
-    options: {
-      label: 'Kite: Tutorial',
-      execute: () => {
-        console.log('Kite: Tutorial');
-      }
-    }
-  },
   {
     id: cmdIds.copilot,
     options: {

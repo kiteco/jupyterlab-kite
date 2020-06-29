@@ -3,6 +3,7 @@
 // but without language deemed unnecessary following the Berne Convention." (Wikipedia).
 // Introduced modifications are BSD licenced, copyright JupyterLab development team.
 import * as lsProtocol from 'vscode-languageserver-protocol';
+import * as path from 'path';
 import {
   ILspOptions,
   IPosition,
@@ -45,6 +46,17 @@ export class LSPConnection extends LspWsConnection {
         this._sendOpen(document);
       }
     }
+  }
+
+  async fetchKiteOnboarding(): Promise<string> {
+    let filepath: string;
+    try {
+      filepath = await this.connection.sendRequest('kite/onboarding');
+      return path.basename(filepath);
+    } catch {
+      console.warn('Could not get Kite Onboarding file.');
+    }
+    return '';
   }
 
   async fetchKiteStatus(documentInfo: IDocumentInfo) {

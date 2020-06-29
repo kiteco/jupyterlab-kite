@@ -8,6 +8,7 @@ from notebook.base.zmqhandlers import WebSocketHandler, WebSocketMixin
 from notebook.utils import url_path_join as ujoin
 
 from .locator import KiteLocator
+from .onboarding import KiteOnboardingHandler
 from .manager import LanguageServerManager
 from .schema import SERVERS_RESPONSE
 
@@ -25,6 +26,11 @@ class LanguageServerWebSocketHandler(WebSocketMixin, WebSocketHandler, BaseHandl
 
     language_server = None  # type: Optional[Text]
 
+    def initialize(self, *args, **kwargs):
+        super().initialize(kwargs["manager"])
+        self.contents = kwargs["contents"]
+        self.onboarding_handler = KiteOnboardingHandler()
+
     def open(self, language_server):
         self.language_server = language_server
         self.manager.subscribe(self)
@@ -32,7 +38,9 @@ class LanguageServerWebSocketHandler(WebSocketMixin, WebSocketHandler, BaseHandl
 
     async def on_message(self, message):
         self.log.debug("[{}] Handling a message".format(self.language_server))
-        await self.manager.on_client_message(message, self)
+        processed_message = self.onboarding_handler.process_message(
+            self.contents, message)
+        await self.manager.on_client_message(processed_message, self)
 
     def on_close(self):
         self.manager.unsubscribe(self)
@@ -48,7 +56,7 @@ class LanguageServersHandler(BaseHandler):
     validator = SERVERS_RESPONSE
 
     def initialize(self, *args, **kwargs):
-        super().initialize(*args, **kwargs)
+        super().initialize(kwargs["manager"])
 
     def get(self):
         """ finish with the JSON representations of the sessions
@@ -75,7 +83,7 @@ class KiteInstalledHandler(BaseHandler):
     """
 
     def initialize(self, *args, **kwargs):
-        super().initialize(*args, **kwargs)
+        super().initialize(kwargs["manager"])
         self.locator = KiteLocator()
 
     def get(self):
@@ -91,7 +99,8 @@ def add_handlers(nbapp):
     lsp_url = ujoin(nbapp.base_url, "lsp")
     re_langservers = "(?P<language_server>.*)"
 
-    opts = {"manager": nbapp.language_server_manager}
+    opts = {"manager": nbapp.language_server_manager,
+            "contents": nbapp.contents_manager}
 
     nbapp.web_app.add_handlers(
         ".*",
