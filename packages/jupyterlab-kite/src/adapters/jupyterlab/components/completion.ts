@@ -174,9 +174,9 @@ export class KiteConnector extends DataConnector<
       const should_suppress_strings = !isManual && token.type === 'string';
 
       /**
-       * Kernel completions should only be fetched after an alphanumeric character or . ' "
+       * Kernel completions should only be fetched after an alphabetical character or . ' "
        */
-      const kernelTriggerRegex = /^[0-9a-zA-Z\.\'\"]+/;
+      const kernelTriggerRegex = /^[a-zA-Z\.\'\"]+/;
 
       const kernelPromise = () => {
         /**
