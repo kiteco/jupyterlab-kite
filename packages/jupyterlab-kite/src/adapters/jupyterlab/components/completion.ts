@@ -184,13 +184,13 @@ export class KiteConnector extends DataConnector<
          * - No kernel connector
          * - No request object
          * - Token type is string (otherwise kernel completions appear within docstrings)
-         * - Preceding character isn't a kernel trigger character
+         * - Preceding character isn't a kernel trigger character (unless request is manual)
          */
         if (
           !this._kernel_connector ||
           !request ||
           should_suppress_strings ||
-          !kernelTriggerRegex.test(typed_character)
+          !(kernelTriggerRegex.test(typed_character) || isManual)
         ) {
           return KiteConnector.EmptyIReply;
         }
