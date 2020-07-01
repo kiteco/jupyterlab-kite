@@ -88,6 +88,7 @@ export class LSPConnection extends LspWsConnection {
     } catch (e) {
       console.warn('[Kite] Selection Notification Error:', e);
     }
+    this.fetchKiteStatus(documentInfo);
   }
 
   public sendSelectiveChange(
