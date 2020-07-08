@@ -39,6 +39,7 @@ export const lsp_features: Array<ILSPFeatureConstructor> = [
 
 export interface IJupyterLabComponentsManager {
   invoke_completer: (kind: CompletionTriggerKind) => void;
+  cancel_completer: () => void;
   create_tooltip: (
     markup: lsProtocol.MarkupContent,
     cm_editor: CodeMirror.Editor,
@@ -262,6 +263,10 @@ export abstract class JupyterLabWidgetAdapter
 
   abstract find_ce_editor(cm_editor: CodeMirror.Editor): CodeEditor.IEditor;
 
+  cancel_completer(): void {
+    this.current_completion_connector.abort();
+  }
+
   async invoke_completer(kind: CompletionTriggerKind) {
     if (this.completion_handler) {
       const editor = this.completion_handler.editor;
@@ -286,9 +291,13 @@ export abstract class JupyterLabWidgetAdapter
         );
         const request: CompletionHandler.IRequest = { text, offset };
 
+        // track the model state as of the request
+        const query = model.query;
+        const state = model.state;
+
         const reply = await this.current_completion_connector.fetch(request);
         if (model.setCompletionItems && reply) {
-          model.update(reply);
+          model.update(reply, query, state);
           model.setCompletionItems(reply.items);
           return;
         }
@@ -407,6 +416,12 @@ export abstract class JupyterLabWidgetAdapter
       console.log('LSP: Skipping document update signal: adapter not ready');
       return;
     }
+
+    // super hack: we need to cancel completions synchronously in order to avoid a race
+    // where we return completions after an edit but before cancellation, resulting in stale completions appearing.
+    // If we delegate this to updateAfterChange, it'll happen asynchronously, so we do it here.
+    const completion_feature = adapter.features.get(Completion.name);
+    completion_feature.jupyterlab_components.cancel_completer();
 
     // console.log(
     //   'LSP: virtual document',
@@ -619,6 +634,7 @@ export abstract class JupyterLabWidgetAdapter
       this.completion_handler = handler;
       const kiteModel = new KiteModel();
       this.completion_handler.completer.model = kiteModel;
+
       const kiteCompleter = new KiteCompleter(
         {
           editor: editor,

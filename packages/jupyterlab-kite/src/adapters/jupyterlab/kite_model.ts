@@ -25,15 +25,15 @@ export class KiteModel extends CompleterModel {
     super.handleCursorChange(change);
     const prevState = this.state;
     if (prevState) {
-      /**
-       * Reset model unless cursor change is result of typing a new character.
-       */
-      if (
-        change.column - prevState.column === 1 ||
-        (change.line - prevState.line === 1 && change.column === 1)
-      ) {
+      if (change.column - prevState.column === 1 && change.line - prevState.line === 0) {
+        // single char insertion
         return;
       }
+      if (change.column === 1 && change.line - prevState.line === 1) {
+        // newline insertion
+        return
+      }
+      // otherwise reset the model
       this.reset(true);
     }
   }
@@ -48,19 +48,14 @@ export class KiteModel extends CompleterModel {
    * https://github.com/jupyterlab/jupyterlab/blob/1df0e18951194bb5ec230e76441e8108e0b472e7/packages/completer/src/handler.ts#L421
    * Enables completer to fully update model state when completions are force updated in JupyterLabWidgetAdapter.
    */
-  update(reply: CompletionHandler.ICompletionItemsReply) {
-    if (this.state) {
-      const text = this.state.text;
-      const query = this.query;
-      // Update the original request.
-      this.original = this.state;
-      // Setting this.original resets the query string.
-      this.query = query;
-      // Update the cursor.
-      this.cursor = {
-        start: Text.charIndexToJsIndex(reply.start, text),
-        end: Text.charIndexToJsIndex(reply.end, text)
-      };
-    }
+  update(reply: CompletionHandler.ICompletionItemsReply, query: string, state: Completer.ITextState) {
+    this.original = state;
+    this.query = query;
+    const text = state.text;
+    // Update the cursor.
+    this.cursor = {
+      start: Text.charIndexToJsIndex(reply.start, text),
+      end: Text.charIndexToJsIndex(reply.end, text)
+    };
   }
 }

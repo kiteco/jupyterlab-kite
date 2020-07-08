@@ -85,6 +85,10 @@ export class KiteConnector extends DataConnector<
     delete this.fetchAbort;
   }
 
+  abort(): void {
+    this.fetchAbort.abort();
+  }
+
   /**
    * Fetch completion requests.
    *
@@ -94,9 +98,12 @@ export class KiteConnector extends DataConnector<
     request?: CompletionHandler.IRequest
   ): Promise<CompletionHandler.ICompletionItemsReply | undefined> {
     return new Promise(async (resolve, reject) => {
+      const fetchAbort = new AbortController();
+
       this.fetchAbort.abort();
-      this.fetchAbort = new AbortController();
-      this.fetchAbort.signal.addEventListener(
+      this.fetchAbort = fetchAbort;
+
+      fetchAbort.signal.addEventListener(
         'abort',
         () => {
           resolve(KiteConnector.EmptyICompletionItemsReply);
@@ -140,28 +147,24 @@ export class KiteConnector extends DataConnector<
       // find document for position
       let document = virtual_editor.document_at_root_position(start_in_root);
 
-      let virtual_start = virtual_editor.root_position_to_virtual_position(
-        start_in_root
-      );
-      let virtual_end = virtual_editor.root_position_to_virtual_position(
-        end_in_root
-      );
-      let virtual_cursor = virtual_editor.root_position_to_virtual_position(
-        cursor_in_root
-      );
+      let virtual_start = virtual_editor.root_position_to_virtual_position(start_in_root);
+      let virtual_end = virtual_editor.root_position_to_virtual_position(end_in_root);
+      let virtual_cursor = virtual_editor.root_position_to_virtual_position(cursor_in_root);
 
-      const kitePromise = () => {
-        return this.fetch_kite(
-          token,
-          typed_character,
-          virtual_start,
-          virtual_end,
-          virtual_cursor,
-          document,
-          position_in_token
-        ).catch(() => {
+      const kitePromise = async () => {
+        try {
+          return await this.fetch_kite(
+            token,
+            typed_character,
+            virtual_start,
+            virtual_end,
+            virtual_cursor,
+            document,
+            position_in_token
+          )
+        } catch {
           return KiteConnector.EmptyICompletionItemsReply;
-        });
+        };
       };
 
       const isManual = this._trigger_kind === CompletionTriggerKind.Invoked;
@@ -199,20 +202,26 @@ export class KiteConnector extends DataConnector<
         });
       };
 
-      const timeout = new Promise<CompletionHandler.IReply>(resolve => {
-        setTimeout(resolve, 500, KiteConnector.EmptyIReply);
-      });
       const kernelTimeoutPromise = () => {
-        return Promise.race([timeout, kernelPromise()]).then(reply => {
-          return reply;
-        });
+        const timeout = new Promise<CompletionHandler.IReply>(
+          resolve => {
+            setTimeout(resolve, 500, KiteConnector.EmptyIReply);
+          }
+        );
+        return Promise.race([timeout, kernelPromise()]);
       };
 
       const [kernel, kite] = await Promise.all([
         isManual ? kernelPromise() : kernelTimeoutPromise(),
         kitePromise()
       ]);
-      resolve(this.merge_replies(kernel, kite));
+      const merged = this.merge_replies(kernel, kite);
+
+      if (fetchAbort.signal.aborted) {
+        // will eventually resolve to empty via the registered handler
+        return;
+      }
+      resolve(merged);
     });
   }
 

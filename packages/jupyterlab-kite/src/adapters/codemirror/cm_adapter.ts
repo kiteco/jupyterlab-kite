@@ -67,6 +67,7 @@ export class CodeMirrorAdapter {
 
       if (!change || !change.text.length || !change.text[0].length) {
         // deletion - ignore
+        // TODO(naman) this should probably be handled by the individual features for more flexibility
         return true;
       }
 

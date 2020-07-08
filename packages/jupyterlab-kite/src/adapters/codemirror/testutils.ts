@@ -105,6 +105,7 @@ export abstract class FeatureTestEnvironment
 
   public create_dummy_components(): IJupyterLabComponentsManager {
     return {
+      cancel_completer: () => void {},
       invoke_completer: () => {
         // nothing yet
       },
