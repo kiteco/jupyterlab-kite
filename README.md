@@ -1,4 +1,4 @@
-# Kite Autocomplete Extension for JupyterLab
+# Kite Autocomplete Extension for JupyterLab (Preview)
 
 Kite is an AI-powered programming assistant that helps you write Python code inside JupyterLab. Kite helps you write code faster by saving you keystrokes and showing you the right information at the right time. Learn more about how Kite boosts your JupyterLab editor's capabilities at https://kite.com/integrations/jupyter/. 
 
@@ -15,6 +15,8 @@ At a high level, Kite provides you with:
 Use another editor? Check out [Kite’s other editor integrations](https://kite.com/integrations/).
 
 ## Installation
+
+⚠️ Kite for JupyterLab is currently under development and not yet supported for general use.
 
 ### Installing the Kite Engine
 
