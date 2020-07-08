@@ -165,6 +165,7 @@ export class KiteConnector extends DataConnector<
       };
 
       const isManual = this._trigger_kind === CompletionTriggerKind.Invoked;
+
       /**
        * """
        * """
@@ -172,14 +173,25 @@ export class KiteConnector extends DataConnector<
        */
       const should_suppress_strings = !isManual && token.type === 'string';
 
+      /**
+       * Kernel completions should only be fetched after an alphabetical character or . ' "
+       */
+      const kernelTriggerRegex = /^[a-zA-Z\.\'\"]+/;
+
       const kernelPromise = () => {
         /**
          * Don't fetch kernel completions if:
          * - No kernel connector
          * - No request object
          * - Token type is string (otherwise kernel completions appear within docstrings)
+         * - Preceding character isn't a kernel trigger character (unless request is manual)
          */
-        if (!this._kernel_connector || !request || should_suppress_strings) {
+        if (
+          !this._kernel_connector ||
+          !request ||
+          should_suppress_strings ||
+          !(kernelTriggerRegex.test(typed_character) || isManual)
+        ) {
           return KiteConnector.EmptyIReply;
         }
         return this._kernel_connector.fetch(request).catch(() => {
