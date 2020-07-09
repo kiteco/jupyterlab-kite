@@ -23,7 +23,9 @@ export class KiteModel extends CompleterModel {
 
   handleCursorChange(change: Completer.ITextState) {
     super.handleCursorChange(change);
+
     const prevState = this.state;
+    this.state = change;
     if (prevState) {
       if (change.column - prevState.column === 1 && change.line - prevState.line === 0) {
         // single char insertion
@@ -50,12 +52,31 @@ export class KiteModel extends CompleterModel {
    */
   update(reply: CompletionHandler.ICompletionItemsReply, query: string, state: Completer.ITextState) {
     this.original = state;
+    if (this.isStale()) {
+      this.reset(true);
+      return;
+    }
+
     this.query = query;
-    const text = state.text;
-    // Update the cursor.
     this.cursor = {
-      start: Text.charIndexToJsIndex(reply.start, text),
-      end: Text.charIndexToJsIndex(reply.end, text)
+      start: Text.charIndexToJsIndex(reply.start, state.text),
+      end: Text.charIndexToJsIndex(reply.end, state.text)
     };
+    this.setCompletionItems(reply.items);
+  }
+
+  setCompletionItems(items: CompletionHandler.ICompletionItems) {
+    if (this.isStale()) {
+      return
+    }
+    super.setCompletionItems(items);
+  }
+
+  private isStale(): boolean {
+    if (this.original.text !== this.state.text || this.original.line !== this.state.line || this.original.column !== this.state.column) {
+      this.reset(true);
+      return true
+    }
+    return false;
   }
 }
