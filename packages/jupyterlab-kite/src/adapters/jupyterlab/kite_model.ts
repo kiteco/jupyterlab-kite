@@ -22,20 +22,39 @@ export class KiteModel extends CompleterModel {
   }
 
   handleCursorChange(change: Completer.ITextState) {
-    super.handleCursorChange(change);
-
     const prevState = this.state;
     this.state = change;
+
+    super.handleCursorChange(change);
+
+    // Check if we've left the bounds of the replacement range.
+    // The check in super.handleCursorChange is not quite right.
+    // Here, we use super.createPatch to correctly check the replacement range.
+    const patch = super.createPatch("");
+    // Compute the current cursor position from change as a global text offset.
+    const changeCh = change.column + + change.line + (
+      change.text.split("\n")
+      .slice(0, change.line)
+      .map(s => s.length)
+      .reduce((x, y) => x + y)
+    );
+    if (patch && (changeCh < patch.start || changeCh > patch.end)) {
+      this.reset(true);
+      return;
+    }
+
+    // Reset if more than one character may have been inserted.
+    // This is not quite the best spot for this check, but it works.
     if (prevState) {
       if (
         change.column - prevState.column === 1 &&
         change.line - prevState.line === 0
       ) {
-        // single char insertion
+        // single char insertion: don't reset
         return;
       }
       if (change.column === 1 && change.line - prevState.line === 1) {
-        // newline insertion
+        // newline insertion: don't reset
         return;
       }
       // otherwise reset the model
