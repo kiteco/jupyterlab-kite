@@ -67,6 +67,7 @@ export class KiteModel extends CompleterModel {
 
   setCompletionItems(items: CompletionHandler.ICompletionItems) {
     if (this.isStale()) {
+      this.reset(true);
       return
     }
     super.setCompletionItems(items);
@@ -74,7 +75,6 @@ export class KiteModel extends CompleterModel {
 
   private isStale(): boolean {
     if (this.original.text !== this.state.text || this.original.line !== this.state.line || this.original.column !== this.state.column) {
-      this.reset(true);
       return true
     }
     return false;
