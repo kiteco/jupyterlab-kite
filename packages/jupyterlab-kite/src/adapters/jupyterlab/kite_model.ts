@@ -27,13 +27,16 @@ export class KiteModel extends CompleterModel {
     const prevState = this.state;
     this.state = change;
     if (prevState) {
-      if (change.column - prevState.column === 1 && change.line - prevState.line === 0) {
+      if (
+        change.column - prevState.column === 1 &&
+        change.line - prevState.line === 0
+      ) {
         // single char insertion
         return;
       }
       if (change.column === 1 && change.line - prevState.line === 1) {
         // newline insertion
-        return
+        return;
       }
       // otherwise reset the model
       this.reset(true);
@@ -50,7 +53,11 @@ export class KiteModel extends CompleterModel {
    * https://github.com/jupyterlab/jupyterlab/blob/1df0e18951194bb5ec230e76441e8108e0b472e7/packages/completer/src/handler.ts#L421
    * Enables completer to fully update model state when completions are force updated in JupyterLabWidgetAdapter.
    */
-  update(reply: CompletionHandler.ICompletionItemsReply, query: string, state: Completer.ITextState) {
+  update(
+    reply: CompletionHandler.ICompletionItemsReply,
+    query: string,
+    state: Completer.ITextState
+  ) {
     this.original = state;
     if (this.isStale()) {
       this.reset(true);
@@ -68,14 +75,18 @@ export class KiteModel extends CompleterModel {
   setCompletionItems(items: CompletionHandler.ICompletionItems) {
     if (this.isStale()) {
       this.reset(true);
-      return
+      return;
     }
     super.setCompletionItems(items);
   }
 
   private isStale(): boolean {
-    if (this.original.text !== this.state.text || this.original.line !== this.state.line || this.original.column !== this.state.column) {
-      return true
+    if (
+      this.original.text !== this.state.text ||
+      this.original.line !== this.state.line ||
+      this.original.column !== this.state.column
+    ) {
+      return true;
     }
     return false;
   }
