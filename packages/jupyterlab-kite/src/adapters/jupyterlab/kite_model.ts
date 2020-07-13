@@ -326,29 +326,26 @@ export class KiteModel {
    * Handle a text change.
    */
   handleTextChange(change: Completer.ITextState): void {
-    // super.handleTextChange
-    (() => {
-      const original = this._original;
-
-      // If there is no active completion, return.
-      if (!original) {
-        return;
-      }
-
-      const { text, column, line } = change;
-      const last = text.split('\n')[line][column - 1];
-
-      // If last character entered is not whitespace or if the change column is
-      // greater than or equal to the original column, update completion.
-      if ((last && last.match(/\S/)) || change.column >= original.column) {
-        this.current = change;
-        return;
-      }
-
-      // If final character is whitespace, reset completion.
-      this.reset(false);
-    })();
     this.state = change;
+    const original = this._original;
+
+    // If there is no active completion, return.
+    if (!original) {
+      return;
+    }
+
+    const { text, column, line } = change;
+    const last = text.split('\n')[line][column - 1];
+
+    // If last character entered is not whitespace or if the change column is
+    // greater than or equal to the original column, update completion.
+    if ((last && last.match(/\S/)) || change.column >= original.column) {
+      this.current = change;
+      return;
+    }
+
+    // If final character is whitespace, reset completion.
+    this.reset(false);
   }
 
   /**
