@@ -410,22 +410,19 @@ export class KiteModel {
       this.reset(true);
       return;
     }
-    // super.setCompletionItems()
-    (() => {
-      if (
-        JSONExt.deepEqual(
-          (newValue as unknown) as ReadonlyPartialJSONArray,
-          (this._completionItems as unknown) as ReadonlyPartialJSONArray
-        )
-      ) {
-        return;
-      }
-      this._completionItems = newValue;
-      this._orderedTypes = Private.findOrderedCompletionItemTypes(
-        this._completionItems
-      );
-      this._stateChanged.emit(undefined);
-    })();
+    if (
+      JSONExt.deepEqual(
+        (newValue as unknown) as ReadonlyPartialJSONArray,
+        (this._completionItems as unknown) as ReadonlyPartialJSONArray
+      )
+    ) {
+      return;
+    }
+    this._completionItems = newValue;
+    this._orderedTypes = Private.findOrderedCompletionItemTypes(
+      this._completionItems
+    );
+    this._stateChanged.emit(undefined);
   }
 
   /**
