@@ -501,22 +501,21 @@ export class KiteModel {
     if (!query) {
       return map(options, option => ({ raw: option, text: option }));
     }
-    const results: Private.IMatch[] = [];
+    const results: Completer.IItem[] = [];
     for (const option of options) {
-      const match = StringExt.matchSumOfSquares(option, query);
-      if (match) {
-        const marked = StringExt.highlight(option, match.indices, Private.mark);
+      if (option.startsWith(query)) {
+        const marked = StringExt.highlight(
+          option,
+          [...Array(query.length).keys()],
+          Private.mark
+        );
         results.push({
           raw: option,
-          score: match.score,
           text: marked.join('')
         });
       }
     }
-    return map(results.sort(Private.scoreCmp), result => ({
-      text: result.text,
-      raw: result.raw
-    }));
+    return iter(results);
   }
 
   /**
@@ -528,18 +527,12 @@ export class KiteModel {
     let results: CompletionHandler.ICompletionItem[] = [];
     for (let item of items) {
       // See if label matches query string
-      // With ICompletionItems, the label may include parameters, so we exclude them from the matcher.
-      // e.g. Given label `foo(b, a, r)` and query `bar`,
-      // don't count parameters, `b`, `a`, and `r` as matches.
-      const index = item.label.indexOf('(');
-      const prefix = index > -1 ? item.label.substring(0, index) : item.label;
-      let match = StringExt.matchSumOfSquares(prefix, query);
       // Filter non-matching items.
-      if (match) {
+      if (item.label.startsWith(query)) {
         // Highlight label text if there's a match
         let marked = StringExt.highlight(
           item.label,
-          match.indices,
+          [...Array(query.length).keys()],
           Private.mark
         );
         results.push({
@@ -602,47 +595,10 @@ namespace Private {
   }, {} as Completer.TypeMap);
 
   /**
-   * A filtered completion menu matching result.
-   */
-  export interface IMatch {
-    /**
-     * The raw text of a completion match.
-     */
-    raw: string;
-
-    /**
-     * A score which indicates the strength of the match.
-     *
-     * A lower score is better. Zero is the best possible score.
-     */
-    score: number;
-
-    /**
-     * The highlighted text of a completion match.
-     */
-    text: string;
-  }
-
-  /**
    * Mark a highlighted chunk of text.
    */
   export function mark(value: string): string {
     return `<mark>${value}</mark>`;
-  }
-
-  /**
-   * A sort comparison function for item match scores.
-   *
-   * #### Notes
-   * This orders the items first based on score (lower is better), then
-   * by locale order of the item text.
-   */
-  export function scoreCmp(a: IMatch, b: IMatch): number {
-    const delta = a.score - b.score;
-    if (delta !== 0) {
-      return delta;
-    }
-    return a.raw.localeCompare(b.raw);
   }
 
   /**
