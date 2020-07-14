@@ -234,7 +234,7 @@ export class KiteModel {
   /**
    * Handle a cursor change.
    */
-  handleCursorChange(change: Completer.ITextState) {
+  handleCursorChange(change: Completer.ITextState): void {
     const prevState = this.state;
     this.state = change;
 
