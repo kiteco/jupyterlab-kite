@@ -149,7 +149,13 @@ export class KiteModel {
     return this._query;
   }
   set query(newValue: string) {
-    this._query = newValue;
+    // We throw out anything preceding a '.' here to allow new completions that
+    // would otherwise be filtered out for not containing the entire previously-typed token.
+    // i.e. in state "foo.$" we want to allow completion "bar" whereas before the `.` we only
+    // would have accepted "foo.bar"
+    const fragments = newValue.split('.');
+    const newQuery = fragments[fragments.length - 1];
+    this._query = newQuery;
   }
 
   get state(): Completer.ITextState | undefined {
