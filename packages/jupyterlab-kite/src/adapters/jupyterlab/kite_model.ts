@@ -297,7 +297,7 @@ export class KiteModel {
         .split('\n')
         .slice(0, change.line)
         .map(s => s.length)
-        .reduce((x, y) => x + y);
+        .reduce((x, y) => x + y, 0);
     if (patch && (changeCh < patch.start || changeCh > patch.end)) {
       this.reset(true);
       return;
