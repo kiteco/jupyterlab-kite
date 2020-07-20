@@ -147,9 +147,15 @@ export class KiteConnector extends DataConnector<
       // find document for position
       let document = virtual_editor.document_at_root_position(start_in_root);
 
-      let virtual_start = virtual_editor.root_position_to_virtual_position(start_in_root);
-      let virtual_end = virtual_editor.root_position_to_virtual_position(end_in_root);
-      let virtual_cursor = virtual_editor.root_position_to_virtual_position(cursor_in_root);
+      let virtual_start = virtual_editor.root_position_to_virtual_position(
+        start_in_root
+      );
+      let virtual_end = virtual_editor.root_position_to_virtual_position(
+        end_in_root
+      );
+      let virtual_cursor = virtual_editor.root_position_to_virtual_position(
+        cursor_in_root
+      );
 
       const kitePromise = async () => {
         try {
@@ -161,10 +167,10 @@ export class KiteConnector extends DataConnector<
             virtual_cursor,
             document,
             position_in_token
-          )
+          );
         } catch {
           return KiteConnector.EmptyICompletionItemsReply;
-        };
+        }
       };
 
       const isManual = this._trigger_kind === CompletionTriggerKind.Invoked;
@@ -203,11 +209,9 @@ export class KiteConnector extends DataConnector<
       };
 
       const kernelTimeoutPromise = () => {
-        const timeout = new Promise<CompletionHandler.IReply>(
-          resolve => {
-            setTimeout(resolve, 500, KiteConnector.EmptyIReply);
-          }
-        );
+        const timeout = new Promise<CompletionHandler.IReply>(resolve => {
+          setTimeout(resolve, 500, KiteConnector.EmptyIReply);
+        });
         return Promise.race([timeout, kernelPromise()]);
       };
 

@@ -280,7 +280,6 @@ export abstract class JupyterLabWidgetAdapter
 
       if (model.original) {
         // Core would bail, so we force fetch completions here.
-        this.current_completion_connector.trigger_kind = kind;
         // Construct request
         // https://github.com/jupyterlab/jupyterlab/blob/1df0e18951194bb5ec230e76441e8108e0b472e7/packages/completer/src/handler.ts#L349
         const position = editor.getCursorPosition();
@@ -295,7 +294,12 @@ export abstract class JupyterLabWidgetAdapter
         const query = model.query;
         const state = model.state;
 
-        const reply = await this.current_completion_connector.fetch(request);
+        const reply = await this.current_completion_connector.with_trigger_kind(
+          kind,
+          () => {
+            return this.current_completion_connector.fetch(request);
+          }
+        );
         if (model.setCompletionItems && reply) {
           model.update(reply, query, state);
           model.setCompletionItems(reply.items);
