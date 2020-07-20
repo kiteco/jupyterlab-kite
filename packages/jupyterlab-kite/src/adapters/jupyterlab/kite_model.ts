@@ -503,7 +503,7 @@ export class KiteModel {
     }
     const results: Completer.IItem[] = [];
     for (const option of options) {
-      if (option.startsWith(query)) {
+      if (option.toLowerCase().startsWith(query.toLowerCase())) {
         const marked = StringExt.highlight(
           option,
           [...Array(query.length).keys()],
@@ -528,7 +528,7 @@ export class KiteModel {
     for (let item of items) {
       // See if label matches query string
       // Filter non-matching items.
-      if (item.label.startsWith(query)) {
+      if (item.label.toLowerCase().startsWith(query.toLowerCase())) {
         // Highlight label text if there's a match
         let marked = StringExt.highlight(
           item.label,
