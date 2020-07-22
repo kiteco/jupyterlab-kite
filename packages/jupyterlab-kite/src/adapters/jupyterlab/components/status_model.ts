@@ -25,7 +25,9 @@ export class KiteStatusModel extends VDomModel {
     name: 'jupyterlab-kite:status-icon',
     svgstr: kiteLogo
   });
-  private _kiteStatus: IKiteStatus = { status: '', short: '', long: '' };
+  private _kiteStatus: IKiteStatus | null = null;
+  private _installed = true;
+  private _disconnected = false;
 
   constructor() {
     super();
@@ -34,6 +36,10 @@ export class KiteStatusModel extends VDomModel {
   }
 
   async fetchKiteInstalled(): Promise<void> {
+    if (this._disconnected) {
+      return;
+    }
+
     const response = await ServerConnection.makeRequest(
       this.kiteInstalledUrl,
       { method: 'GET' },
@@ -46,14 +52,9 @@ export class KiteStatusModel extends VDomModel {
     let installed: boolean;
     try {
       installed = await response.json();
-      if (!installed && this.status.status !== 'not installed') {
-        this.status = {
-          status: 'not installed',
-          short: 'not installed',
-          long: 'Kite install could not be found.'
-        };
-      } else if (installed && this.status.status === 'not installed') {
-        this.reset();
+      if (this._installed !== installed) {
+        this._installed = installed;
+        this._onChange();
       }
     } catch (err) {
       console.warn(err);
@@ -68,31 +69,46 @@ export class KiteStatusModel extends VDomModel {
     );
   }
 
-  get status(): IKiteStatus {
-    return this._kiteStatus;
-  }
-
-  set status(status: IKiteStatus) {
+  set status(status: IKiteStatus | null) {
     this._kiteStatus = status;
-    this.stateChanged.emit(void 0);
+    this._onChange();
   }
 
   get icon(): LabIcon {
     return this._icon;
   }
 
-  get short_message(): string {
-    if (!this.adapter || !this.status.status) {
-      return 'Kite: not running';
-    }
-    return 'Kite: ' + this.status.short;
+  get reloadRequired(): boolean {
+    return this._disconnected;
   }
 
-  get long_message(): string {
-    if (!this.adapter || !this.status.status) {
-      return 'Kite is not reachable.';
+  get message(): {text: string, tooltip: string} {
+    if (this._disconnected) {
+      return {
+        text: 'Kite: disconnected (reload page)',
+        tooltip: 'The connection to Kite was interrupted. Save your changes and reload the page to reconnect.',
+      };
     }
-    return this.status.long;
+
+    // If we have a _kiteStatus, Kite must be conidered installed.
+    // This makes dev workflows work better.
+    if (this.adapter && this._kiteStatus) {
+      return {
+        text: 'Kite: ' + this._kiteStatus.short,
+        tooltip: this._kiteStatus.long,
+      };
+    }
+
+    if (!this._installed) {
+      return {
+        text: 'Kite: not installed',
+        tooltip: 'Kite install could not be found.',
+      };
+    }
+    return {
+      text: 'Kite: not running',
+      tooltip: 'Kite is not reachable.',
+    };
   }
 
   get adapter(): JupyterLabWidgetAdapter | null {
@@ -119,16 +135,14 @@ export class KiteStatusModel extends VDomModel {
     if (this._connection_manager != null) {
       this._connection_manager.connected.disconnect(this._onChange);
       this._connection_manager.initialized.connect(this._onChange);
-      this._connection_manager.disconnected.disconnect(this._onChange);
-      this._connection_manager.closed.disconnect(this._onChange);
+      this._connection_manager.closed.disconnect(this._connectionClosed);
       this._connection_manager.documents_changed.disconnect(this._onChange);
     }
 
     if (connection_manager != null) {
       connection_manager.connected.connect(this._onChange);
       connection_manager.initialized.connect(this._onChange);
-      connection_manager.disconnected.connect(this._onChange);
-      connection_manager.closed.connect(this._onChange);
+      connection_manager.closed.connect(this._connectionClosed);
       connection_manager.documents_changed.connect(this._onChange);
     }
 
@@ -151,8 +165,9 @@ export class KiteStatusModel extends VDomModel {
     return undefined;
   }
 
-  reset() {
-    this.status = { status: '', short: '', long: '' };
+  private _connectionClosed = () => {
+    this._disconnected = true;
+    this._onChange();
   }
 
   private _onChange = () => {
