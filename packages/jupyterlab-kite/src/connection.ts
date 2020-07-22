@@ -70,7 +70,9 @@ export class LSPConnection extends LspWsConnection {
       }
     } catch {
       console.warn('Kite Status could not be fetched. Setting to not ready.');
-      this.status_model && this.status_model.reset();
+      if (this.status_model) {
+        this.status_model.status = null;
+      }
     }
   }
 

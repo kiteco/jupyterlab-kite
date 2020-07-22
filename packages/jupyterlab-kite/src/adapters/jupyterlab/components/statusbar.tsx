@@ -41,10 +41,16 @@ export class KiteStatus extends VDomRenderer<KiteStatusModel> {
 
     this.model.fetchKiteInstalled();
 
+    const props: React.HTMLAttributes<HTMLDivElement> = {};
+    if (this.model.reloadRequired) {
+      props.style = {cursor: 'pointer'};
+      props.onClick = () => window.location.reload();
+    }
+
     return (
-      <GroupItem spacing={4} title={this.model.long_message}>
+      <GroupItem {...props} spacing={4} title={this.model.message.tooltip}>
         <this.model.icon.react top={'2px'} kind={'statusBar'} />
-        <TextItem source={this.model.short_message} />
+        <TextItem source={this.model.message.text} />
       </GroupItem>
     );
   }

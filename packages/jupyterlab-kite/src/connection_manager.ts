@@ -37,10 +37,6 @@ export class DocumentConnectionManager {
   initialized: Signal<DocumentConnectionManager, IDocumentConnectionData>;
   connected: Signal<DocumentConnectionManager, IDocumentConnectionData>;
   /**
-   * Connection temporarily lost or could not be fully established; a re-connection will be attempted;
-   */
-  disconnected: Signal<DocumentConnectionManager, IDocumentConnectionData>;
-  /**
    * Connection was closed permanently and no-reconnection will be attempted, e.g.:
    *  - there was a serious server error
    *  - user closed the connection,
@@ -61,7 +57,6 @@ export class DocumentConnectionManager {
     this.ignored_languages = new Set();
     this.connected = new Signal(this);
     this.initialized = new Signal(this);
-    this.disconnected = new Signal(this);
     this.closed = new Signal(this);
     this.documents_changed = new Signal(this);
     this.language_server_manager = options.language_server_manager;
@@ -165,20 +160,20 @@ export class DocumentConnectionManager {
       // TODO: those codes may be specific to my proxy client, need to investigate
       if (error.message.indexOf('code = 1005') !== -1) {
         console.warn(`LSP: Connection failed for ${connection}`);
-        this.forEachDocumentOfConnection(connection, virtual_document => {
-          console.warn('LSP: disconnecting ' + virtual_document.id_path);
-          this.closed.emit({ connection, virtual_document });
-          this.ignored_languages.add(virtual_document.language);
-
-          console.warn(
-            `Cancelling further attempts to connect ${virtual_document.id_path} and other documents for this language (no support from the server)`
-          );
-        });
       } else if (error.message.indexOf('code = 1006') !== -1) {
         console.warn('LSP: Connection closed by the server ');
       } else {
         console.error('LSP: Connection error:', e);
       }
+      this.forEachDocumentOfConnection(connection, virtual_document => {
+        console.warn('LSP: disconnecting ' + virtual_document.id_path);
+        this.closed.emit({ connection, virtual_document });
+        this.ignored_languages.add(virtual_document.language);
+
+        console.warn(
+          `Cancelling further attempts to connect ${virtual_document.id_path} and other documents for this language (no support from the server)`
+        );
+      });
     });
 
     connection.on('serverInitialized', capabilities => {
