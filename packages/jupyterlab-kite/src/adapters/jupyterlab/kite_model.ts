@@ -535,10 +535,15 @@ export class KiteModel {
         item.noFilter ||
         item.label.toLowerCase().startsWith(query.toLowerCase())
       ) {
+        let matchIndices =
+          StringExt.findIndices(
+            item.label.toLowerCase(),
+            query.toLowerCase()
+          ) || [];
         // Highlight label text if there's a match
         let marked = StringExt.highlight(
           item.label,
-          [...Array(query.length).keys()],
+          matchIndices,
           Private.mark
         );
         results.push({
