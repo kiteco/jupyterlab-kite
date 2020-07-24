@@ -27,7 +27,6 @@
   },
   "dependencies": {
     "@kiteco/jupyterlab-kite": "file:../jupyterlab-kite",
-    "lsp-ws-connection": "file:../lsp-ws-connection",
     "@krassowski/jupyterlab_go_to_definition": "file:../jupyterlab-go-to-definition"
   },
   "devDependencies": {

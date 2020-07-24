@@ -2,7 +2,7 @@ import { CodeMirrorLSPFeature, IFeatureCommand } from '../feature';
 import { PositionConverter } from '../../../converter';
 import { IVirtualPosition } from '../../../positioning';
 import { uri_to_contents_path, uris_equal } from '../../../utils';
-import { AnyLocation } from 'lsp-ws-connection/src/types';
+import { AnyLocation } from 'lsp-ws-connection';
 
 export class JumpToDefinition extends CodeMirrorLSPFeature {
   name = 'JumpToDefinition';

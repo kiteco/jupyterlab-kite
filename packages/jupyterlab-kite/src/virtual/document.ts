@@ -14,7 +14,7 @@ import {
   IVirtualPosition
 } from '../positioning';
 import IRange = CodeEditor.IRange;
-import { IDocumentInfo } from 'lsp-ws-connection/src';
+import { IDocumentInfo } from 'lsp-ws-connection';
 
 import { DocumentConnectionManager } from '../connection_manager';
 
