@@ -11,6 +11,7 @@ import {
   StringExt,
   toArray
 } from '@lumino/algorithm';
+import { KiteConnector } from './components/completion';
 
 export class KiteModel {
   /**
@@ -24,7 +25,7 @@ export class KiteModel {
   private _current: Completer.ITextState | null = null;
   private _cursor: Completer.ICursorSpan | null = null;
   private _isDisposed = false;
-  private _completionItems: CompletionHandler.ICompletionItems = [];
+  private _completionItems: KiteConnector.IKiteCompletionItems = [];
   private _options: string[] = [];
   private _original: Completer.ITextState | null = null;
   private _query = '';
@@ -528,7 +529,10 @@ export class KiteModel {
     for (let item of items) {
       // See if label matches query string
       // Filter non-matching items.
-      if (item.label.toLowerCase().startsWith(query.toLowerCase())) {
+      if (
+        item.noFilter ||
+        item.label.toLowerCase().startsWith(query.toLowerCase())
+      ) {
         // Highlight label text if there's a match
         let marked = StringExt.highlight(
           item.label,
