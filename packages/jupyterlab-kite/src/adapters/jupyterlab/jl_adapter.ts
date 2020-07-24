@@ -291,7 +291,6 @@ export abstract class JupyterLabWidgetAdapter
         const request: CompletionHandler.IRequest = { text, offset };
 
         // track the model state as of the request
-        const query = model.query;
         const state = model.state;
 
         const reply = await this.current_completion_connector.with_trigger_kind(
@@ -301,8 +300,7 @@ export abstract class JupyterLabWidgetAdapter
           }
         );
         if (model.setCompletionItems && reply) {
-          model.update(reply, query, state);
-          model.setCompletionItems(reply.items);
+          model.update(reply, state);
           return;
         }
       }

@@ -472,7 +472,6 @@ export class KiteModel {
    */
   update(
     reply: CompletionHandler.ICompletionItemsReply,
-    query: string,
     state: Completer.ITextState
   ) {
     this.original = state;
@@ -481,11 +480,14 @@ export class KiteModel {
       return;
     }
 
-    this.query = query;
-    this.cursor = {
+    const newCursor = {
       start: Text.charIndexToJsIndex(reply.start, state.text),
       end: Text.charIndexToJsIndex(reply.end, state.text)
     };
+    // Calculate the query based on the text under the cursor
+    const newQuery = state.text.slice(newCursor.start, newCursor.end);
+    this.query = newQuery;
+    this.cursor = newCursor;
     this.setCompletionItems(reply.items);
   }
 
