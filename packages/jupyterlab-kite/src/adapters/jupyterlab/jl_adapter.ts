@@ -425,7 +425,14 @@ export abstract class JupyterLabWidgetAdapter
     // where we return completions after an edit but before cancellation, resulting in stale completions appearing.
     // If we delegate this to updateAfterChange, it'll happen asynchronously, so we do it here.
     const completion_feature = adapter.features.get(Completion.name);
-    completion_feature.jupyterlab_components.cancel_completer();
+    if (completion_feature) {
+      completion_feature.jupyterlab_components.cancel_completer();
+    } else {
+      // In some cases completion_feature is not present in adapter.features.
+      // This shouldn't happen but the root cause has not yet been established,
+      // so this is to handle that case more gracefully.
+      console.warn('LSP: completion_feature is undefined');
+    }
 
     // console.log(
     //   'LSP: virtual document',
