@@ -264,7 +264,7 @@ export abstract class JupyterLabWidgetAdapter
   abstract find_ce_editor(cm_editor: CodeMirror.Editor): CodeEditor.IEditor;
 
   cancel_completer(): void {
-    this.current_completion_connector.abort();
+    this.current_completion_connector?.abort();
   }
 
   async invoke_completer(kind: CompletionTriggerKind) {
@@ -422,8 +422,7 @@ export abstract class JupyterLabWidgetAdapter
     // super hack: we need to cancel completions synchronously in order to avoid a race
     // where we return completions after an edit but before cancellation, resulting in stale completions appearing.
     // If we delegate this to updateAfterChange, it'll happen asynchronously, so we do it here.
-    const completion_feature = adapter.features.get(Completion.name);
-    completion_feature.jupyterlab_components.cancel_completer();
+    this.cancel_completer();
 
     // console.log(
     //   'LSP: virtual document',
