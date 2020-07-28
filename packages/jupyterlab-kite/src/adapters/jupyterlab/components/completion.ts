@@ -22,7 +22,7 @@ import { LSPConnection } from '../../../connection';
 
 import kiteLogo from '../../../../style/icons/kite-logo.svg';
 
-interface KiteCompletionItem extends CompletionItem {
+interface IKiteLSPCompletionItem extends CompletionItem {
   hint: string;
 }
 
@@ -270,7 +270,7 @@ export class KiteConnector extends DataConnector<
       .getLineTokens(cursor.line)
       .map(token => token.string)
       .join('');
-    (lspCompletionItems as KiteCompletionItem[]).forEach(match => {
+    (lspCompletionItems as IKiteLSPCompletionItem[]).forEach(match => {
       let range = match.textEdit.range;
       let insertion = match.insertText ? match.insertText : match.label;
       if (range.start.character < start.ch) {
@@ -351,7 +351,8 @@ export class KiteConnector extends DataConnector<
           ? match.documentation.value
           : match.documentation,
         filterText: match.filterText,
-        deprecated: match.deprecated
+        deprecated: match.deprecated,
+        noFilter: true
       };
 
       // Update prefix values
@@ -468,6 +469,16 @@ export class KiteConnector extends DataConnector<
  * A namespace for Kite connector statics.
  */
 export namespace KiteConnector {
+  /**
+   * Interface that adds a noFilter flag to an ICompletionItem
+   */
+  export interface IKiteCompletionItem
+    extends CompletionHandler.ICompletionItem {
+    noFilter?: boolean;
+  }
+
+  export type IKiteCompletionItems = ReadonlyArray<IKiteCompletionItem>;
+
   /**
    * The instantiation options for cell completion handlers.
    */
