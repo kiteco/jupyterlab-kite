@@ -264,7 +264,7 @@ export abstract class JupyterLabWidgetAdapter
   abstract find_ce_editor(cm_editor: CodeMirror.Editor): CodeEditor.IEditor;
 
   cancel_completer(): void {
-    this.current_completion_connector.abort();
+    this.current_completion_connector?.abort();
   }
 
   async invoke_completer(kind: CompletionTriggerKind) {
