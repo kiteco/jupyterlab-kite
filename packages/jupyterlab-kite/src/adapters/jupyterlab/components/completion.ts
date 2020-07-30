@@ -103,10 +103,16 @@ export class KiteConnector extends DataConnector<
       this.fetchAbort.abort();
       this.fetchAbort = fetchAbort;
 
+      let replacementRange = [-1, -1];
+
       fetchAbort.signal.addEventListener(
         'abort',
         () => {
-          resolve(KiteConnector.EmptyICompletionItemsReply);
+          resolve({
+            start: replacementRange[0],
+            end: replacementRange[1],
+            items: []
+          });
         },
         { once: true }
       );
@@ -138,6 +144,11 @@ export class KiteConnector extends DataConnector<
       let position_in_token = cursor.column - start.column - 1;
       const typed_character = token.value[cursor.column - start.column - 1];
 
+      // Update replacement range based on current editor information
+      let prefix = token.value.slice(0, position_in_token + 1);
+      // Assume all_non_prefixed = true in this calculation, since if should be if there are no items
+      replacementRange = [token.offset + 1, token.offset + prefix.length];
+
       let start_in_root = this.transform_from_editor_to_root(start);
       let end_in_root = this.transform_from_editor_to_root(end);
       let cursor_in_root = this.transform_from_editor_to_root(cursor);
@@ -168,8 +179,12 @@ export class KiteConnector extends DataConnector<
             document,
             position_in_token
           );
-        } catch {
-          return KiteConnector.EmptyICompletionItemsReply;
+        } catch (error) {
+          return {
+            start: replacementRange[0],
+            end: replacementRange[1],
+            items: []
+          };
         }
       };
 
@@ -409,10 +424,19 @@ export class KiteConnector extends DataConnector<
     );
 
     console.log('[Kite]: Merging', kiteReply, newKernelReply);
-    return {
-      ...kiteReply,
-      items: kiteReply.items.concat(newKernelReply.items)
-    };
+    if (kiteReply.start === -1) {
+      // Use kernel replacement range
+      return {
+        ...kernelReply,
+        items: kiteReply.items.concat(newKernelReply.items)
+      };
+    } else {
+      // Use kite replacement range
+      return {
+        ...kiteReply,
+        items: kiteReply.items.concat(newKernelReply.items)
+      };
+    }
   }
 
   /**
