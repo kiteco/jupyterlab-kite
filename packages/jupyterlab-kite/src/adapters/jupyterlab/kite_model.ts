@@ -135,7 +135,7 @@ export class KiteModel {
       return;
     }
 
-    this._reset();
+    this._resetKite();
 
     // Set both the current and original to the same value when original is set.
     this._current = this._original = newValue;
@@ -300,7 +300,7 @@ export class KiteModel {
         .map(s => s.length)
         .reduce((x, y) => x + y, 0);
     if (patch && (changeCh < patch.start || changeCh > patch.end)) {
-      this.reset(true);
+      this._resetKite();
       return;
     }
 
@@ -405,7 +405,7 @@ export class KiteModel {
    */
   setCompletionItems(newValue: CompletionHandler.ICompletionItems): void {
     if (this.isStale()) {
-      this.reset(true);
+      this._resetKite();
       return;
     }
     if (
@@ -416,6 +416,21 @@ export class KiteModel {
     ) {
       return;
     }
+    const query = this.query;
+    const newSet = new Set(newValue.map(item => item.label));
+    const retainableItems = this._completionItems.filter(item => {
+      // Don't retain if it's a noFilter completion
+      if (item.noFilter) {
+        return false;
+      }
+      // Dedupe with new completions
+      if (newSet.has(item.label)) {
+        return false;
+      }
+      // Check if completion still matches the updated query
+      return item.label.toLowerCase().startsWith(query.toLowerCase());
+    });
+    newValue = newValue.concat(retainableItems);
     this._completionItems = newValue;
     this._orderedTypes = Private.findOrderedCompletionItemTypes(
       this._completionItems
@@ -476,18 +491,18 @@ export class KiteModel {
   ) {
     this.original = state;
     if (this.isStale()) {
-      this.reset(true);
+      this._resetKite();
       return;
     }
-
-    const newCursor = {
-      start: Text.charIndexToJsIndex(reply.start, state.text),
-      end: Text.charIndexToJsIndex(reply.end, state.text)
-    };
-    // Calculate the query based on the text under the cursor
-    const newQuery = state.text.slice(newCursor.start, newCursor.end);
-    this.query = newQuery;
-    this.cursor = newCursor;
+    if (reply.start !== -1) {
+      const newCursor = {
+        start: Text.charIndexToJsIndex(reply.start, state.text),
+        end: Text.charIndexToJsIndex(reply.end, state.text)
+      };
+      // Calculate the query based on the text under the cursor
+      this.query = state.text.slice(newCursor.start, newCursor.end);
+      this.cursor = newCursor;
+    }
     this.setCompletionItems(reply.items);
   }
 
@@ -576,15 +591,24 @@ export class KiteModel {
     this._orderedTypes = [];
   }
 
+  /**
+   * Removes all noFilter completions, and then resets if there are no completions left.
+   */
+  private _resetKite(): void {
+    this._completionItems = this._completionItems.filter(item => {
+      return !item.noFilter;
+    });
+    if (this._completionItems.length === 0) {
+      this._reset();
+    }
+  }
+
   private isStale(): boolean {
-    if (
+    return (
       this.original.text !== this.state.text ||
       this.original.line !== this.state.line ||
       this.original.column !== this.state.column
-    ) {
-      return true;
-    }
-    return false;
+    );
   }
 }
 
