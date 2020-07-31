@@ -489,11 +489,11 @@ export class KiteModel {
     reply: CompletionHandler.ICompletionItemsReply,
     state: Completer.ITextState
   ) {
-    this.original = state;
-    if (this.isStale()) {
+    if (this.isStale(state)) {
       this._resetKite();
       return;
     }
+    this._original = state;
     if (reply.start !== -1) {
       const newCursor = {
         start: Text.charIndexToJsIndex(reply.start, state.text),
@@ -603,11 +603,11 @@ export class KiteModel {
     }
   }
 
-  private isStale(): boolean {
+  private isStale(check: Completer.ITextState = this._original): boolean {
     return (
-      this.original.text !== this.state.text ||
-      this.original.line !== this.state.line ||
-      this.original.column !== this.state.column
+      check.text !== this.state.text ||
+      check.line !== this.state.line ||
+      check.column !== this.state.column
     );
   }
 }
