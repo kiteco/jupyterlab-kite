@@ -43,7 +43,7 @@ Alternatively, you have 2 options to manually install the extension:
 2. Run these commands in your terminal.
 ```
 pip install jupyter-kite
-jupyter labextension install @kiteco/jupyterlab-kite
+jupyter labextension install "@kiteco/jupyterlab-kite"
 ```
 
 [Learn more about why you should use Kite with JupyterLab.](https://kite.com/integrations/jupyter/)
