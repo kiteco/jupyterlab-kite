@@ -601,6 +601,7 @@ export class KiteModel {
     if (this._completionItems.length === 0) {
       this._reset();
     }
+    this._stateChanged.emit(undefined);
   }
 
   private isStale(check: Completer.ITextState = this._original): boolean {
