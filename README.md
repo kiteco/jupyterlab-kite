@@ -11,6 +11,8 @@ At a high level, Kite provides you with:
 
 * JupyterLab v2.2.0 and above
 * [Kite Engine](https://kite.com/)
+* Python 3.5+ with pip
+* nodejs 10+
 
 Use another editor? Check out [Kite’s other editor integrations](https://kite.com/integrations/).
 
@@ -30,7 +32,7 @@ __Windows Instructions__
 2. The installer should run the Kite Engine automatically after installation is complete.
 
 __Linux Instructions__
-1. Visit https://kite.com/linux/ to install Kite.
+1. Run `bash -c "$(wget -q -O - https://linux.kite.com/dls/linux/current)"` from the terminal.
 2. The installer should run the Kite Engine automatically after installation is complete.
 
 
@@ -41,7 +43,8 @@ When running the Kite Engine for the first time, you'll be guided through a setu
 Alternatively, you have 2 options to manually install the extension:
 1. Search for "Kite" in JupyterLab's built-in extension manager and install from there. You may need to enable the Extension Manager under JupyterLab Settings.
 2. Run these commands in your terminal.
-```
+```sh
+# Ensure pip points to a Python3 install. Otherwise use pip3.
 pip install jupyter-kite
 jupyter labextension install "@kiteco/jupyterlab-kite"
 ```
