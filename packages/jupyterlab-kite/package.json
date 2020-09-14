@@ -18,7 +18,10 @@
     "url": "https://github.com/kiteco/jupyterlab-kite/issues"
   },
   "license": "SEE LICENSE IN ../../LICENSE",
-  "contributors": ["Michał Krassowski", "Manhattan Engineering, Inc"],
+  "contributors": [
+    "Michał Krassowski",
+    "Manhattan Engineering, Inc"
+  ],
   "files": [
     "{lib,style,schema,src}/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf,css,json,ts,tsx}"
   ],
@@ -51,6 +54,7 @@
     "@jupyterlab/coreutils": "~4.0.0",
     "@jupyterlab/docmanager": "2.2.0-alpha.0",
     "@jupyterlab/docregistry": "2.2.0-alpha.0",
+    "@jupyterlab/extensionmanager": "2.2.0-alpha.0",
     "@jupyterlab/fileeditor": "2.2.0-alpha.0",
     "@jupyterlab/notebook": "2.2.0-alpha.0",
     "@jupyterlab/rendermime": "2.2.0-alpha.0",

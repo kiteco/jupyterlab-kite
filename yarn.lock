@@ -1569,6 +1569,23 @@
     "@lumino/signaling" "^1.3.5"
     "@lumino/widgets" "^1.11.1"
 
+"@jupyterlab/extensionmanager@2.2.0-alpha.0":
+  version "2.2.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@jupyterlab/extensionmanager/-/extensionmanager-2.2.0-alpha.0.tgz#234f77e021fc9589e998a6871b2800a7d513cb5e"
+  integrity sha512-EMAAKQPfYipHWPofrT00bHyuXkSe8H2oB4h1/s92gFx1v+fZaBgK/Oym4UxkIpTkMiuR5EmSgN23f6ap0UgDDg==
+  dependencies:
+    "@jupyterlab/apputils" "^2.2.0-alpha.0"
+    "@jupyterlab/coreutils" "^4.2.0-alpha.0"
+    "@jupyterlab/services" "^5.2.0-alpha.0"
+    "@jupyterlab/settingregistry" "^2.2.0-alpha.0"
+    "@jupyterlab/ui-components" "^2.2.0-alpha.0"
+    "@lumino/messaging" "^1.3.3"
+    "@lumino/polling" "^1.1.1"
+    "@lumino/signaling" "^1.3.5"
+    react "~16.9.0"
+    react-paginate "^6.3.2"
+    semver "^6.3.0"
+
 "@jupyterlab/filebrowser@^2.2.0-alpha.0":
   version "2.2.0-alpha.0"
   resolved "https://registry.yarnpkg.com/@jupyterlab/filebrowser/-/filebrowser-2.2.0-alpha.0.tgz#b10a28f8ba36eae711928dcbd0760c5e765828a7"
@@ -1837,7 +1854,7 @@
     typestyle "^2.0.4"
 
 "@kiteco/jupyterlab-kite@file:packages/jupyterlab-kite":
-  version "0.0.1"
+  version "1.0.0"
   dependencies:
     "@krassowski/jupyterlab_go_to_definition" "~1.0.0"
     lsp-ws-connection "~0.4.0"
@@ -10712,6 +10729,13 @@ react-lifecycles-compat@^3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
+
+react-paginate@^6.3.2:
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/react-paginate/-/react-paginate-6.4.0.tgz#89426657c9b41bde616a3ded6923e589c3bcb62b"
+  integrity sha512-xvndbJLUsJhCnEI0F/Xbt+vXg4bRPKhKhd0KrEyvXoIMHnsK/xqXvz5o/unYuLI27Cai5xymwB2tiCSAl+UJPA==
+  dependencies:
+    prop-types "^15.6.1"
 
 react-popper@^1.3.7:
   version "1.3.7"
