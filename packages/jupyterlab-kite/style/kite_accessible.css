@@ -1,0 +1,28 @@
+.--jp-kite-innernotif-title {
+  margin-bottom: 0.5em
+}
+
+.--jp-kite-innernotif-body {
+  margin-bottom: 0.3em
+}
+
+.--jp-kite-innernotif-main-msg {
+  margin-bottom: 0.4em
+}
+
+.--jp-kite-innernotif-list {
+  /* override existing jlab list margin */
+  margin: 0;
+  margin-bottom: 0.1em;
+}
+
+.--jp-kite-innernotif-no-bullets {
+  /* override existing jlab list margin */
+  padding: 0;
+  padding-left: 1em;
+  list-style-type: none
+}
+
+.--jp-kite-innernotif-button {
+  padding: 0.3em 0.5em 0.3em 0.5em
+}

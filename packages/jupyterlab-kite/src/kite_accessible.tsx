@@ -10,6 +10,8 @@ import { INotification } from 'jupyterlab_toastify';
 import { ILanguageServerManager } from './tokens';
 import React from 'react';
 
+import '../style/kite_accessible.css';
+
 enum Health {
   RequirementsNotMet = 'RequirementsNotMet',
   KiteEngineNotInstalled = 'KiteNotInstalled',
@@ -56,7 +58,7 @@ export class KiteAccessible extends ListModel {
       case Health.RequirementsNotMet:
         INotification.error(
           <InnerNotif title="Kite is missing some dependencies">
-            <p style={{ marginBottom: '0.2em' }}>
+            <p className="--jp-kite-innernotif-main-msg">
               The jupyterlab-kite extension will not work because you using an
               unsupported version of JupyterLab and you are missing the desktop
               application.
@@ -70,7 +72,8 @@ export class KiteAccessible extends ListModel {
             buttons: [
               {
                 label: 'Fix This',
-                callback: () => window.open('')
+                callback: () => window.open(''),
+                className: '--jp-kite-innernotif-button'
               }
             ]
           }
@@ -79,7 +82,7 @@ export class KiteAccessible extends ListModel {
       case Health.BelowMinJLabVersion:
         INotification.error(
           <InnerNotif title="Kite is missing some dependencies">
-            <p style={{ marginBottom: '0.2em' }}>
+            <p className="--jp-kite-innernotif-main-msg">
               The jupyterlab-kite extension will not work because you are using
               an unsupported version of JupyterLab.
             </p>
@@ -91,7 +94,8 @@ export class KiteAccessible extends ListModel {
             buttons: [
               {
                 label: 'Fix This',
-                callback: () => window.open('')
+                callback: () => window.open(''),
+                className: '--jp-kite-innernotif-button'
               }
             ]
           }
@@ -100,7 +104,7 @@ export class KiteAccessible extends ListModel {
       case Health.KiteEngineNotInstalled:
         INotification.error(
           <InnerNotif title="Kite is missing some dependencies">
-            <p style={{ marginBottom: '0.2em' }}>
+            <p className="--jp-kite-innernotif-main-msg">
               The jupyterlab-kite extension will not work because you are
               missing the Kite Engine desktop application.
             </p>
@@ -112,7 +116,8 @@ export class KiteAccessible extends ListModel {
             buttons: [
               {
                 label: 'Fix This',
-                callback: () => window.open('')
+                callback: () => window.open(''),
+                className: '--jp-kite-innernotif-button'
               }
             ]
           }
@@ -122,11 +127,11 @@ export class KiteAccessible extends ListModel {
       case Health.IncompatibleMultipleKernels:
         INotification.warning(
           <InnerNotif title="Kite may not work properly in your environment">
-            <p style={{ marginBottom: '0.2em' }}>
+            <p className="--jp-kite-innernotif-main-msg">
               The jupyterlab-kite extension is incompatible with your JupyterLab
               configuration. It will not work with:
             </p>
-            <ul style={{ margin: 0 }}>
+            <ul className="--jp-kite-innernotif-list">
               <li>jupyterlab-lsp extension</li>
               <li>Multiple kernels</li>
             </ul>
@@ -135,7 +140,8 @@ export class KiteAccessible extends ListModel {
             buttons: [
               {
                 label: 'Learn More',
-                callback: () => window.open('')
+                callback: () => window.open(''),
+                className: '--jp-kite-innernotif-button'
               }
             ]
           }
@@ -148,7 +154,7 @@ export class KiteAccessible extends ListModel {
               Please update your jupyterlab-kite extension with the terminal
               commands:
             </p>
-            <ul style={{ listStyleType: 'none', margin: 0 }}>
+            <ul className="--jp-kite-innernotif-list --jp-kite-innernotif-no-bullets">
               <li>pip install --upgrade jupyter-kite</li>
               <li>jupyter labextension update @kiteco/jupyterlab-kite</li>
             </ul>
@@ -157,7 +163,8 @@ export class KiteAccessible extends ListModel {
             buttons: [
               {
                 label: 'Update',
-                callback: () => window.open('')
+                callback: () => window.open(''),
+                className: '--jp-kite-innernotif-button'
               }
             ]
           }
@@ -235,8 +242,8 @@ export class KiteAccessible extends ListModel {
 function InnerNotif(props: any): React.ReactElement {
   return (
     <>
-      <p style={{ marginBottom: '0.5em' }}>{props.title}</p>
-      <div style={{ marginBottom: '0.3em' }}>{props.children}</div>
+      <p className="--jp-kite-innernotif-title">{props.title}</p>
+      <div className="--jp-kite-innernotif-body">{props.children}</div>
     </>
   );
 }
