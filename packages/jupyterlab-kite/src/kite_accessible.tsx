@@ -6,7 +6,9 @@ import {
 import { PageConfig, URLExt } from '@jupyterlab/coreutils';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { ListModel } from '@jupyterlab/extensionmanager';
+import { INotification } from 'jupyterlab_toastify';
 import { ILanguageServerManager } from './tokens';
+import React from 'react';
 
 enum Health {
   RequirementsNotMet = 'RequirementsNotMet',
@@ -52,16 +54,114 @@ export class KiteAccessible extends ListModel {
   private async notifyHealth(health: string): Promise<void> {
     switch (health) {
       case Health.RequirementsNotMet:
-        break;
-      case Health.KiteEngineNotInstalled:
+        INotification.error(
+          <InnerNotif title="Kite is missing some dependencies">
+            <p style={{ marginBottom: '0.2em' }}>
+              The jupyterlab-kite extension will not work because you using an
+              unsupported version of JupyterLab and you are missing the desktop
+              application.
+            </p>
+            <p>
+              To fix this, please upgrade JupyterLab to version 2.2 or later and
+              install the Kite Engine desktop application.
+            </p>
+          </InnerNotif>,
+          {
+            buttons: [
+              {
+                label: 'Fix This',
+                callback: () => window.open('')
+              }
+            ]
+          }
+        );
         break;
       case Health.BelowMinJLabVersion:
+        INotification.error(
+          <InnerNotif title="Kite is missing some dependencies">
+            <p style={{ marginBottom: '0.2em' }}>
+              The jupyterlab-kite extension will not work because you are using
+              an unsupported version of JupyterLab.
+            </p>
+            <p>
+              To fix this, please upgrade JupyterLab to version 2.2 or later.
+            </p>
+          </InnerNotif>,
+          {
+            buttons: [
+              {
+                label: 'Fix This',
+                callback: () => window.open('')
+              }
+            ]
+          }
+        );
+        break;
+      case Health.KiteEngineNotInstalled:
+        INotification.error(
+          <InnerNotif title="Kite is missing some dependencies">
+            <p style={{ marginBottom: '0.2em' }}>
+              The jupyterlab-kite extension will not work because you are
+              missing the Kite Engine desktop application.
+            </p>
+            <p>
+              To fix this, please install the Kite Engine desktop application.
+            </p>
+          </InnerNotif>,
+          {
+            buttons: [
+              {
+                label: 'Fix This',
+                callback: () => window.open('')
+              }
+            ]
+          }
+        );
         break;
       case Health.IncompatibleJLabLSPPlugin:
       case Health.IncompatibleMultipleKernels:
-        this._incompatibleNotified = true;
+        INotification.warning(
+          <InnerNotif title="Kite may not work properly in your environment">
+            <p style={{ marginBottom: '0.2em' }}>
+              The jupyterlab-kite extension is incompatible with your JupyterLab
+              configuration. It will not work with:
+            </p>
+            <ul style={{ margin: 0 }}>
+              <li>jupyterlab-lsp extension</li>
+              <li>Multiple kernels</li>
+            </ul>
+          </InnerNotif>,
+          {
+            buttons: [
+              {
+                label: 'Learn More',
+                callback: () => window.open('')
+              }
+            ]
+          }
+        );
         break;
       case Health.JLabKiteHasUpdate:
+        INotification.info(
+          <InnerNotif title="There is a new version of Kite available">
+            <p style={{ marginBottom: '0.2em' }}>
+              Please update your jupyterlab-kite extension with the terminal
+              commands:
+            </p>
+            <ul style={{ listStyleType: 'none', margin: 0 }}>
+              <li>pip install --upgrade jupyter-kite</li>
+              <li>jupyter labextension update @kiteco/jupyterlab-kite</li>
+            </ul>
+          </InnerNotif>,
+          {
+            buttons: [
+              {
+                label: 'Update',
+                callback: () => window.open('')
+              }
+            ]
+          }
+        );
         break;
     }
   }
@@ -130,4 +230,13 @@ export class KiteAccessible extends ListModel {
       'kite_installed'
     );
   }
+}
+
+function InnerNotif(props: any): React.ReactElement {
+  return (
+    <>
+      <p style={{ marginBottom: '0.5em' }}>{props.title}</p>
+      <div style={{ marginBottom: '0.3em' }}>{props.children}</div>
+    </>
+  );
 }
