@@ -46,9 +46,21 @@ export class KiteAccessible extends ListModel {
   }
 
   private async notifyHealth(health: string): Promise<void> {
+    const baseToastOptions = {
+      autoClose: false,
+      closeOnClick: false,
+      className: '--jp-kite-notifcontainer'
+    } as {
+      // To avoid type mismatch with ToastOptions
+      autoClose: number | false;
+      closeOnClick: boolean;
+      className: string;
+    };
+
+    let id: string | number;
     switch (health) {
       case Health.RequirementsNotMet:
-        INotification.error(
+        id = await INotification.notify(
           <InnerNotif title="Kite is missing some dependencies">
             <p className="--jp-kite-innernotif-main-msg">
               The jupyterlab-kite extension will not work because you using an
@@ -59,20 +71,22 @@ export class KiteAccessible extends ListModel {
               To fix this, please upgrade JupyterLab to version 2.2 or later and
               install the Kite Engine desktop application.
             </p>
+            <ButtonBar
+              label="Fix This"
+              onClick={() => {
+                window.open('');
+                INotification.dismiss(id);
+              }}
+            />
           </InnerNotif>,
           {
-            buttons: [
-              {
-                label: 'Fix This',
-                callback: () => window.open(''),
-                className: '--jp-kite-innernotif-button'
-              }
-            ]
+            ...baseToastOptions,
+            type: 'error'
           }
         );
         break;
       case Health.BelowMinJLabVersion:
-        INotification.error(
+        id = await INotification.notify(
           <InnerNotif title="Kite is missing some dependencies">
             <p className="--jp-kite-innernotif-main-msg">
               The jupyterlab-kite extension will not work because you are using
@@ -81,20 +95,22 @@ export class KiteAccessible extends ListModel {
             <p>
               To fix this, please upgrade JupyterLab to version 2.2 or later.
             </p>
+            <ButtonBar
+              label="Fix This"
+              onClick={() => {
+                window.open('');
+                INotification.dismiss(id);
+              }}
+            />
           </InnerNotif>,
           {
-            buttons: [
-              {
-                label: 'Fix This',
-                callback: () => window.open(''),
-                className: '--jp-kite-innernotif-button'
-              }
-            ]
+            ...baseToastOptions,
+            type: 'error'
           }
         );
         break;
       case Health.KiteEngineNotInstalled:
-        INotification.error(
+        id = await INotification.notify(
           <InnerNotif title="Kite is missing some dependencies">
             <p className="--jp-kite-innernotif-main-msg">
               The jupyterlab-kite extension will not work because you are
@@ -103,39 +119,44 @@ export class KiteAccessible extends ListModel {
             <p>
               To fix this, please install the Kite Engine desktop application.
             </p>
+            <ButtonBar
+              label="Fix This"
+              onClick={() => {
+                window.open('');
+                INotification.dismiss(id);
+              }}
+            />
           </InnerNotif>,
           {
-            buttons: [
-              {
-                label: 'Fix This',
-                callback: () => window.open(''),
-                className: '--jp-kite-innernotif-button'
-              }
-            ]
+            ...baseToastOptions,
+            type: 'error'
           }
         );
         break;
       case Health.IncompatibleJLabLSPPlugin:
-        INotification.warning(
+        id = await INotification.notify(
           <InnerNotif title="Kite may not work properly in your environment">
             <p className="--jp-kite-innernotif-main-msg">
               The jupyterlab-kite extension is incompatible with your JupyterLab
-              configuration. It will not work with the jupyterlab-lsp extension.
+              configuration.
             </p>
+            <p>It will not work with the jupyterlab-lsp extension.</p>
+            <ButtonBar
+              label="Learn More"
+              onClick={() => {
+                window.open('');
+                INotification.dismiss(id);
+              }}
+            />
           </InnerNotif>,
           {
-            buttons: [
-              {
-                label: 'Learn More',
-                callback: () => window.open(''),
-                className: '--jp-kite-innernotif-button'
-              }
-            ]
+            ...baseToastOptions,
+            type: 'warning'
           }
         );
         break;
       case Health.JLabKiteHasUpdate:
-        const id = await INotification.notify(
+        id = await INotification.notify(
           <>
             <InnerNotif title="There is a new version of Kite available">
               <p className="--jp-kite-innernotif-main-msg">
@@ -159,12 +180,9 @@ export class KiteAccessible extends ListModel {
               />
             </InnerNotif>
           </>,
-          // ToastOptions
           {
-            autoClose: false,
-            closeOnClick: false,
-            type: 'info',
-            className: '--jp-kite-notifcontainer'
+            ...baseToastOptions,
+            type: 'info'
           }
         );
         break;
