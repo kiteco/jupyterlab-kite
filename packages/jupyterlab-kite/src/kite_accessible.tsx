@@ -1,8 +1,4 @@
-import {
-  ServerConnection,
-  ServiceManager,
-  KernelAPI
-} from '@jupyterlab/services';
+import { ServerConnection, ServiceManager } from '@jupyterlab/services';
 import { PageConfig, URLExt } from '@jupyterlab/coreutils';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { ListModel } from '@jupyterlab/extensionmanager';
@@ -17,7 +13,6 @@ enum Health {
   KiteEngineNotInstalled = 'KiteNotInstalled',
   BelowMinJLabVersion = 'BelowMinJLabVersion',
   IncompatibleJLabLSPPlugin = 'HasIncompatibleJLabLSP',
-  IncompatibleMultipleKernels = 'HasMultipleKernels',
   JLabKiteHasUpdate = 'JLabKiteHasUpdate',
   Healthy = 'Healthy'
 }
@@ -48,9 +43,6 @@ export class KiteAccessible extends ListModel {
   public async checkHealth(): Promise<void> {
     const health = await this.getHealth();
     this.notifyHealth(health);
-    if (health === Health.Healthy) {
-      this.pollMultipleKernalHealth();
-    }
   }
 
   private async notifyHealth(health: string): Promise<void> {
@@ -124,17 +116,12 @@ export class KiteAccessible extends ListModel {
         );
         break;
       case Health.IncompatibleJLabLSPPlugin:
-      case Health.IncompatibleMultipleKernels:
         INotification.warning(
           <InnerNotif title="Kite may not work properly in your environment">
             <p className="--jp-kite-innernotif-main-msg">
               The jupyterlab-kite extension is incompatible with your JupyterLab
-              configuration. It will not work with:
+              configuration. It will not work with the jupyterlab-lsp extension.
             </p>
-            <ul className="--jp-kite-innernotif-list">
-              <li>jupyterlab-lsp extension</li>
-              <li>Multiple kernels</li>
-            </ul>
           </InnerNotif>,
           {
             buttons: [
@@ -184,11 +171,6 @@ export class KiteAccessible extends ListModel {
       return Health.BelowMinJLabVersion;
     }
 
-    const running = await KernelAPI.listRunning();
-    if (this.hasMultipleKernels(running)) {
-      return Health.IncompatibleMultipleKernels;
-    }
-
     const pluginMap = await this.queryInstalled(false);
     if (pluginMap['@krassowski/jupyterlab-lsp']) {
       return Health.IncompatibleJLabLSPPlugin;
@@ -198,27 +180,6 @@ export class KiteAccessible extends ListModel {
     }
 
     return Health.Healthy;
-  }
-
-  private pollMultipleKernalHealth(): void {
-    const interval = setInterval(async () => {
-      const running = await KernelAPI.listRunning();
-      if (this.hasMultipleKernels(running)) {
-        // Only notify once
-        clearInterval(interval);
-        this.notifyHealth(Health.IncompatibleMultipleKernels);
-      }
-    }, 3000);
-  }
-
-  private hasMultipleKernels(running: KernelAPI.IModel[]): boolean {
-    const uniqueRunningKernels = running.reduce(
-      (uniques: Set<string>, session: KernelAPI.IModel) => {
-        return uniques.add(session.name);
-      },
-      new Set()
-    );
-    return uniqueRunningKernels.size > 1;
   }
 
   private async fetchKiteInstalled(): Promise<boolean> {
