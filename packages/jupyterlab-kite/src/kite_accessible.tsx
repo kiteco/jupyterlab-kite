@@ -135,25 +135,36 @@ export class KiteAccessible extends ListModel {
         );
         break;
       case Health.JLabKiteHasUpdate:
-        INotification.info(
-          <InnerNotif title="There is a new version of Kite available">
-            <p style={{ marginBottom: '0.2em' }}>
-              Please update your jupyterlab-kite extension with the terminal
-              commands:
-            </p>
-            <ul className="--jp-kite-innernotif-list --jp-kite-innernotif-no-bullets">
-              <li>pip install --upgrade jupyter-kite</li>
-              <li>jupyter labextension update @kiteco/jupyterlab-kite</li>
-            </ul>
-          </InnerNotif>,
+        const id = await INotification.notify(
+          <>
+            <InnerNotif title="There is a new version of Kite available">
+              <p className="--jp-kite-innernotif-main-msg">
+                Please update your jupyterlab-kite extension with the terminal
+                commands:
+              </p>
+              <ul className="--jp-kite-innernotif-list --jp-kite-innernotif-no-bullets">
+                <li className="--jp-kite-innernotif-li">
+                  pip install --upgrade jupyter-kite
+                </li>
+                <li className="--jp-kite-innernotif-li">
+                  jupyter labextension update @kiteco/jupyterlab-kite
+                </li>
+              </ul>
+              <ButtonBar
+                label="Update"
+                onClick={() => {
+                  window.open('');
+                  INotification.dismiss(id);
+                }}
+              />
+            </InnerNotif>
+          </>,
+          // ToastOptions
           {
-            buttons: [
-              {
-                label: 'Update',
-                callback: () => window.open(''),
-                className: '--jp-kite-innernotif-button'
-              }
-            ]
+            autoClose: false,
+            closeOnClick: false,
+            type: 'info',
+            className: '--jp-kite-notifcontainer'
           }
         );
         break;
@@ -200,11 +211,28 @@ export class KiteAccessible extends ListModel {
   }
 }
 
-function InnerNotif(props: any): React.ReactElement {
+function InnerNotif(props: {
+  title: string;
+  children: React.ReactNode;
+}): React.ReactElement {
   return (
     <>
       <p className="--jp-kite-innernotif-title">{props.title}</p>
       <div className="--jp-kite-innernotif-body">{props.children}</div>
     </>
+  );
+}
+
+function ButtonBar(props: {
+  label: string;
+  onClick: () => void;
+}): React.ReactElement {
+  return (
+    <div className="--jp-kite-buttonbar">
+      <div className="--jp-kite-buttonbar-spacer" />
+      <button className="--jp-kite-innernotif-button" onClick={props.onClick}>
+        {props.label}
+      </button>
+    </div>
   );
 }
