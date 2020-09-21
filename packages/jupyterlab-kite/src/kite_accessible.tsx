@@ -2,9 +2,13 @@ import { ServerConnection, ServiceManager } from '@jupyterlab/services';
 import { PageConfig, URLExt } from '@jupyterlab/coreutils';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { ListModel } from '@jupyterlab/extensionmanager';
+
 import { INotification } from 'jupyterlab_toastify';
-import { ILanguageServerManager } from './tokens';
 import React from 'react';
+
+import { ILanguageServerManager } from './tokens';
+import { VirtualDocument } from './virtual/document';
+import { DocumentConnectionManager } from './connection_manager';
 
 import '../style/kite_accessible.css';
 
@@ -21,27 +25,35 @@ const _MinJlabVersion = '2.2';
 
 // KiteAccessible must access fetchInstalled, etc
 export class KiteAccessible extends ListModel {
+  private connectionManager: DocumentConnectionManager;
+
   public static CreateAsync = async (
     serviceManager: ServiceManager,
-    registery: ISettingRegistry
+    registery: ISettingRegistry,
+    connectionManager: DocumentConnectionManager
   ): Promise<KiteAccessible> => {
     // Use extensionmanager settings because KiteAccessible needs
     // protected ListModel.queryInstalled
     const settings = await registery.load(
       '@jupyterlab/extensionmanager-extension:plugin'
     );
-    return new KiteAccessible(serviceManager, settings);
+    return new KiteAccessible(serviceManager, settings, connectionManager);
   };
 
   constructor(
     serviceManager: ServiceManager,
-    settings: ISettingRegistry.ISettings
+    settings: ISettingRegistry.ISettings,
+    connectionManager: DocumentConnectionManager
   ) {
     super(serviceManager, settings);
+    this.connectionManager = connectionManager;
   }
 
   public async checkHealth(): Promise<void> {
     const health = await this.getHealth();
+    if (health === Health.IncompatibleJLabLSPPlugin) {
+      this.trackIncompatiblity();
+    }
     this.notifyHealth(health);
   }
 
@@ -209,6 +221,28 @@ export class KiteAccessible extends ListModel {
     }
 
     return Health.Healthy;
+  }
+
+  private async trackIncompatiblity(): Promise<void> {
+    // Allow using the connection without an actual doucment open
+    const emptyVirtualDocument = new VirtualDocument(
+      'python',
+      '',
+      {},
+      {},
+      false,
+      '.py',
+      false
+    );
+    const options = {
+      virtual_document: emptyVirtualDocument,
+      language: 'python',
+      document_path: ''
+    };
+    const connection = await this.connectionManager.connect(options);
+    connection.track('mixpanel', 'jupyterlab_incompatibility', {
+      type: 'jupyter-lab-lsp'
+    });
   }
 
   private async fetchKiteInstalled(): Promise<boolean> {
