@@ -48,19 +48,16 @@ export class LSPConnection extends LspWsConnection {
     }
   }
 
-  async track(to: string, event: string, props: {}): Promise<string> {
-    let filepath: string;
+  async track(to: string, event: string, props: {}): Promise<void> {
     try {
-      filepath = await this.connection.sendRequest('kite/track', {
+      await this.connection.sendRequest('kite/track', {
         to,
         event,
         props
       });
-      return path.basename(filepath);
     } catch {
-      console.warn('Could not track');
+      console.warn(`Could not track ${event}, ${props} to ${to}`);
     }
-    return '';
   }
 
   async fetchKiteOnboarding(): Promise<string> {
