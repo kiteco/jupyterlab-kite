@@ -4,7 +4,6 @@ import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { ListModel } from '@jupyterlab/extensionmanager';
 import { INotification } from 'jupyterlab_toastify';
 import { ILanguageServerManager } from './tokens';
-import { POST } from './kite_fetch';
 import React from 'react';
 
 import '../style/kite_accessible.css';
@@ -43,15 +42,6 @@ export class KiteAccessible extends ListModel {
 
   public async checkHealth(): Promise<void> {
     const health = await this.getHealth();
-    if (health === Health.IncompatibleJLabLSPPlugin) {
-      POST('/clientapi/metrics/mixpanel', {
-        event: 'jupyterlab_incompatibility',
-        key: 'N8cRTIBLLyz2rrFRRteY',
-        props: {
-          type: 'jupyterlab-lsp'
-        }
-      });
-    }
     this.notifyHealth(health);
   }
 
