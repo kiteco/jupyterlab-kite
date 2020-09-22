@@ -5,6 +5,7 @@ import { ListModel } from '@jupyterlab/extensionmanager';
 
 import { INotification } from 'jupyterlab_toastify';
 import React from 'react';
+import Semver from 'semver';
 
 import { ILanguageServerManager } from './tokens';
 import { VirtualDocument } from './virtual/document';
@@ -21,7 +22,7 @@ enum Health {
   Healthy = 'Healthy'
 }
 
-const _MinJlabVersion = '2.2';
+const _MinJlabVersion = '2.2.0';
 
 // KiteAccessible must access fetchInstalled, etc
 export class KiteAccessible extends ListModel {
@@ -219,11 +220,11 @@ export class KiteAccessible extends ListModel {
   private async getHealth(): Promise<string> {
     const installed = await this.fetchKiteInstalled();
     const version = PageConfig.getOption('appVersion');
-    if (!installed && version < _MinJlabVersion) {
+    if (!installed && Semver.lt(version, _MinJlabVersion)) {
       return Health.RequirementsNotMet;
     } else if (!installed) {
       return Health.KiteEngineNotInstalled;
-    } else if (version < _MinJlabVersion) {
+    } else if (Semver.lt(version, _MinJlabVersion)) {
       return Health.BelowMinJLabVersion;
     }
 
