@@ -18,7 +18,10 @@
     "url": "https://github.com/kiteco/jupyterlab-kite/issues"
   },
   "license": "SEE LICENSE IN ../../LICENSE",
-  "contributors": ["Michał Krassowski", "Manhattan Engineering, Inc"],
+  "contributors": [
+    "Michał Krassowski",
+    "Manhattan Engineering, Inc"
+  ],
   "files": [
     "{lib,style,schema,src}/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf,css,json,ts,tsx}"
   ],
@@ -38,7 +41,9 @@
   },
   "dependencies": {
     "@krassowski/jupyterlab_go_to_definition": "~1.0.0",
-    "lsp-ws-connection": "~0.4.0"
+    "jupyterlab_toastify": "^4.1.2",
+    "lsp-ws-connection": "~0.4.0",
+    "semver": "^7.3.2"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.4.3",
@@ -51,6 +56,7 @@
     "@jupyterlab/coreutils": "~4.0.0",
     "@jupyterlab/docmanager": "2.2.0-alpha.0",
     "@jupyterlab/docregistry": "2.2.0-alpha.0",
+    "@jupyterlab/extensionmanager": "2.2.0-alpha.0",
     "@jupyterlab/fileeditor": "2.2.0-alpha.0",
     "@jupyterlab/notebook": "2.2.0-alpha.0",
     "@jupyterlab/rendermime": "2.2.0-alpha.0",
@@ -64,6 +70,7 @@
     "@types/codemirror": "^0.0.74",
     "@types/events": "^3.0.0",
     "@types/jest": "^23.3.11",
+    "@types/semver": "^7.3.4",
     "chai": "^4.2.0",
     "codemirror": "*",
     "events": "^3.0.0",

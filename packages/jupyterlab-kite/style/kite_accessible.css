@@ -1,0 +1,58 @@
+.--jp-kite-innernotif-title {
+  margin-bottom: 0.5em;
+  font-size: 1.1em
+}
+
+.--jp-kite-innernotif-body {
+  margin-bottom: 0.3em
+}
+
+.--jp-kite-innernotif-main-msg {
+  margin-bottom: 0.4em
+}
+
+.--jp-kite-innernotif-list {
+  /* override existing jlab list margin */
+  margin: 0;
+}
+
+.--jp-kite-innernotif-no-bullets {
+  /* override existing jlab list margin */
+  padding: 0;
+  padding-left: 1em;
+  list-style-type: none
+}
+
+.--jp-kite-innernotif-li {
+  margin-bottom: 0.2em;
+}
+
+.--jp-kite-innernotif-button {
+  padding: 0.5em 0.7em 0.5em 0.7em;
+  border: solid var(--jp-border-width) var(--jp-border-color2);
+  font-size: var(--jp-ui-font-size0);
+  margin-top: 1px;
+  margin-bottom: 1px;
+  margin-right: 0px;
+  margin-left: 3px;
+  color: var(--jp-ui-font-color1);
+  background-color: var(--jp-layout-color2);
+}
+
+.--jp-kite-buttonbar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  flex: 0 0 auto;
+  margin-top: 0.4em;
+}
+
+.--jp-kite-buttonbar-spacer {
+  flex-grow: 1;
+  flex-shrink: 1;
+}
+
+.--jp-kite-notifcontainer {
+  width: 410px;
+  right: 7em
+}

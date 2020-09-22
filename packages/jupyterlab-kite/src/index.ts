@@ -28,6 +28,7 @@ import { file_editor_adapters, notebook_adapters } from './command_manager';
 import { DocumentConnectionManager } from './connection_manager';
 import { registerKiteCommands } from './kite_commands';
 import { KiteOnboarding } from './kite_onboarding';
+import { KiteAccessible } from './kite_accessible';
 import { LanguageServerManager } from './manager';
 
 import IPaths = JupyterFrontEnd.IPaths;
@@ -50,7 +51,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     IStatusBar,
     IStateDB
   ],
-  activate: (
+  activate: async (
     app: JupyterFrontEnd,
     fileEditorTracker: IEditorTracker,
     notebookTracker: INotebookTracker,
@@ -72,6 +73,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
       language_server_manager,
       kite_status_model
     });
+    const ka = await KiteAccessible.CreateAsync(
+      app.serviceManager,
+      settingRegistry,
+      connection_manager
+    );
+    ka.checkHealth();
     const onboarding_manager = new KiteOnboarding(
       app,
       palette,
