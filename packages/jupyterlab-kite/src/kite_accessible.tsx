@@ -50,11 +50,15 @@ export class KiteAccessible extends ListModel {
   }
 
   public async checkHealth(): Promise<void> {
-    const health = await this.getHealth();
-    if (health === Health.IncompatibleJLabLSPPlugin) {
-      this.trackIncompatiblity();
+    try {
+      const health = await this.getHealth();
+      if (health === Health.IncompatibleJLabLSPPlugin) {
+        this.trackIncompatiblity();
+      }
+      this.notifyHealth(health);
+    } catch (e) {
+      console.log('Health check failed:', e);
     }
-    this.notifyHealth(health);
   }
 
   private async notifyHealth(health: string): Promise<void> {
