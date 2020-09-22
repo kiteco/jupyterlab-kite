@@ -90,7 +90,11 @@ export class KiteAccessible extends ListModel {
             <ButtonBar
               label="Fix This"
               onClick={() => {
-                window.open('');
+                window.open('https://www.kite.com/download/', '_blank');
+                window.open(
+                  'https://stackoverflow.com/questions/55772171/how-to-update-jupyterlab-using-conda-or-pip',
+                  '_blank'
+                );
                 INotification.dismiss(id);
               }}
             />
@@ -114,7 +118,10 @@ export class KiteAccessible extends ListModel {
             <ButtonBar
               label="Fix This"
               onClick={() => {
-                window.open('');
+                window.open(
+                  'https://stackoverflow.com/questions/55772171/how-to-update-jupyterlab-using-conda-or-pip',
+                  '_blank'
+                );
                 INotification.dismiss(id);
               }}
             />
@@ -138,7 +145,7 @@ export class KiteAccessible extends ListModel {
             <ButtonBar
               label="Fix This"
               onClick={() => {
-                window.open('');
+                window.open('https://www.kite.com/download/', '_blank');
                 INotification.dismiss(id);
               }}
             />
@@ -160,7 +167,10 @@ export class KiteAccessible extends ListModel {
             <ButtonBar
               label="Learn More"
               onClick={() => {
-                window.open('');
+                window.open(
+                  'https://help.kite.com/article/143-how-to-install-the-jupyterlab-plugin#troubleshooting',
+                  '_blank'
+                );
                 INotification.dismiss(id);
               }}
             />
@@ -190,7 +200,9 @@ export class KiteAccessible extends ListModel {
               <ButtonBar
                 label="Update"
                 onClick={() => {
-                  window.open('');
+                  window.open(
+                    'https://help.kite.com/article/143-how-to-install-the-jupyterlab-plugin#updating-the-plugin'
+                  );
                   INotification.dismiss(id);
                 }}
               />
