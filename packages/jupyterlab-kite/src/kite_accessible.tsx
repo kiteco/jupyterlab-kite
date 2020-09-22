@@ -90,9 +90,8 @@ export class KiteAccessible extends ListModel {
             <ButtonBar
               label="Fix This"
               onClick={() => {
-                window.open('https://www.kite.com/download/', '_blank');
                 window.open(
-                  'https://stackoverflow.com/questions/55772171/how-to-update-jupyterlab-using-conda-or-pip',
+                  'https://www.kite.com/download?help=update-jlab',
                   '_blank'
                 );
                 INotification.dismiss(id);
