@@ -92,7 +92,7 @@ export class KiteAccessible extends ListModel {
               label="Fix This"
               onClick={() => {
                 window.open(
-                  'https://www.kite.com/download?help=update-jlab',
+                  'https://www.kite.com/download?utm_source=jupyterlab-plugin&utm_content=update-jlab',
                   '_blank'
                 );
                 INotification.dismiss(id);
@@ -145,7 +145,10 @@ export class KiteAccessible extends ListModel {
             <ButtonBar
               label="Fix This"
               onClick={() => {
-                window.open('https://www.kite.com/download/', '_blank');
+                window.open(
+                  'https://www.kite.com/download?utm_source=jupyterlab-plugin',
+                  '_blank'
+                );
                 INotification.dismiss(id);
               }}
             />
