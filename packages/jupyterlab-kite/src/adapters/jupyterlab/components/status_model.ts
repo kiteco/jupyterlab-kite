@@ -28,6 +28,7 @@ export class KiteStatusModel extends VDomModel {
   private _kiteStatus: IKiteStatus | null = null;
   private _installed = true;
   private _disconnected = false;
+  private _serverextensionReachable = false;
 
   constructor() {
     super();
@@ -47,6 +48,17 @@ export class KiteStatusModel extends VDomModel {
     );
     if (!response.ok) {
       console.warn('Could not fetch Kite Install status:', response.statusText);
+    } else {
+      if (!this._serverextensionReachable) {
+        this._serverextensionReachable = true;
+        this._onChange();
+      }
+    }
+
+    if (response.status === 404) {
+      this._serverextensionReachable = false;
+      this._onChange();
+      return;
     }
 
     let installed: boolean;
@@ -96,6 +108,14 @@ export class KiteStatusModel extends VDomModel {
       return {
         text: 'Kite: ' + this._kiteStatus.short,
         tooltip: this._kiteStatus.long,
+      };
+    }
+
+    if (!this._serverextensionReachable) {
+      return {
+        text: 'Kite: cannot reach jupyter-kite',
+        tooltip:
+          'jupyter-kite serverextension could not be reached, and might not be installed.'
       };
     }
 
