@@ -14,6 +14,7 @@ import { DocumentConnectionManager } from './connection_manager';
 import '../style/kite_accessible.css';
 
 enum Health {
+  ServerExtensionMissing = 'ServerExtensionMissing',
   RequirementsNotMet = 'RequirementsNotMet',
   KiteEngineNotInstalled = 'KiteNotInstalled',
   BelowMinJLabVersion = 'BelowMinJLabVersion',
@@ -76,13 +77,41 @@ export class KiteAccessible extends ListModel {
 
     let id: string | number;
     switch (health) {
+      case Health.ServerExtensionMissing:
+        id = await INotification.notify(
+          <InnerNotif title="Kite is missing some dependencies">
+            <p className="--jp-kite-innernotif-main-msg">
+              The jupyterlab-kite extension will not work because you are
+              missing the jupyter-kite server extension.
+            </p>
+            <p>
+              To fix this, please install the jupyter-kite server extension and
+              restart JupyterLab.
+            </p>
+            <ButtonBar
+              label="Fix This"
+              onClick={() => {
+                window.open(
+                  'https://help.kite.com/article/143-how-to-install-the-jupyterlab-plugin#troubleshooting',
+                  '_blank'
+                );
+                INotification.dismiss(id);
+              }}
+            />
+          </InnerNotif>,
+          {
+            ...baseToastOptions,
+            type: 'error'
+          }
+        );
+        break;
       case Health.RequirementsNotMet:
         id = await INotification.notify(
           <InnerNotif title="Kite is missing some dependencies">
             <p className="--jp-kite-innernotif-main-msg">
-              The jupyterlab-kite extension will not work because you using an
-              unsupported version of JupyterLab and you are missing the desktop
-              application.
+              The jupyterlab-kite extension will not work because you are using
+              an unsupported version of JupyterLab and you are missing the
+              desktop application.
             </p>
             <p>
               To fix this, please upgrade JupyterLab to version 2.2 or later and
@@ -221,8 +250,17 @@ export class KiteAccessible extends ListModel {
   }
 
   private async getHealth(): Promise<string> {
-    const installed = await this.fetchKiteInstalled();
+    const resp = await ServerConnection.makeRequest(
+      this.kiteInstalledUrl,
+      { method: 'GET' },
+      ServerConnection.makeSettings()
+    );
+    const serverextensionReached = resp.status !== 404;
+    const installed = resp.ok && (await resp.json());
     const version = PageConfig.getOption('appVersion');
+    if (!serverextensionReached) {
+      return Health.ServerExtensionMissing;
+    }
     if (!installed && Semver.lt(version, _MinJlabVersion)) {
       return Health.RequirementsNotMet;
     } else if (!installed) {
@@ -262,15 +300,6 @@ export class KiteAccessible extends ListModel {
     connection.track('mixpanel', 'jupyterlab_incompatibility', {
       type: 'jupyter-lab-lsp'
     });
-  }
-
-  private async fetchKiteInstalled(): Promise<boolean> {
-    const resp = await ServerConnection.makeRequest(
-      this.kiteInstalledUrl,
-      { method: 'GET' },
-      ServerConnection.makeSettings()
-    );
-    return resp.ok && (await resp.json());
   }
 
   private get kiteInstalledUrl(): string {

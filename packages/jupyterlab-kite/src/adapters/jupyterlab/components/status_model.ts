@@ -102,7 +102,7 @@ export class KiteStatusModel extends VDomModel {
       };
     }
 
-    // If we have a _kiteStatus, Kite must be conidered installed.
+    // If we have a _kiteStatus, Kite must be considered installed.
     // This makes dev workflows work better.
     if (this.adapter && this._kiteStatus) {
       return {
