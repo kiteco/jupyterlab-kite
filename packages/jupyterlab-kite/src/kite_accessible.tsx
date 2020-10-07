@@ -81,12 +81,12 @@ export class KiteAccessible extends ListModel {
         id = await INotification.notify(
           <InnerNotif title="Kite is missing some dependencies">
             <p className="--jp-kite-innernotif-main-msg">
-              The jupyterlab-kite extension will not work because you are
-              missing the jupyter-kite server extension.
+              The jupyterlab-kite extension will not work because the
+              jupyter-kite server extension could not be reached.
             </p>
             <p>
-              To fix this, please install the jupyter-kite server extension and
-              restart JupyterLab.
+              To fix this, please ensure the jupyter-kite server extension is
+              installed.
             </p>
             <ButtonBar
               label="Fix This"

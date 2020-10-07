@@ -115,7 +115,7 @@ export class KiteStatusModel extends VDomModel {
       return {
         text: 'Kite: cannot reach jupyter-kite',
         tooltip:
-          'jupyter-kite server extension could not be reached, and might not be installed.'
+          'The jupyter-kite server extension could not be reached, and might not be installed.'
       };
     }
 
