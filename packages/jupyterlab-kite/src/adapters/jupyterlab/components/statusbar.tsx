@@ -33,8 +33,6 @@ export class KiteStatus extends VDomRenderer<KiteStatusModel> {
       return null;
     }
 
-    console.log('Rendering KiteStatus');
-
     const activeDocument = this.model.activeDocument;
     if (!(activeDocument.file_extension === 'py')) {
       this.setHidden(true);
