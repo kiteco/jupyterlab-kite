@@ -68,7 +68,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     registerKiteCommands(app, palette);
 
     const language_server_manager = new LanguageServerManager({});
-    const kite_status_model = new KiteStatusModel();
+    const kite_status_model = new KiteStatusModel(language_server_manager);
     const connection_manager = new DocumentConnectionManager({
       language_server_manager,
       kite_status_model
@@ -76,7 +76,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
     const ka = await KiteAccessible.CreateAsync(
       app.serviceManager,
       settingRegistry,
-      connection_manager
+      connection_manager,
+      language_server_manager
     );
     ka.checkHealth();
     const onboarding_manager = new KiteOnboarding(

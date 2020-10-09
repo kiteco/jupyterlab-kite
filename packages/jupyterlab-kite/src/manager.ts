@@ -86,4 +86,21 @@ export class LanguageServerManager implements ILanguageServerManager {
 
     this._sessionsChanged.emit(void 0);
   }
+
+  get kiteInstalledUrl(): string {
+    return URLExt.join(
+      PageConfig.getBaseUrl(),
+      ILanguageServerManager.URL_NS,
+      'kite_installed'
+    );
+  }
+
+  async fetchKiteInstalled(): Promise<boolean> {
+    const resp = await ServerConnection.makeRequest(
+      this.kiteInstalledUrl,
+      { method: 'GET' },
+      ServerConnection.makeSettings()
+    );
+    return resp.ok && (await resp.json());
+  }
 }

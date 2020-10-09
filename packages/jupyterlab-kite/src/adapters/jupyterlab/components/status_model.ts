@@ -1,77 +1,88 @@
 import { VDomModel } from '@jupyterlab/apputils';
-import { PageConfig, URLExt } from '@jupyterlab/coreutils';
-import { ServerConnection } from '@jupyterlab/services';
 import { LabIcon } from '@jupyterlab/ui-components';
+
+import { isEqual } from 'lodash';
 
 import { JupyterLabWidgetAdapter } from '../jl_adapter';
 import { LSPConnection } from '../../../connection';
 import { DocumentConnectionManager } from '../../../connection_manager';
-import { ILanguageServerManager } from '../../../tokens';
 import { VirtualDocument } from '../../../virtual/document';
 
 import kiteLogo from '../../../../style/icons/kite-logo.svg';
+import { IDocumentInfo } from 'lsp-ws-connection';
+import { LanguageServerManager } from '../../../manager';
 
 export interface IKiteStatus {
   status: string;
   short: string;
   long: string;
 }
+
+export interface State {
+  disconnected: boolean;
+  kiteUninstalled: boolean;
+  serverUnreachable: boolean;
+  kiteStatus: IKiteStatus;
+}
+
 /**
  * A VDomModel for the LSP of current file editor/notebook.
  */
 export class KiteStatusModel extends VDomModel {
   private _connection_manager: DocumentConnectionManager;
+  private _language_server_manager: LanguageServerManager;
   private _icon: LabIcon = new LabIcon({
     name: 'jupyterlab-kite:status-icon',
     svgstr: kiteLogo
   });
-  private _kiteStatus: IKiteStatus | null = null;
-  private _installed = true;
-  private _disconnected = false;
+  private _state: State;
 
-  constructor() {
+  constructor(language_server_manager: LanguageServerManager) {
     super();
 
+    this._language_server_manager = language_server_manager;
     this.icon.bindprops({ className: 'kite-logo' });
+    this._state = {
+      kiteUninstalled: false,
+      serverUnreachable: false,
+      disconnected: false,
+      kiteStatus: { status: '', short: '', long: '' }
+    };
   }
 
-  async fetchKiteInstalled(): Promise<void> {
-    if (this._disconnected) {
+  async refresh(documentInfo: IDocumentInfo) {
+    if (this.state.disconnected) {
       return;
     }
 
-    const response = await ServerConnection.makeRequest(
-      this.kiteInstalledUrl,
-      { method: 'GET' },
-      ServerConnection.makeSettings()
-    );
-    if (!response.ok) {
-      console.warn('Could not fetch Kite Install status:', response.statusText);
-    }
-
-    let installed: boolean;
+    // Check /lsp/status for server reachability
     try {
-      installed = await response.json();
-      if (this._installed !== installed) {
-        this._installed = installed;
-        this._onChange();
-      }
+      await this.languageServerManager.fetchSessions();
     } catch (err) {
-      console.warn(err);
+      console.warn('Could not get server status:', err);
+      this.setState({ serverUnreachable: true });
+      return;
+    }
+
+    // Check if Kite engine is installed
+    const installed = await this.languageServerManager.fetchKiteInstalled();
+    if (!installed) {
+      console.warn('Kite engine not installed');
+      this.setState({ kiteUninstalled: true });
+      return;
+    }
+
+    // Get status from Kite Engine
+    if (this.activeConnection) {
+      const kiteStatus = await this.activeConnection.fetchKiteStatus(
+        documentInfo
+      );
+      this.setState({ kiteStatus });
     }
   }
 
-  get kiteInstalledUrl(): string {
-    return URLExt.join(
-      PageConfig.getBaseUrl(),
-      ILanguageServerManager.URL_NS,
-      'kite_installed'
-    );
-  }
-
-  set status(status: IKiteStatus | null) {
-    this._kiteStatus = status;
-    this._onChange();
+  get languageServerManager(): LanguageServerManager {
+    return this._language_server_manager;
   }
 
   get icon(): LabIcon {
@@ -79,35 +90,42 @@ export class KiteStatusModel extends VDomModel {
   }
 
   get reloadRequired(): boolean {
-    return this._disconnected;
+    return this.state.disconnected;
   }
 
-  get message(): {text: string, tooltip: string} {
-    if (this._disconnected) {
+  get message(): { text: string; tooltip: string } {
+    if (this.state.disconnected) {
       return {
         text: 'Kite: disconnected (reload page)',
-        tooltip: 'The connection to Kite was interrupted. Save your changes and reload the page to reconnect.',
+        tooltip:
+          'The connection to Kite was interrupted. Save your changes and reload the page to reconnect.'
       };
     }
 
-    // If we have a _kiteStatus, Kite must be conidered installed.
-    // This makes dev workflows work better.
-    if (this.adapter && this._kiteStatus) {
+    if (this.state.serverUnreachable) {
       return {
-        text: 'Kite: ' + this._kiteStatus.short,
-        tooltip: this._kiteStatus.long,
+        text: 'Kite: server extension unreachable',
+        tooltip: 'The jupyter-kite server extension could not be reached.'
       };
     }
 
-    if (!this._installed) {
+    if (this.state.kiteUninstalled) {
       return {
         text: 'Kite: not installed',
-        tooltip: 'Kite install could not be found.',
+        tooltip: 'Kite install could not be found.'
       };
     }
+
+    if (this.adapter && this.state.kiteStatus.status) {
+      return {
+        text: 'Kite: ' + this.state.kiteStatus.short,
+        tooltip: this.state.kiteStatus.long
+      };
+    }
+
     return {
       text: 'Kite: not running',
-      tooltip: 'Kite is not reachable.',
+      tooltip: 'Kite is not reachable.'
     };
   }
 
@@ -134,7 +152,7 @@ export class KiteStatusModel extends VDomModel {
   set connection_manager(connection_manager) {
     if (this._connection_manager != null) {
       this._connection_manager.connected.disconnect(this._onChange);
-      this._connection_manager.initialized.connect(this._onChange);
+      this._connection_manager.initialized.disconnect(this._onChange);
       this._connection_manager.closed.disconnect(this._connectionClosed);
       this._connection_manager.documents_changed.disconnect(this._onChange);
     }
@@ -165,10 +183,26 @@ export class KiteStatusModel extends VDomModel {
     return undefined;
   }
 
-  private _connectionClosed = () => {
-    this._disconnected = true;
-    this._onChange();
+  get state(): State {
+    return this._state;
   }
+
+  /**
+   * Loosely based on React's setState.
+   * Only signals a change if the potential new state
+   * is not deeply equal to the current state.
+   */
+  setState<K extends keyof State>(newValues: Pick<State, K>) {
+    const merged = { ...this._state, ...newValues };
+    if (!isEqual(this._state, merged)) {
+      this._state = merged;
+      this._onChange();
+    }
+  }
+
+  private _connectionClosed = () => {
+    this.setState({ disconnected: true });
+  };
 
   private _onChange = () => {
     this.stateChanged.emit(void 0);
