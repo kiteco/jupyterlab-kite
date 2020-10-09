@@ -99,7 +99,7 @@ export class LanguageServerManager implements ILanguageServerManager {
     const resp = await ServerConnection.makeRequest(
       this.kiteInstalledUrl,
       { method: 'GET' },
-      ServerConnection.makeSettings()
+      this._settings
     );
     return resp.ok && (await resp.json());
   }
