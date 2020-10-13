@@ -51,7 +51,7 @@ export class KiteStatusModel extends VDomModel {
   }
 
   async refresh(documentInfo: IDocumentInfo) {
-    if (this.state.disconnected) {
+    if (this.reloadRequired) {
       return;
     }
 
@@ -111,8 +111,8 @@ export class KiteStatusModel extends VDomModel {
 
     if (this.state.kiteUninstalled) {
       return {
-        text: 'Kite: not installed',
-        tooltip: 'Kite install could not be found.'
+        text: 'Kite: engine not installed',
+        tooltip: 'Kite engine install could not be found.'
       };
     }
 
