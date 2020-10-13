@@ -18,6 +18,8 @@ export interface IKiteStatus {
   long: string;
 }
 
+export const EmptyKiteStatus = { status: '', short: '', long: '' };
+
 export interface State {
   disconnected: boolean;
   kiteUninstalled: boolean;
@@ -46,7 +48,7 @@ export class KiteStatusModel extends VDomModel {
       kiteUninstalled: false,
       serverUnreachable: false,
       disconnected: false,
-      kiteStatus: { status: '', short: '', long: '' }
+      kiteStatus: EmptyKiteStatus
     };
   }
 
@@ -94,7 +96,7 @@ export class KiteStatusModel extends VDomModel {
   }
 
   get message(): { text: string; tooltip: string } {
-    if (this.state.disconnected) {
+    if (this.reloadRequired) {
       return {
         text: 'Kite: disconnected (reload page)',
         tooltip:

@@ -13,7 +13,8 @@ import {
 import { until_ready } from './utils';
 import {
   KiteStatusModel,
-  IKiteStatus
+  IKiteStatus,
+  EmptyKiteStatus
 } from './adapters/jupyterlab/components/status_model';
 
 interface ILSPOptions extends ILspOptions {
@@ -72,7 +73,7 @@ export class LSPConnection extends LspWsConnection {
   }
 
   async fetchKiteStatus(documentInfo: IDocumentInfo): Promise<IKiteStatus> {
-    let result: IKiteStatus;
+    let result = EmptyKiteStatus;
     try {
       result = await this.connection.sendRequest('kite/status', {
         uri: documentInfo.uri
@@ -97,7 +98,7 @@ export class LSPConnection extends LspWsConnection {
     } catch (e) {
       console.warn('[Kite] Selection Notification Error:', e);
     }
-    this.status_model.refresh(documentInfo);
+    this.status_model?.refresh(documentInfo);
   }
 
   public sendSelectiveChange(
@@ -187,7 +188,7 @@ export class LSPConnection extends LspWsConnection {
 
   private _sendOpen(documentInfo: IDocumentInfo) {
     this.sendOpen(documentInfo);
-    this.status_model.refresh(documentInfo);
+    this.status_model?.refresh(documentInfo);
   }
 
   private _sendChange(
@@ -209,6 +210,6 @@ export class LSPConnection extends LspWsConnection {
       textDocumentChange
     );
     documentInfo.version++;
-    this.status_model.refresh(documentInfo);
+    this.status_model?.refresh(documentInfo);
   }
 }
