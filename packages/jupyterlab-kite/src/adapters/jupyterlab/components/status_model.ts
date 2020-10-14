@@ -5,8 +5,6 @@ import { isEqual } from 'lodash';
 
 import { JupyterLabWidgetAdapter } from '../jl_adapter';
 import { LSPConnection } from '../../../connection';
-import { DocumentConnectionManager } from '../../../connection_manager';
-import { VirtualDocument } from '../../../virtual/document';
 
 import kiteLogo from '../../../../style/icons/kite-logo.svg';
 import { IDocumentInfo } from 'lsp-ws-connection';
@@ -31,13 +29,13 @@ export interface State {
  * A VDomModel for the LSP of current file editor/notebook.
  */
 export class KiteStatusModel extends VDomModel {
-  private _connection_manager: DocumentConnectionManager;
   private _language_server_manager: LanguageServerManager;
   private _icon: LabIcon = new LabIcon({
     name: 'jupyterlab-kite:status-icon',
     svgstr: kiteLogo
   });
   private _state: State;
+  private _adapter: JupyterLabWidgetAdapter | null = null;
 
   constructor(language_server_manager: LanguageServerManager) {
     super();
@@ -52,7 +50,7 @@ export class KiteStatusModel extends VDomModel {
     };
   }
 
-  async refresh(documentInfo: IDocumentInfo) {
+  async refresh(connection: LSPConnection, documentInfo: IDocumentInfo) {
     if (this.reloadRequired) {
       return;
     }
@@ -75,12 +73,8 @@ export class KiteStatusModel extends VDomModel {
     }
 
     // Get status from Kite Engine
-    if (this.activeConnection) {
-      const kiteStatus = await this.activeConnection.fetchKiteStatus(
-        documentInfo
-      );
-      this.setState({ kiteStatus });
-    }
+    const kiteStatus = await connection.fetchKiteStatus(documentInfo);
+    this.setState({ kiteStatus });
   }
 
   get languageServerManager(): LanguageServerManager {
@@ -136,53 +130,15 @@ export class KiteStatusModel extends VDomModel {
   }
 
   set adapter(adapter: JupyterLabWidgetAdapter | null) {
-    if (this._adapter != null) {
-      this._adapter.status_message.changed.connect(this._onChange);
-    }
-
-    if (adapter != null) {
-      adapter.status_message.changed.connect(this._onChange);
-    }
-
-    this._adapter = adapter;
-  }
-
-  get connection_manager() {
-    return this._connection_manager;
-  }
-
-  set connection_manager(connection_manager) {
-    if (this._connection_manager != null) {
-      this._connection_manager.connected.disconnect(this._onChange);
-      this._connection_manager.initialized.disconnect(this._onChange);
-      this._connection_manager.closed.disconnect(this._connectionClosed);
-      this._connection_manager.documents_changed.disconnect(this._onChange);
-    }
-
-    if (connection_manager != null) {
-      connection_manager.connected.connect(this._onChange);
-      connection_manager.initialized.connect(this._onChange);
-      connection_manager.closed.connect(this._connectionClosed);
-      connection_manager.documents_changed.connect(this._onChange);
-    }
-
-    this._connection_manager = connection_manager;
-  }
-
-  get activeDocument(): VirtualDocument | undefined {
-    if (this.adapter && this.adapter.virtual_editor) {
-      return this.adapter.virtual_editor.virtual_document;
-    }
-    return undefined;
-  }
-
-  get activeConnection(): LSPConnection | undefined {
-    if (this.activeDocument) {
-      return this.connection_manager.connections.get(
-        this.activeDocument.id_path
+    if (this._adapter) {
+      this._adapter.connection_manager.closed.disconnect(
+        this._connectionClosed
       );
     }
-    return undefined;
+    if (adapter) {
+      adapter.connection_manager.closed.connect(this._connectionClosed);
+    }
+    this._adapter = adapter;
   }
 
   get state(): State {
@@ -209,6 +165,4 @@ export class KiteStatusModel extends VDomModel {
   private _onChange = () => {
     this.stateChanged.emit(void 0);
   };
-
-  private _adapter: JupyterLabWidgetAdapter | null = null;
 }

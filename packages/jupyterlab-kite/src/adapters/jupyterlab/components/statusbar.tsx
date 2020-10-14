@@ -29,19 +29,16 @@ export class KiteStatus extends VDomRenderer<KiteStatusModel> {
    * Render the status item.
    */
   render() {
-    if (!this.model || !this.model.activeDocument) {
-      return null;
-    }
-
-    const activeDocument = this.model.activeDocument;
-    if (!(activeDocument.file_extension === 'py')) {
+    if (
+      !this.model ||
+      !this.model.adapter ||
+      this.model.adapter.language !== 'python'
+    ) {
       this.setHidden(true);
       return null;
     }
 
-    if (activeDocument.document_info) {
-      this.model.refresh(activeDocument.document_info);
-    }
+    this.setHidden(false);
 
     const props: React.HTMLAttributes<HTMLDivElement> = {};
     if (this.model.reloadRequired) {

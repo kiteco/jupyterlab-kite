@@ -98,7 +98,7 @@ export class LSPConnection extends LspWsConnection {
     } catch (e) {
       console.warn('[Kite] Selection Notification Error:', e);
     }
-    this.status_model?.refresh(documentInfo);
+    this.status_model?.refresh(this, documentInfo);
   }
 
   public sendSelectiveChange(
@@ -188,7 +188,7 @@ export class LSPConnection extends LspWsConnection {
 
   private _sendOpen(documentInfo: IDocumentInfo) {
     this.sendOpen(documentInfo);
-    this.status_model?.refresh(documentInfo);
+    this.status_model?.refresh(this, documentInfo);
   }
 
   private _sendChange(
@@ -210,6 +210,6 @@ export class LSPConnection extends LspWsConnection {
       textDocumentChange
     );
     documentInfo.version++;
-    this.status_model?.refresh(documentInfo);
+    this.status_model?.refresh(this, documentInfo);
   }
 }

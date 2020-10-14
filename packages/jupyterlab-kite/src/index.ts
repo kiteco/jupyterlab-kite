@@ -88,7 +88,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
       connection_manager
     );
     const status_bar_item = new KiteStatus(kite_status_model);
-    status_bar_item.model.connection_manager = connection_manager;
 
     labShell.currentChanged.connect(() => {
       const current = labShell.currentWidget;
