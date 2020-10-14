@@ -50,11 +50,7 @@ export class KiteStatusModel extends VDomModel {
     };
   }
 
-  async refresh(connection: LSPConnection, documentInfo: IDocumentInfo) {
-    if (this.reloadRequired) {
-      return;
-    }
-
+  async refresh(connection?: LSPConnection, documentInfo?: IDocumentInfo) {
     // Check /lsp/status for server reachability
     try {
       await this.languageServerManager.fetchSessions();
@@ -72,9 +68,15 @@ export class KiteStatusModel extends VDomModel {
       return;
     }
 
+    if (this.reloadRequired) {
+      return;
+    }
+
     // Get status from Kite Engine
-    const kiteStatus = await connection.fetchKiteStatus(documentInfo);
-    this.setState({ kiteStatus });
+    if (connection && documentInfo) {
+      const kiteStatus = await connection.fetchKiteStatus(documentInfo);
+      this.setState({ kiteStatus });
+    }
   }
 
   get languageServerManager(): LanguageServerManager {
@@ -90,14 +92,6 @@ export class KiteStatusModel extends VDomModel {
   }
 
   get message(): { text: string; tooltip: string } {
-    if (this.reloadRequired) {
-      return {
-        text: 'Kite: disconnected (reload page)',
-        tooltip:
-          'The connection to Kite was interrupted. Save your changes and reload the page to reconnect.'
-      };
-    }
-
     if (this.state.serverUnreachable) {
       return {
         text: 'Kite: server extension unreachable',
@@ -109,6 +103,14 @@ export class KiteStatusModel extends VDomModel {
       return {
         text: 'Kite: engine not installed',
         tooltip: 'Kite engine install could not be found.'
+      };
+    }
+
+    if (this.reloadRequired) {
+      return {
+        text: 'Kite: disconnected (reload page)',
+        tooltip:
+          'The connection to Kite was interrupted. Save your changes and reload the page to reconnect.'
       };
     }
 
