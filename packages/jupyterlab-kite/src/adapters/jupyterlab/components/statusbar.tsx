@@ -3,6 +3,7 @@
 // Based on the @jupyterlab/codemirror-extension statusbar
 
 import React from 'react';
+import { extname } from 'path';
 
 import { VDomRenderer } from '@jupyterlab/apputils';
 import { GroupItem, item, TextItem } from '@jupyterlab/statusbar';
@@ -33,7 +34,8 @@ export class KiteStatus extends VDomRenderer<KiteStatusModel> {
     if (
       !this.model ||
       !this.model.adapter ||
-      this.model.adapter.language !== 'python'
+      // Other properties, such as adapter.language are not reliable when the server extension is not reachable
+      !this.isSupportedDocumentPath(this.model.adapter.document_path)
     ) {
       this.setHidden(true);
       return null;
@@ -53,5 +55,9 @@ export class KiteStatus extends VDomRenderer<KiteStatusModel> {
         <TextItem source={this.model.message.text} />
       </GroupItem>
     );
+  }
+
+  isSupportedDocumentPath(path: string) {
+    return extname(path) === '.py' || extname(path) === '.ipynb';
   }
 }
