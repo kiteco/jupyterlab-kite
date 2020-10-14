@@ -154,9 +154,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
           widget.disposed.disconnect(disconnect);
           widget.context.pathChanged.disconnect(reconnect);
           adapter.dispose();
-          if (status_bar_item.model.adapter === adapter) {
-            status_bar_item.model.adapter = null;
-          }
         };
 
         const reconnect = () => {
@@ -166,8 +163,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
         widget.disposed.connect(disconnect);
         widget.context.pathChanged.connect(reconnect);
-
-        status_bar_item.model.adapter = adapter;
       }
     };
 
@@ -194,9 +189,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
         widget.disposed.disconnect(disconnect);
         widget.context.pathChanged.disconnect(reconnect);
         adapter.dispose();
-        if (status_bar_item.model.adapter === adapter) {
-          status_bar_item.model.adapter = null;
-        }
       };
 
       const reconnect = () => {
@@ -206,8 +198,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
       widget.context.pathChanged.connect(reconnect);
       widget.disposed.connect(disconnect);
-
-      status_bar_item.model.adapter = adapter;
     };
 
     notebookTracker.widgetAdded.connect(async (sender, widget) => {
