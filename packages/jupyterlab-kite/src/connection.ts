@@ -13,7 +13,8 @@ import {
 import { until_ready } from './utils';
 import {
   KiteStatusModel,
-  IKiteStatus
+  IKiteStatus,
+  EmptyKiteStatus
 } from './adapters/jupyterlab/components/status_model';
 
 interface ILSPOptions extends ILspOptions {
@@ -71,21 +72,16 @@ export class LSPConnection extends LspWsConnection {
     return '';
   }
 
-  async fetchKiteStatus(documentInfo: IDocumentInfo) {
-    let result: IKiteStatus;
+  async fetchKiteStatus(documentInfo: IDocumentInfo): Promise<IKiteStatus> {
+    let result = EmptyKiteStatus;
     try {
       result = await this.connection.sendRequest('kite/status', {
         uri: documentInfo.uri
       });
-      if (this.status_model) {
-        this.status_model.status = result;
-      }
-    } catch {
-      console.warn('Kite Status could not be fetched. Setting to not ready.');
-      if (this.status_model) {
-        this.status_model.status = null;
-      }
+    } catch (err) {
+      console.warn('Could not fetch Kite Status:', err);
     }
+    return result;
   }
 
   sendSelection(
@@ -102,7 +98,7 @@ export class LSPConnection extends LspWsConnection {
     } catch (e) {
       console.warn('[Kite] Selection Notification Error:', e);
     }
-    this.fetchKiteStatus(documentInfo);
+    this.status_model?.refresh(this, documentInfo);
   }
 
   public sendSelectiveChange(
@@ -192,7 +188,7 @@ export class LSPConnection extends LspWsConnection {
 
   private _sendOpen(documentInfo: IDocumentInfo) {
     this.sendOpen(documentInfo);
-    this.fetchKiteStatus(documentInfo);
+    this.status_model?.refresh(this, documentInfo);
   }
 
   private _sendChange(
@@ -214,6 +210,6 @@ export class LSPConnection extends LspWsConnection {
       textDocumentChange
     );
     documentInfo.version++;
-    this.fetchKiteStatus(documentInfo);
+    this.status_model?.refresh(this, documentInfo);
   }
 }

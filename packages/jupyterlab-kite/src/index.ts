@@ -68,7 +68,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     registerKiteCommands(app, palette);
 
     const language_server_manager = new LanguageServerManager({});
-    const kite_status_model = new KiteStatusModel();
+    const kite_status_model = new KiteStatusModel(language_server_manager);
     const connection_manager = new DocumentConnectionManager({
       language_server_manager,
       kite_status_model
@@ -76,7 +76,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
     const ka = await KiteAccessible.CreateAsync(
       app.serviceManager,
       settingRegistry,
-      connection_manager
+      connection_manager,
+      language_server_manager
     );
     ka.checkHealth();
     const onboarding_manager = new KiteOnboarding(
@@ -87,7 +88,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
       connection_manager
     );
     const status_bar_item = new KiteStatus(kite_status_model);
-    status_bar_item.model.connection_manager = connection_manager;
 
     labShell.currentChanged.connect(() => {
       const current = labShell.currentWidget;
@@ -154,9 +154,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
           widget.disposed.disconnect(disconnect);
           widget.context.pathChanged.disconnect(reconnect);
           adapter.dispose();
-          if (status_bar_item.model.adapter === adapter) {
-            status_bar_item.model.adapter = null;
-          }
         };
 
         const reconnect = () => {
@@ -166,8 +163,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
         widget.disposed.connect(disconnect);
         widget.context.pathChanged.connect(reconnect);
-
-        status_bar_item.model.adapter = adapter;
       }
     };
 
@@ -194,9 +189,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
         widget.disposed.disconnect(disconnect);
         widget.context.pathChanged.disconnect(reconnect);
         adapter.dispose();
-        if (status_bar_item.model.adapter === adapter) {
-          status_bar_item.model.adapter = null;
-        }
       };
 
       const reconnect = () => {
@@ -206,8 +198,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
       widget.context.pathChanged.connect(reconnect);
       widget.disposed.connect(disconnect);
-
-      status_bar_item.model.adapter = adapter;
     };
 
     notebookTracker.widgetAdded.connect(async (sender, widget) => {

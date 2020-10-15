@@ -1,5 +1,5 @@
-import { ServerConnection, ServiceManager } from '@jupyterlab/services';
-import { PageConfig, URLExt } from '@jupyterlab/coreutils';
+import { ServiceManager } from '@jupyterlab/services';
+import { PageConfig } from '@jupyterlab/coreutils';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { ListModel } from '@jupyterlab/extensionmanager';
 
@@ -7,13 +7,14 @@ import { INotification } from 'jupyterlab_toastify';
 import React from 'react';
 import Semver from 'semver';
 
-import { ILanguageServerManager } from './tokens';
 import { VirtualDocument } from './virtual/document';
 import { DocumentConnectionManager } from './connection_manager';
 
 import '../style/kite_accessible.css';
+import { LanguageServerManager } from './manager';
 
 enum Health {
+  ServerExtensionUnreachable = 'ServerExtensionUnreachable',
   RequirementsNotMet = 'RequirementsNotMet',
   KiteEngineNotInstalled = 'KiteNotInstalled',
   BelowMinJLabVersion = 'BelowMinJLabVersion',
@@ -27,27 +28,36 @@ const _MinJlabVersion = '2.2.0';
 // KiteAccessible must access fetchInstalled, etc
 export class KiteAccessible extends ListModel {
   private connectionManager: DocumentConnectionManager;
+  private languageServerManager: LanguageServerManager;
 
   public static CreateAsync = async (
     serviceManager: ServiceManager,
     registery: ISettingRegistry,
-    connectionManager: DocumentConnectionManager
+    connectionManager: DocumentConnectionManager,
+    languageServerManager: LanguageServerManager
   ): Promise<KiteAccessible> => {
     // Use extensionmanager settings because KiteAccessible needs
     // protected ListModel.queryInstalled
     const settings = await registery.load(
       '@jupyterlab/extensionmanager-extension:plugin'
     );
-    return new KiteAccessible(serviceManager, settings, connectionManager);
+    return new KiteAccessible(
+      serviceManager,
+      settings,
+      connectionManager,
+      languageServerManager
+    );
   };
 
   constructor(
     serviceManager: ServiceManager,
     settings: ISettingRegistry.ISettings,
-    connectionManager: DocumentConnectionManager
+    connectionManager: DocumentConnectionManager,
+    languageServerManager: LanguageServerManager
   ) {
     super(serviceManager, settings);
     this.connectionManager = connectionManager;
+    this.languageServerManager = languageServerManager;
   }
 
   public async checkHealth(): Promise<void> {
@@ -76,6 +86,35 @@ export class KiteAccessible extends ListModel {
 
     let id: string | number;
     switch (health) {
+      case Health.ServerExtensionUnreachable:
+        id = await INotification.notify(
+          <InnerNotif title="Server Extension Unreachable">
+            <p className="--jp-kite-innernotif-main-msg">
+              The jupyterlab-kite extension will not work because the
+              jupyter-kite server extension could not be reached.
+            </p>
+            <p>
+              To fix this, please ensure the jupyter-kite server extension is
+              installed and active (`jupyter serverextension list`), then
+              restart the JupyterLab process.
+            </p>
+            <ButtonBar
+              label="Fix This"
+              onClick={() => {
+                window.open(
+                  'https://github.com/kiteco/jupyterlab-kite#installing-the-kite-extension-for-jupyterlab',
+                  '_blank'
+                );
+                INotification.dismiss(id);
+              }}
+            />
+          </InnerNotif>,
+          {
+            ...baseToastOptions,
+            type: 'error'
+          }
+        );
+        break;
       case Health.RequirementsNotMet:
         id = await INotification.notify(
           <InnerNotif title="Kite is missing some dependencies">
@@ -221,7 +260,12 @@ export class KiteAccessible extends ListModel {
   }
 
   private async getHealth(): Promise<string> {
-    const installed = await this.fetchKiteInstalled();
+    try {
+      await this.languageServerManager.fetchSessions();
+    } catch {
+      return Health.ServerExtensionUnreachable;
+    }
+    const installed = await this.languageServerManager.fetchKiteInstalled();
     const version = PageConfig.getOption('appVersion');
     if (!installed && Semver.lt(version, _MinJlabVersion)) {
       return Health.RequirementsNotMet;
@@ -259,26 +303,11 @@ export class KiteAccessible extends ListModel {
       document_path: ''
     };
     const connection = await this.connectionManager.connect(options);
-    connection.track('mixpanel', 'jupyterlab_incompatibility', {
-      type: 'jupyter-lab-lsp'
-    });
-  }
-
-  private async fetchKiteInstalled(): Promise<boolean> {
-    const resp = await ServerConnection.makeRequest(
-      this.kiteInstalledUrl,
-      { method: 'GET' },
-      ServerConnection.makeSettings()
-    );
-    return resp.ok && (await resp.json());
-  }
-
-  private get kiteInstalledUrl(): string {
-    return URLExt.join(
-      PageConfig.getBaseUrl(),
-      ILanguageServerManager.URL_NS,
-      'kite_installed'
-    );
+    if (connection) {
+      connection.track('mixpanel', 'jupyterlab_incompatibility', {
+        type: 'jupyter-lab-lsp'
+      });
+    }
   }
 }
 
