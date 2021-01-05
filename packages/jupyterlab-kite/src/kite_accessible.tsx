@@ -24,7 +24,7 @@ enum Health {
   Healthy = 'Healthy'
 }
 
-const _MinJlabVersion = '2.2.0';
+const _MinJlabVersion = '3.0.0';
 
 // KiteAccessible must access fetchInstalled, etc
 export class KiteAccessible extends ListModel {
