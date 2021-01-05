@@ -13,9 +13,6 @@
     },
     {
       "path": "../lsp-ws-connection"
-    },
-    {
-      "path": "../jupyterlab-go-to-definition"
     }
   ]
 }

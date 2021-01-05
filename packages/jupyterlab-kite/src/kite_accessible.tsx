@@ -1,3 +1,4 @@
+import { JupyterFrontEnd } from '@jupyterlab/application';
 import { ServiceManager } from '@jupyterlab/services';
 import { PageConfig } from '@jupyterlab/coreutils';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
@@ -23,7 +24,7 @@ enum Health {
   Healthy = 'Healthy'
 }
 
-const _MinJlabVersion = '2.2.0';
+const _MinJlabVersion = '3.0.0';
 
 // KiteAccessible must access fetchInstalled, etc
 export class KiteAccessible extends ListModel {
@@ -31,6 +32,7 @@ export class KiteAccessible extends ListModel {
   private languageServerManager: LanguageServerManager;
 
   public static CreateAsync = async (
+    app: JupyterFrontEnd,
     serviceManager: ServiceManager,
     registery: ISettingRegistry,
     connectionManager: DocumentConnectionManager,
@@ -42,6 +44,7 @@ export class KiteAccessible extends ListModel {
       '@jupyterlab/extensionmanager-extension:plugin'
     );
     return new KiteAccessible(
+      app,
       serviceManager,
       settings,
       connectionManager,
@@ -50,12 +53,13 @@ export class KiteAccessible extends ListModel {
   };
 
   constructor(
+    app: JupyterFrontEnd,
     serviceManager: ServiceManager,
     settings: ISettingRegistry.ISettings,
     connectionManager: DocumentConnectionManager,
     languageServerManager: LanguageServerManager
   ) {
-    super(serviceManager, settings);
+    super(app, serviceManager, settings);
     this.connectionManager = connectionManager;
     this.languageServerManager = languageServerManager;
   }
