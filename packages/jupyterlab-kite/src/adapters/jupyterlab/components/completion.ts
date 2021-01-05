@@ -286,6 +286,9 @@ export class KiteConnector extends DataConnector<
       .map(token => token.string)
       .join('');
     (lspCompletionItems as IKiteLSPCompletionItem[]).forEach(match => {
+      if (!match.textEdit || !('range' in match.textEdit)) {
+        return;
+      }
       let range = match.textEdit?.range;
       let insertion = match.insertText ? match.insertText : match.label;
       if (range) {

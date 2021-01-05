@@ -74,6 +74,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       kite_status_model
     });
     const ka = await KiteAccessible.CreateAsync(
+      app,
       app.serviceManager,
       settingRegistry,
       connection_manager,

@@ -27,14 +27,13 @@
   },
   "dependencies": {
     "@kiteco/jupyterlab-kite": "file:../jupyterlab-kite",
-    "lsp-ws-connection": "file:../lsp-ws-connection",
-    "@krassowski/jupyterlab_go_to_definition": "file:../jupyterlab-go-to-definition"
+    "lsp-ws-connection": "file:../lsp-ws-connection"
   },
   "devDependencies": {
     "fs-extra": "^8.0.1",
     "rimraf": "~2.6.2",
     "typedoc": "^0.14.2",
-    "typescript": "~3.7.2"
+    "typescript": "^4.0.0"
   },
   "publishConfig": {
     "access": "public"
