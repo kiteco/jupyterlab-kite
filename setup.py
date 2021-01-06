@@ -1,20 +1,25 @@
-import re
-import sys
+import json
 from pathlib import Path
+from re import findall
 
-import setuptools
+ROOT = Path(__file__).resolve().parent
 
-setuptools.setup(
-    version=re.findall(
-        r"""__version__ = "([^"]+)"$""",
-        (Path(__file__).parent / "py_src" / "jupyter_kite" / "_version.py").read_text(),
-    )[0],
-    setup_requires=["pytest-runner"] if "test" in sys.argv else [],
-    # py35 apparently doesn't support putting these in setup.cfg
-    data_files=[
-        (
-            "etc/jupyter/jupyter_notebook_config.d",
-            ["py_src/jupyter_kite/etc/jupyter-kite-serverextension.json"],
-        )
-    ],
+
+JUPYTER_KITE_PATH = ROOT / "python_packages" / "jupyter_kite"
+_VERSION_PY = JUPYTER_KITE_PATH / "jupyter_kite" / "_version.py"
+JUPYTER_KITE_VERSION = findall(r'= "(.*)"$', _VERSION_PY.read_text(encoding="utf-8"))[0]
+
+with open(ROOT / "packages/jupyterlab-kite/package.json") as f:
+    jupyterlab_kite_package = json.load(f)
+
+JUPYTERLAB_KITE_VERSION = jupyterlab_kite_package['version']
+JUPYTERLAB_VERSION = (
+    jupyterlab_kite_package
+    ['devDependencies']
+    ['@jupyterlab/application']
+    .lstrip('~^')
 )
+JUPYTERLAB_NEXT_MAJOR_VERSION = int(JUPYTERLAB_VERSION.split('.')[0]) + 1
+REQUIRED_JUPYTERLAB = f'>={JUPYTERLAB_VERSION},<{JUPYTERLAB_NEXT_MAJOR_VERSION}.0.0a0'
+REQUIRED_JUPYTER_SERVER = '>=1.1.2'
+REQUIRED_PYTHON = '>=3.6'

@@ -1,6 +1,6 @@
 {
   "name": "@kiteco/jupyterlab-kite-metapackage",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Kite Extension - Meta Package.  All of the packages used by the JupyterLab Kite Extension",
   "homepage": "https://github.com/kiteco/jupyterlab-kite",
   "bugs": {

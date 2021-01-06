@@ -242,5 +242,5 @@
     }
   },
   "description": "describes the current state of (potentially) running language servers",
-  "title": "jupyter_lsp server status response"
+  "title": "jupyter_kite server status response"
 }

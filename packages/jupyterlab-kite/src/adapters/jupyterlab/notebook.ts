@@ -8,7 +8,6 @@ import { Notebook, NotebookPanel } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { Session } from '@jupyterlab/services';
 import { IStateDB } from '@jupyterlab/statedb';
-import { NotebookJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/notebook';
 import * as CodeMirror from 'codemirror';
 import { DocumentConnectionManager } from '../../connection_manager';
 import { foreign_code_extractors } from '../../extractors/defaults';
@@ -24,7 +23,6 @@ export class NotebookAdapter extends JupyterLabWidgetAdapter {
   widget: NotebookPanel;
   virtual_editor: VirtualEditorForNotebook;
   completion_manager: ICompletionManager;
-  jumper: NotebookJumper;
 
   protected current_completion_connector: KiteConnector & {
     responseType: typeof CompletionHandler.ICompletionItemsResponseType;
@@ -34,7 +32,6 @@ export class NotebookAdapter extends JupyterLabWidgetAdapter {
 
   constructor(
     editor_widget: NotebookPanel,
-    jumper: NotebookJumper,
     app: JupyterFrontEnd,
     completion_manager: ICompletionManager,
     rendermime_registry: IRenderMimeRegistry,
@@ -51,7 +48,6 @@ export class NotebookAdapter extends JupyterLabWidgetAdapter {
     );
     this.editor = editor_widget.content;
     this.completion_manager = completion_manager;
-    this.jumper = jumper;
     this.init_once_ready().catch(console.warn);
   }
 

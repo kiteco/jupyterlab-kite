@@ -4,7 +4,8 @@ body[data-jp-theme-light='true'] [data-icon='jupyterlab-kite:completion-icon'] {
   transform: scale(0.6);
 }
 
-body[data-jp-theme-light='false'] [data-icon='jupyterlab-kite:completion-icon'] {
+body[data-jp-theme-light='false']
+  [data-icon='jupyterlab-kite:completion-icon'] {
   fill: #d3d3d3;
   fill-opacity: 60%;
   transform: scale(0.6);
