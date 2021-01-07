@@ -1,2 +1,2 @@
 include LICENSE README.md
-recursive-include jupyterlab_lsp/labextensions *.*
+recursive-include jupyterlab_kite/labextensions *.*
