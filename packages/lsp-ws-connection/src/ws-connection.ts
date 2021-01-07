@@ -24,7 +24,8 @@ import {
  *  - initializeParams() was extracted, and can be modified by subclasses
  *  - typescript 3.7 was adopted to clean up deep references
  */
-export class LspWsConnection extends events.EventEmitter
+export class LspWsConnection
+  extends events.EventEmitter
   implements ILspConnection {
   public isConnected = false;
   public isInitialized = false;
@@ -342,7 +343,7 @@ export class LspWsConnection extends events.EventEmitter
     if (!this.isReady) {
       return;
     }
-    this.connection
+    void this.connection
       .sendRequest<protocol.CompletionItem>(
         'completionItem/resolve',
         completionItem
@@ -504,7 +505,7 @@ export class LspWsConnection extends events.EventEmitter
       return;
     }
 
-    this.connection
+    void this.connection
       .sendRequest<Location | Location[] | LocationLink[]>(
         'textDocument/implementation',
         {

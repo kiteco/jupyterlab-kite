@@ -69,7 +69,7 @@ export class KiteAccessible extends ListModel {
       const health = await this.getHealth();
       await this.notifyHealth(health);
       if (health === Health.IncompatibleJLabLSPPlugin) {
-        this.trackIncompatiblity();
+        this.trackIncompatiblity().catch(e => console.log(e));
       }
     } catch (e) {
       console.log('Health check failed:', e);
@@ -109,7 +109,7 @@ export class KiteAccessible extends ListModel {
                   'https://github.com/kiteco/jupyterlab-kite#installing-the-kite-extension-for-jupyterlab',
                   '_blank'
                 );
-                INotification.dismiss(id);
+                void INotification.dismiss(id);
               }}
             />
           </InnerNotif>,
@@ -138,7 +138,7 @@ export class KiteAccessible extends ListModel {
                   'https://www.kite.com/download?utm_source=jupyterlab-plugin&utm_content=update-jlab',
                   '_blank'
                 );
-                INotification.dismiss(id);
+                void INotification.dismiss(id);
               }}
             />
           </InnerNotif>,
@@ -165,7 +165,7 @@ export class KiteAccessible extends ListModel {
                   'https://stackoverflow.com/questions/55772171/how-to-update-jupyterlab-using-conda-or-pip',
                   '_blank'
                 );
-                INotification.dismiss(id);
+                void INotification.dismiss(id);
               }}
             />
           </InnerNotif>,
@@ -192,7 +192,7 @@ export class KiteAccessible extends ListModel {
                   'https://www.kite.com/download?utm_source=jupyterlab-plugin',
                   '_blank'
                 );
-                INotification.dismiss(id);
+                void INotification.dismiss(id);
               }}
             />
           </InnerNotif>,
@@ -217,7 +217,7 @@ export class KiteAccessible extends ListModel {
                   'https://help.kite.com/article/143-how-to-install-the-jupyterlab-plugin#troubleshooting',
                   '_blank'
                 );
-                INotification.dismiss(id);
+                void INotification.dismiss(id);
               }}
             />
           </InnerNotif>,
@@ -249,7 +249,7 @@ export class KiteAccessible extends ListModel {
                   window.open(
                     'https://help.kite.com/article/143-how-to-install-the-jupyterlab-plugin#updating-the-plugin'
                   );
-                  INotification.dismiss(id);
+                  void INotification.dismiss(id);
                 }}
               />
             </InnerNotif>
@@ -308,7 +308,7 @@ export class KiteAccessible extends ListModel {
     };
     const connection = await this.connectionManager.connect(options);
     if (connection) {
-      connection.track('mixpanel', 'jupyterlab_incompatibility', {
+      void connection.track('mixpanel', 'jupyterlab_incompatibility', {
         type: 'jupyter-lab-lsp'
       });
     }

@@ -39,10 +39,11 @@ export namespace DocumentHighlightKind {
   export const Write = 3;
 }
 
-export function inverse_namespace(namespace: object): Record<number, string> {
+export function inverse_namespace(
+  namespace: Record<string, number>
+): Record<number, string> {
   const records: Record<number, string> = {};
   for (let key of Object.keys(namespace)) {
-    // @ts-ignore
     records[namespace[key]] = key;
   }
   return records;

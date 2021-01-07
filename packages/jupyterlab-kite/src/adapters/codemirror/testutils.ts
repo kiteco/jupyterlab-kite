@@ -202,7 +202,7 @@ export class NotebookFeatureTestEnvironment extends FeatureTestEnvironment {
 
 export function code_cell(
   source: string[] | string,
-  metadata: object = { trusted: false }
+  metadata: Record<string, unknown> = { trusted: false }
 ) {
   return {
     cell_type: 'code',

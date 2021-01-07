@@ -78,7 +78,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       connection_manager,
       language_server_manager
     );
-    ka.checkHealth();
+    ka.checkHealth().catch(e => console.log(e));
     const onboarding_manager = new KiteOnboarding(
       app,
       palette,
@@ -105,7 +105,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       if (adapter != null) {
         status_bar_item.model.adapter = adapter;
       }
-      onboarding_manager.showOnBoot();
+      onboarding_manager.showOnBoot().catch(e => console.log(e));
     });
 
     status_bar.registerStatusItem(

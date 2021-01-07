@@ -37,7 +37,7 @@ export class KiteOnboarding {
       options: {
         label: 'Kite: Tutorial',
         execute: () => {
-          this._show();
+          this._show().catch(e => console.log(e));
         }
       }
     };
@@ -51,9 +51,9 @@ export class KiteOnboarding {
   async showOnBoot() {
     const onboardingShown = await this.state.fetch(onboardingShownKey);
     if (!onboardingShown) {
-      this._show();
+      this._show().catch(e => console.log(e));
     }
-    this.state.save(onboardingShownKey, true);
+    this.state.save(onboardingShownKey, true).catch(e => console.log(e));
   }
 
   async _fetch(): Promise<string> {
