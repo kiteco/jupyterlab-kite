@@ -41,7 +41,7 @@ The [Kite Engine](https://kite.com/) needs to be installed in order for the exte
 If you're using **JupyterLab 3.0.x**, simply run:
 
 ```sh
-pip install "jupyter-kite>=2.0.2"
+pip install "jupyterlab-kite>=2.0.2"
 ```
 
 If you're using **JupyterLab 2.2.x**, run:
