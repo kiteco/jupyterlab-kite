@@ -1,5 +1,5 @@
 const func = require('@jupyterlab/testutils/lib/jest-config');
-const upstream = func('jupyterlab-lsp', __dirname);
+const upstream = func('jupyterlab-kite', __dirname);
 
 const reuseFromUpstream = [
   'moduleFileExtensions',

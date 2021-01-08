@@ -115,7 +115,6 @@ export abstract class FeatureTestEnvironment
       remove_tooltip: () => {
         // nothing yet
       },
-      jumper: null,
       isDisposed: false,
       dispose: () => {
         // nothing yet
@@ -203,7 +202,7 @@ export class NotebookFeatureTestEnvironment extends FeatureTestEnvironment {
 
 export function code_cell(
   source: string[] | string,
-  metadata: object = { trusted: false }
+  metadata: Record<string, unknown> = { trusted: false }
 ) {
   return {
     cell_type: 'code',

@@ -1,0 +1,5 @@
+{
+  "packageManager": "python",
+  "packageName": "jupyterlab_kite",
+  "uninstallInstructions": "Use your Python package manager to uninstall the package jupyterlab_kite"
+}

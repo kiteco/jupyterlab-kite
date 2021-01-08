@@ -119,3 +119,6 @@ coverage/
 _schema.d.ts
 _build
 .virtual_documents/
+
+# Built labextensions
+python_packages/jupyterlab_kite/jupyterlab_kite/labextensions/

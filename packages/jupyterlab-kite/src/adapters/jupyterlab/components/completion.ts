@@ -482,7 +482,7 @@ export class KiteConnector extends DataConnector<
     this._trigger_kind = kind;
   }
 
-  with_trigger_kind(kind: CompletionTriggerKind, fn: Function) {
+  with_trigger_kind(kind: CompletionTriggerKind, fn: () => any) {
     try {
       this.trigger_kind = kind;
       return fn();

@@ -1,27 +1,32 @@
 {
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
-    "bash-language-server": "^1.6.1",
+    "@typescript-eslint/eslint-plugin": "^4.8.1",
+    "@typescript-eslint/parser": "^4.8.1",
+    "bash-language-server": "^1.17.0",
+    "dictionary-en": "^3.0.0",
     "dockerfile-language-server-nodejs": "^0.0.22",
-    "eslint": "^5.16.0",
-    "eslint-config-prettier": "^4.1.0",
-    "eslint-plugin-prettier": "^3.0.1",
+    "eslint": "^7.14.0",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jest": "^24.1.3",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-react": "^7.21.5",
     "husky": "^3.0.9",
     "javascript-typescript-langserver": "^2.11.3",
+    "jest-github-actions-reporter": "^1.0.2",
     "lerna": "^3.13.2",
+    "npm-run-all": "^4.1.5",
     "precise-commits": "^1.0.2",
-    "prettier": "^1.19.1",
-    "tslint-config-prettier": "^1.18.0",
-    "tslint-plugin-prettier": "^2.0.1",
-    "tslint-react": "^4.0.0",
-    "tslint": "^5.15.0",
-    "typescript": "^4.0.0",
+    "prettier": "^2.1.2",
+    "sql-language-server": "^0.11.4",
+    "typescript": "~4.1.3",
     "unified-language-server": "^0.3.0",
     "vscode-css-languageserver-bin": "^1.4.0",
     "vscode-html-languageserver-bin": "^1.4.0",
     "vscode-json-languageserver-bin": "^1.0.1",
-    "yaml-language-server": "^0.4.0"
+    "yaml-language-server": "^0.12.0",
+    "vscode-json-languageservice": "^3.9.1 <3.10.0"
   },
   "husky": {
     "hooks": {
@@ -29,26 +34,29 @@
     }
   },
   "prettier": {
-    "singleQuote": true
+    "arrowParens": "avoid",
+    "singleQuote": true,
+    "trailingComma": "none"
   },
   "private": true,
   "scripts": {
     "bootstrap": "jlpm --no-optional --prefer-offline && lerna bootstrap && jlpm lint && jlpm clean && jlpm build",
-    "build": "jlpm build:schema && jlpm build:meta && jlpm build:ws",
+    "build": "jlpm build:schema && jlpm build:meta && jlpm build:ws && jlpm build:labextension",
     "build:schema": "lerna run build:schema --stream",
     "build:meta": "lerna run build --stream --scope @kiteco/jupyterlab-kite-metapackage",
+    "build:labextension": "lerna run build:labextension --stream",
+    "build:jupyterlab-kite": "lerna run build --stream --scope @kiteco/jupyterlab-kite",
     "build:ws": "lerna run build --stream --scope lsp-ws-connection",
     "watch": "lerna run --parallel watch",
     "bundle": "lerna run --parallel bundle",
     "clean": "lerna run --parallel clean",
-    "lab:link": "lerna run lab:link",
-    "lint:check": "jlpm prettier:check && jlpm tslint:check",
-    "lint": "jlpm prettier && jlpm tslint",
-    "prettier:check": "prettier --check '**/*{.ts,.tsx,.js,.jsx,.css,.json,.md,.yml}'",
-    "test": "lerna run --stream --concurrency=1 test",
-    "prettier": "prettier --write '**/*{.ts,.tsx,.js,.jsx,.css,.json,.md,.yml}'",
-    "tslint": "tslint --fix -c ./packages/tslint.json --project ./packages/tsconfigbase.json 'packages/**/*{.ts,.tsx}'",
-    "tslint:check": "tslint -c ./packages/tslint.json --project ./packages/tsconfigbase.json 'packages/**/*{.ts,.tsx}'"
+    "lint:check": "jlpm prettier:check && jlpm eslint:check",
+    "lint": "jlpm prettier && jlpm eslint",
+    "prettier:check": "prettier --check \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md,.yml}\"",
+    "prettier": "prettier --list-different --write \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md,.yml}\"",
+    "eslint": "eslint --config packages/.eslintrc.js --ext .js,.jsx,.ts,.tsx --fix packages",
+    "eslint:check": "eslint --config packages/.eslintrc.js --ext .js,.jsx,.ts,.tsx packages",
+    "test": "lerna run --stream --concurrency=1 test"
   },
   "workspaces": {
     "packages": [

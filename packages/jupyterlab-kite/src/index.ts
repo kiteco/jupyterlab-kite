@@ -17,8 +17,6 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { IStateDB } from '@jupyterlab/statedb';
 import { IStatusBar } from '@jupyterlab/statusbar';
-import { FileEditorJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/fileeditor';
-import { NotebookJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/notebook';
 import '../style/index.css';
 import { KiteStatus } from './adapters/jupyterlab/components/statusbar';
 import { KiteStatusModel } from './adapters/jupyterlab/components/status_model';
@@ -80,7 +78,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       connection_manager,
       language_server_manager
     );
-    ka.checkHealth();
+    ka.checkHealth().catch(e => console.log(e));
     const onboarding_manager = new KiteOnboarding(
       app,
       palette,
@@ -107,7 +105,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       if (adapter != null) {
         status_bar_item.model.adapter = adapter;
       }
-      onboarding_manager.showOnBoot();
+      onboarding_manager.showOnBoot().catch(e => console.log(e));
     });
 
     status_bar.registerStatusItem(
@@ -138,10 +136,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
       let fileEditor = widget.content;
 
       if (fileEditor.editor instanceof CodeMirrorEditor) {
-        let jumper = new FileEditorJumper(widget, documentManager);
         let adapter = new FileEditorAdapter(
           widget,
-          jumper,
           app,
           completion_manager,
           rendermime_registry,
@@ -173,10 +169,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     const connect_notebook = (widget: NotebookPanel) => {
       // NOTE: assuming that the default cells content factory produces CodeMirror editors(!)
-      let jumper = new NotebookJumper(widget, documentManager);
       let adapter = new NotebookAdapter(
         widget,
-        jumper,
         app,
         completion_manager,
         rendermime_registry,

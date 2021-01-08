@@ -21,7 +21,7 @@ export class KiteStatus extends VDomRenderer<KiteStatusModel> {
    */
   constructor(model: KiteStatusModel) {
     super(model);
-    model.refresh();
+    model.refresh().catch(e => console.log(e));
     this.addClass(item);
     this.addClass('kite-statusbar-item');
     this.title.caption = 'Kite Status';

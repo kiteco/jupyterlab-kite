@@ -1,14 +1,14 @@
 .--jp-kite-innernotif-title {
   margin-bottom: 0.5em;
-  font-size: 1.1em
+  font-size: 1.1em;
 }
 
 .--jp-kite-innernotif-body {
-  margin-bottom: 0.3em
+  margin-bottom: 0.3em;
 }
 
 .--jp-kite-innernotif-main-msg {
-  margin-bottom: 0.4em
+  margin-bottom: 0.4em;
 }
 
 .--jp-kite-innernotif-list {
@@ -20,7 +20,7 @@
   /* override existing jlab list margin */
   padding: 0;
   padding-left: 1em;
-  list-style-type: none
+  list-style-type: none;
 }
 
 .--jp-kite-innernotif-li {
@@ -54,5 +54,5 @@
 
 .--jp-kite-notifcontainer {
   width: 410px;
-  right: 7em
+  right: 7em;
 }

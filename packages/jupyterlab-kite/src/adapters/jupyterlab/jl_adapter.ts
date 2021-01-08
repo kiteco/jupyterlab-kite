@@ -5,7 +5,6 @@ import { Text } from '@jupyterlab/coreutils';
 import { DocumentRegistry, IDocumentWidget } from '@jupyterlab/docregistry';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IStateDB } from '@jupyterlab/statedb';
-import { CodeJumper } from '@krassowski/jupyterlab_go_to_definition/lib/jumpers/jumper';
 import { JSONObject } from '@lumino/coreutils';
 import { Signal } from '@lumino/signaling';
 import { Widget } from '@lumino/widgets';
@@ -46,7 +45,6 @@ export interface IJupyterLabComponentsManager {
     position: IEditorPosition
   ) => FreeTooltip;
   remove_tooltip: () => void;
-  jumper: CodeJumper;
   dispose(): void;
   isDisposed: boolean;
 }
@@ -101,7 +99,6 @@ const mime_type_language_map: JSONObject = {
  */
 export abstract class JupyterLabWidgetAdapter
   implements IJupyterLabComponentsManager {
-  jumper: CodeJumper;
   state: IStateDB;
   protected adapters: Map<VirtualDocument.id_path, CodeMirrorAdapter>;
   private readonly invoke_command: string;
@@ -540,10 +537,7 @@ export abstract class JupyterLabWidgetAdapter
 
   update_documents(_slot: any) {
     // update the virtual documents (sending the updates to LSP is out of scope here)
-    this.virtual_editor
-      .update_documents()
-      .then()
-      .catch(console.warn);
+    this.virtual_editor.update_documents().then().catch(console.warn);
   }
 
   get_position_from_context_menu(): IRootPosition {
@@ -555,6 +549,7 @@ export abstract class JupyterLabWidgetAdapter
 
     let { left, top } = leaf_node.getBoundingClientRect();
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     let event = this.app._contextMenuEvent;
 

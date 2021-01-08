@@ -15,12 +15,15 @@ export class KiteCompleter extends Completer {
   constructor(options: Completer.IOptions, stateDB: IStateDB) {
     super(options);
     state = stateDB;
-    state.fetch(hideDocsKey).then(value => {
-      if (value) {
-        console.log('[Kite] Stored Hide Docs State:', value);
-        shouldHideDocs = value as boolean;
-      }
-    });
+    state
+      .fetch(hideDocsKey)
+      .then(value => {
+        if (value) {
+          console.log('[Kite] Stored Hide Docs State:', value);
+          shouldHideDocs = value as boolean;
+        }
+      })
+      .catch(e => console.log(e));
   }
 
   onUpdateRequest(msg: Message) {
@@ -38,5 +41,5 @@ export class KiteCompleter extends Completer {
 
 export function toggle() {
   shouldHideDocs = !shouldHideDocs;
-  state.save(hideDocsKey, shouldHideDocs);
+  state.save(hideDocsKey, shouldHideDocs).catch(e => console.log(e));
 }

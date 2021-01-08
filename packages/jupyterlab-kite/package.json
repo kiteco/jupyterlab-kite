@@ -1,6 +1,6 @@
 {
   "name": "@kiteco/jupyterlab-kite",
-  "version": "1.2.0",
+  "version": "2.0.2",
   "description": "Kite integration for JupyterLab",
   "keywords": [
     "jupyter",
@@ -32,15 +32,29 @@
     "url": "https://github.com/kiteco/jupyterlab-kite.git"
   },
   "scripts": {
-    "build": "jlpm build:schema && tsc -b",
-    "build:schema": "json2ts ../../py_src/jupyter_kite/schema/schema.json --unreachableDefinitions | prettier --stdin-filepath _schema.d.ts > src/_schema.d.ts",
+    "build": "jlpm build:schema && jlpm run build:lib && jlpm run build:labextension",
+    "build:labextension": "jupyter labextension build .",
+    "build:labextension:dev": "jupyter labextension build --development True .",
+    "build:lib": "tsc",
+    "build:prod": "jlpm run build:lib && jlpm run build:labextension",
+    "build:schema": "jlpm build:schema-backend",
+    "build:schema-backend": "json2ts ../../python_packages/jupyter_kite/jupyter_kite/schema/schema.json --unreachableDefinitions | prettier --stdin-filepath _schema.d.ts > src/_schema.d.ts",
     "bundle": "npm pack .",
-    "clean": "rimraf lib",
-    "lab:link": "jupyter labextension link . --no-build",
-    "test": "jlpm jest --coverage --coverageReporters=cobertura --coverageReporters=html --coverageReporters=text-summary"
+    "clean": "jlpm run clean:lib",
+    "clean:all": "jlpm run clean:lib && jlpm run clean:labextension",
+    "clean:labextension": "rimraf labextension",
+    "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
+    "eslint": "eslint . --ext .ts,.tsx --fix",
+    "eslint:check": "eslint . --ext .ts,.tsx",
+    "install:extension": "jupyter labextension develop --overwrite .",
+    "prepare": "jlpm run clean && jlpm run build:prod",
+    "test": "jlpm jest --coverage --coverageReporters=cobertura --coverageReporters=html --coverageReporters=text-summary",
+    "watch": "run-p watch:src watch:labextension",
+    "watch:labextension": "jupyter labextension watch .",
+    "watch:src": "tsc -w"
   },
   "dependencies": {
-    "@krassowski/jupyterlab_go_to_definition": "~1.0.0",
+    "@jupyterlab/builder": "^3.0.0",
     "jupyterlab_toastify": "^4.1.2",
     "lsp-ws-connection": "~0.4.0",
     "semver": "^7.3.2"
@@ -109,12 +123,14 @@
     "discovery": {
       "server": {
         "base": {
-          "name": "jupyter-kite"
+          "name": "jupyterlab_kite"
         },
         "managers": [
           "pip"
         ]
       }
-    }
+    },
+    "schemaDir": "schema",
+    "outputDir": "../../python_packages/jupyterlab_kite/jupyterlab_kite/labextensions/@kiteco/jupyterlab-kite"
   }
 }
