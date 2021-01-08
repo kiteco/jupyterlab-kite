@@ -50,6 +50,7 @@ If you're using **JupyterLab 2.2.x**, run:
 pip install "jupyter-kite<2.0.0"
 jupyter labextension install "@kiteco/jupyterlab-kite"
 ```
+> ⚠️ JupyterLab 2.2.x requires [NodeJS](https://jupyterlab.readthedocs.io/en/stable/user/extensions.html#installing-nodejs) to be installed
 
 [Learn more about why you should use Kite with JupyterLab.](https://kite.com/integrations/jupyter/)
 
