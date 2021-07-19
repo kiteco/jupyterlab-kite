@@ -302,7 +302,7 @@ export namespace DocumentConnectionManager {
 
     return {
       base: baseUri,
-      document: URLExt.join(baseUri, virtual_document.uri),
+      document: URLExt.join(baseUri, virtual_document.uri).replace("://",":///").replace(":////", ":///"),
       server: URLExt.join('ws://jupyter-kite', language),
       socket: URLExt.join(
         wsBase,
