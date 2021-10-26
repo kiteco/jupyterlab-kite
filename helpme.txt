@@ -1,0 +1,2 @@
+Kite,
+I followed the instructions for installing kite, but the jupyter-kite isn't reachable and I need help of finding this thing!
